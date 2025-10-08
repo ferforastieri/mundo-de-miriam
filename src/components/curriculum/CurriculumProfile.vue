@@ -13,12 +13,20 @@
         <h1 class="curriculum-title">
           <TranslatableText text="Currículo" />
         </h1>
-        <button @click="downloadPDF" class="download-button" ref="downloadBtn">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-          </svg>
-          <span><TranslatableText text="Baixar PDF" /></span>
-        </button>
+        <div class="buttons-group">
+          <button @click="downloadPDF" class="download-button" ref="downloadBtn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+            </svg>
+            <span><TranslatableText text="Curriculo Moderno" /></span>
+          </button>
+          <button @click="downloadTraditionalPDF" class="download-traditional-button" ref="downloadTraditionalBtn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+            </svg>
+            <span><TranslatableText text="Currículo Tradicional" /></span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -328,6 +336,7 @@ export default {
     const router = useRouter()
     const curriculumContent = ref(null)
     const downloadBtn = ref(null)
+    const downloadTraditionalBtn = ref(null)
     
     const goBack = () => {
       router.push('/about')
@@ -390,12 +399,231 @@ export default {
         alert('Erro ao gerar PDF. Tente novamente.')
       }
     }
+
+    const downloadTraditionalPDF = async () => {
+      const originalText = downloadTraditionalBtn.value.innerHTML
+      let tempDiv = null
+      
+      try {
+        console.log('=== INICIANDO GERAÇÃO PDF TRADICIONAL ===')
+        
+        // Mostrar loading no botão
+        downloadTraditionalBtn.value.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="animate-spin">
+            <path d="M12 2v4m0 12v4m10-10h-4M6 12H2m15.364-6.364l-2.828 2.828M7.464 16.536l-2.828 2.828m12.728-12.728l-2.828-2.828M7.464 7.464L4.636 4.636"/>
+          </svg>
+          <span>Gerando...</span>
+        `
+        downloadTraditionalBtn.value.disabled = true
+
+        // Criar conteúdo HTML tradicional condensado
+        const traditionalContent = createTraditionalContent()
+        
+        // Criar overlay escuro para cobrir o currículo durante a geração
+        const overlay = document.createElement('div')
+        overlay.style.position = 'fixed'
+        overlay.style.top = '0'
+        overlay.style.left = '0'
+        overlay.style.width = '100%'
+        overlay.style.height = '100%'
+        overlay.style.background = 'rgba(0, 0, 0, 0.85)'
+        overlay.style.zIndex = '99999'
+        overlay.style.display = 'flex'
+        overlay.style.alignItems = 'center'
+        overlay.style.justifyContent = 'center'
+        overlay.style.color = 'white'
+        overlay.style.fontSize = '20px'
+        overlay.style.fontFamily = 'Arial, sans-serif'
+        overlay.innerHTML = '<div style="text-align: center;"><div style="font-size: 40px; margin-bottom: 10px;">⏳</div><div>Gerando PDF Tradicional...</div></div>'
+        document.body.appendChild(overlay)
+        
+        // Criar elemento temporário (atrás do overlay)
+        tempDiv = document.createElement('div')
+        tempDiv.innerHTML = traditionalContent
+        tempDiv.style.position = 'fixed'
+        tempDiv.style.top = '0'
+        tempDiv.style.left = '0'
+        tempDiv.style.width = '210mm' // A4 width
+        tempDiv.style.zIndex = '9998'
+        tempDiv.style.background = 'white'
+        tempDiv.style.visibility = 'visible'
+        tempDiv.style.opacity = '1'
+        document.body.appendChild(tempDiv)
+
+        // Aguardar renderização
+        await new Promise(resolve => setTimeout(resolve, 1000))
+
+        // Configurações do PDF - formato mais compacto para uma página
+        const opt = {
+          margin: [0.4, 0.5, 0.4, 0.5],
+          filename: 'curriculo-miriam-tradicional.pdf',
+          image: { type: 'jpeg', quality: 0.95 },
+          html2canvas: { 
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            logging: false,
+            backgroundColor: '#ffffff',
+            width: tempDiv.offsetWidth,
+            height: tempDiv.offsetHeight,
+            windowWidth: tempDiv.offsetWidth,
+            windowHeight: tempDiv.offsetHeight
+          },
+          jsPDF: { 
+            unit: 'in', 
+            format: 'a4', 
+            orientation: 'portrait',
+            compress: true
+          }
+        }
+
+        // Gerar PDF
+        await html2pdf().set(opt).from(tempDiv).save()
+        
+        // Remover elementos temporários
+        document.body.removeChild(tempDiv)
+        document.body.removeChild(overlay)
+        tempDiv = null
+
+        // Restaurar botão
+        downloadTraditionalBtn.value.innerHTML = originalText
+        downloadTraditionalBtn.value.disabled = false
+
+      } catch (error) {
+        console.error('Erro ao gerar PDF tradicional:', error)
+        
+        // Limpar elementos temporários
+        if (tempDiv && tempDiv.parentNode) {
+          document.body.removeChild(tempDiv)
+        }
+        const overlayElement = document.querySelector('[style*="z-index: 99999"]')
+        if (overlayElement && overlayElement.parentNode) {
+          document.body.removeChild(overlayElement)
+        }
+        
+        downloadTraditionalBtn.value.innerHTML = originalText
+        downloadTraditionalBtn.value.disabled = false
+        alert('Erro ao gerar PDF. Tente novamente.')
+      }
+    }
+
+    const createTraditionalContent = () => {
+      return `
+        <div style="font-family: Arial, sans-serif; width: 100%; margin: 0; padding: 20px 20px 20px 80px; font-size: 11pt; line-height: 1.3; color: #000; background: #fff; box-sizing: border-box;">
+          <div style="text-align: center; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 15px;">
+            <h1 style="margin: 0 0 5px 0; font-size: 18pt; font-weight: bold; color: #000;">MIRIAM ALVES FORASTIERI</h1>
+            <p style="margin: 3px 0; font-size: 11pt; font-weight: bold;">Vendas | Maquiagem | Atendimento ao Cliente</p>
+            <p style="margin: 3px 0; font-size: 10pt;">Sorocaba, São Paulo | (15) 92002-9139</p>
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <h2 style="font-size: 13pt; font-weight: bold; color: #000; margin: 0 0 5px 0; border-bottom: 1px solid #333; padding-bottom: 2px;">PERFIL PROFISSIONAL</h2>
+            <p style="margin: 0; text-align: justify; font-size: 10pt;">
+              Profissional com sólida experiência em vendas consultivas e atendimento ao cliente no setor de beleza e varejo. 
+              Habilidade em operação de loja, controle de estoque e gestão de caixa. Especializada em maquiagem profissional, 
+              com conhecimento em colorimetria e técnicas artísticas. Experiência adicional em fotografia e marketing digital. 
+              Proativa, organizada e com excelente relacionamento interpessoal.
+            </p>
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <h2 style="font-size: 13pt; font-weight: bold; color: #000; margin: 0 0 5px 0; border-bottom: 1px solid #333; padding-bottom: 2px;">HABILIDADES</h2>
+            <table style="width: 100%; font-size: 9pt; border-collapse: collapse;">
+              <tr>
+                <td style="padding: 5px; vertical-align: top; width: 25%;">
+                  <strong>Vendas:</strong> Vendas Consultivas, Operação de Caixa, Relacionamento
+                </td>
+                <td style="padding: 5px; vertical-align: top; width: 25%;">
+                  <strong>Atendimento:</strong> Atendimento ao Cliente, Organização, Estoque
+                </td>
+                <td style="padding: 5px; vertical-align: top; width: 25%;">
+                  <strong>Maquiagem:</strong> Artística, Beauty, Colorimetria
+                </td>
+                <td style="padding: 5px; vertical-align: top; width: 25%;">
+                  <strong>Fotografia:</strong> Fotografia Beauty, Edição, Marketing Digital
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <h2 style="font-size: 13pt; font-weight: bold; color: #000; margin: 0 0 5px 0; border-bottom: 1px solid #333; padding-bottom: 2px;">EXPERIÊNCIA PROFISSIONAL</h2>
+            
+            <div style="margin-bottom: 8px; font-size: 10pt;">
+              <p style="margin: 0;"><strong>Operador de Loja, Vendedora Setor Maquiagem</strong> | 2025</p>
+              <p style="margin: 0; font-style: italic;">Supermercado dos Cosméticos Princesa - Sorocaba, SP</p>
+              <p style="margin: 0;">• Consultoria especializada em maquiagem e vendas de produtos de beleza</p>
+              <p style="margin: 0;">• Operação de loja, controle de estoque e atendimento personalizado</p>
+            </div>
+
+            <div style="margin-bottom: 8px; font-size: 10pt;">
+              <p style="margin: 0;"><strong>Vendedora</strong> | 2024</p>
+              <p style="margin: 0; font-style: italic;">Mais Q Makeup - Betim, MG</p>
+              <p style="margin: 0;">• Vendas consultivas de produtos de maquiagem e demonstração de técnicas</p>
+            </div>
+
+            <div style="margin-bottom: 8px; font-size: 10pt;">
+              <p style="margin: 0;"><strong>Caixa e Operadora de Loja</strong> | 2024</p>
+              <p style="margin: 0; font-style: italic;">Shopping Partage Estripulia - Betim, MG</p>
+              <p style="margin: 0;">• Operação de caixa, controle de estoque e atendimento ao cliente</p>
+            </div>
+
+            <div style="margin-bottom: 8px; font-size: 10pt;">
+              <p style="margin: 0;"><strong>Cabeleireira e Maquiadora</strong> | 2020 - 2023</p>
+              <p style="margin: 0; font-style: italic;">Salão de beleza - Juatuba, MG</p>
+              <p style="margin: 0;">• Maquiagem profissional para eventos e ensaios fotográficos</p>
+              <p style="margin: 0;">• Fotografia, edição de imagens e marketing para redes sociais</p>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <h2 style="font-size: 13pt; font-weight: bold; color: #000; margin: 0 0 5px 0; border-bottom: 1px solid #333; padding-bottom: 2px;">FORMAÇÃO ACADÊMICA</h2>
+            <div style="font-size: 10pt;">
+              <p style="margin: 3px 0;"><strong>Curso Aviação Civil - Comissário de Bordo</strong> | 2020 - 2021</p>
+              <p style="margin: 3px 0;"><strong>Curso Fotografia e Marketing para Redes Sociais</strong> | 2018 - 2019</p>
+              <p style="margin: 3px 0;"><strong>Ensino Médio Completo</strong> | 2015 - 2018</p>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 10px;">
+            <h2 style="font-size: 13pt; font-weight: bold; color: #000; margin: 0 0 5px 0; border-bottom: 1px solid #333; padding-bottom: 2px;">CURSOS E ESPECIALIZAÇÕES</h2>
+            <div style="font-size: 9pt; line-height: 1.3;">
+              <p style="margin: 2px 0 0 0;"><strong>Masterclass Fotografia e Edição</strong> (Nathalia Teodoro, 2025)</p>
+              <p style="margin: 0 0 4px 0; font-style: italic; color: #333;">Fotografia profissional, edição digital e técnicas avançadas de pós-produção.</p>
+              
+              <p style="margin: 2px 0 0 0;"><strong>Segredos da Make LiftGlow</strong> (Luana Charamba, 2024)</p>
+              <p style="margin: 0 0 4px 0; font-style: italic; color: #333;">Técnicas de maquiagem com lifting facial e efeito glow.</p>
+              
+              <p style="margin: 2px 0 0 0;"><strong>Nível Social Make Atendimento</strong> (Carla Marinhos, 2024)</p>
+              <p style="margin: 0 0 4px 0; font-style: italic; color: #333;">Maquiagem para eventos sociais e atendimento profissional.</p>
+              
+              <p style="margin: 2px 0 0 0;"><strong>Maquiadora Nível Milionária</strong> (Carla Marinhos, 2022)</p>
+              <p style="margin: 0 0 4px 0; font-style: italic; color: #333;">Maquiagem profissional avançada e gestão de carreira.</p>
+              
+              <p style="margin: 2px 0 0 0;"><strong>Curso de Transformação De Maquiagem</strong> (Katiely Marques, 2022)</p>
+              <p style="margin: 0 0 4px 0; font-style: italic; color: #333;">Técnicas de transformação e correção facial através da maquiagem.</p>
+              
+              <p style="margin: 2px 0 0 0;"><strong>O Segredo Das Fotos De Maquiagem</strong> (Carla Marinhos, 2022)</p>
+              <p style="margin: 0 0 4px 0; font-style: italic; color: #333;">Fotografia especializada com técnicas de iluminação e composição.</p>
+              
+              <p style="margin: 2px 0 0 0;"><strong>Fotografia para Maquiadores</strong> (Nathalia Teodoro, 2021)</p>
+              <p style="margin: 0 0 4px 0; font-style: italic; color: #333;">Fotografia para maquiagem com captura de detalhes e iluminação beauty.</p>
+              
+              <p style="margin: 2px 0 0 0;"><strong>Colorimetria como Você Nunca Viu</strong> (Nathalia Teodoro, 2020)</p>
+              <p style="margin: 0 0 4px 0; font-style: italic; color: #333;">Teoria das cores aplicada à maquiagem e técnicas de correção de cor.</p>
+            </div>
+          </div>
+        </div>
+      `
+    }
     
     return {
       goBack,
       downloadPDF,
+      downloadTraditionalPDF,
       curriculumContent,
-      downloadBtn
+      downloadBtn,
+      downloadTraditionalBtn
     }
   }
 }
@@ -458,7 +686,14 @@ export default {
   letter-spacing: 2px;
 }
 
-.download-button {
+.buttons-group {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.download-button,
+.download-traditional-button {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -473,13 +708,24 @@ export default {
   transition: all 0.3s ease;
 }
 
+.download-traditional-button {
+  background: #2c5282;
+}
+
 .download-button:hover {
   background: #3d0;
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
-.download-button:disabled {
+.download-traditional-button:hover {
+  background: #1e3a5f;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.download-button:disabled,
+.download-traditional-button:disabled {
   opacity: 0.7;
   cursor: not-allowed;
   transform: none;
@@ -819,6 +1065,17 @@ export default {
     gap: 1rem;
   }
   
+  .buttons-group {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .download-button,
+  .download-traditional-button {
+    width: 100%;
+    justify-content: center;
+  }
+  
   .curriculum-title {
     font-size: 2rem;
   }
@@ -875,7 +1132,8 @@ export default {
   }
   
   .back-button,
-  .download-button {
+  .download-button,
+  .download-traditional-button {
     padding: 0.5rem 0.75rem;
     font-size: 0.8rem;
   }
