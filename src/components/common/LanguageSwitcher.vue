@@ -55,6 +55,7 @@ const changeLanguage = () => {
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  min-width: 120px;
 }
 
 .language-select:hover {
@@ -69,15 +70,56 @@ const changeLanguage = () => {
   box-shadow: 0 0 0 3px rgba(82, 0, 0, 0.2);
 }
 
-@media (max-width: 480px) {
+@media (max-width: 768px) {
   .language-switcher {
     top: 10px;
     right: 10px;
   }
   
   .language-select {
-    padding: 6px 10px;
+    padding: 6px 8px;
     font-size: 12px;
+    min-width: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .language-switcher {
+    top: 8px;
+    right: 8px;
+    left: auto;
+  }
+  
+  .language-select {
+    padding: 5px 6px;
+    font-size: 11px;
+    min-width: 90px;
+    border-width: 1.5px;
+  }
+}
+
+@media (max-width: 360px) {
+  .language-switcher {
+    top: 5px;
+    right: 5px;
+  }
+  
+  .language-select {
+    padding: 4px 5px;
+    font-size: 10px;
+    min-width: 80px;
+  }
+}
+
+@media (max-height: 600px) and (orientation: landscape) {
+  .language-switcher {
+    top: 5px;
+    right: 5px;
+  }
+  
+  .language-select {
+    padding: 4px 6px;
+    font-size: 11px;
   }
 }
 </style>
