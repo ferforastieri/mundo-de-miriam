@@ -4,8 +4,8 @@
   "description": "Portfólio Profissional de Maquiagem Artística, Beauty e Fotografia E-commerce",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#82734c",
-  "theme_color": "#82734c",
+  "background_color": "#520",
+  "theme_color": "#ffffff",
   "orientation": "portrait",
   "icons": [
     {
