@@ -112,14 +112,6 @@ O projeto utiliza a fonte Gilda Display do Google Fonts e um esquema de cores mi
 2. Modifique os componentes individuais para alterações específicas
 3. Ajuste as variáveis de cores e fontes conforme necessário
 
-## 📝 Licença
-
-Este projeto está sob a licença [sua licença aqui].
-
-## ✨ Autora
-
-Miriam Cleres Forastieri
-
 ---
 
 Desenvolvido com ❤️ e Vue.js
