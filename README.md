@@ -1,43 +1,54 @@
-# Portfólio Miriam Cleres Forastieri
+# Mundo de Miriam - Portfólio Profissional
 
-Um portfólio profissional elegante e moderno desenvolvido com Vue.js, apresentando trabalhos de modelo e criação de conteúdo UGC (User Generated Content).
+Um portfólio profissional elegante e moderno desenvolvido com Vue.js, apresentando trabalhos de maquiagem artística, beauty, fotografia e-commerce e parcerias.
 
 ## 🚀 Tecnologias Utilizadas
 
 - **Vue.js 3** - Framework JavaScript progressivo
 - **Vue Router** - Roteamento oficial do Vue.js
-- **Firebase** - Autenticação e gerenciamento de dados
+- **Vue I18n** - Sistema de internacionalização (i18n)
+- **HTML2PDF.js** - Geração de PDF do currículo
+- **HTML2Canvas** - Captura de tela para PDF
 - **Google Fonts (Gilda Display)** - Tipografia elegante
 - **CSS Moderno** - Animações, Flexbox e Grid
 - **Vite** - Build tool e servidor de desenvolvimento
 
 ## ✨ Características
 
-- Design minimalista em preto e branco
+- Design minimalista e elegante
 - Animações suaves e transições elegantes
-- Sistema de autenticação seguro
-- Área administrativa protegida
+- Sistema de internacionalização completo
+- Suporte para 6 idiomas: Português, Inglês, Espanhol, Francês, Japonês e Chinês
 - Layout totalmente responsivo
 - Interface intuitiva e moderna
-- Integração com Firebase
+- Geração de PDF do currículo profissional
+- Galerias de portfólio organizadas por categoria
 - Otimizado para performance
+
+## 🌍 Idiomas Suportados
+
+- 🇧🇷 Português (pt)
+- 🇺🇸 Inglês (en)
+- 🇪🇸 Espanhol (es)
+- 🇫🇷 Francês (fr)
+- 🇯🇵 Japonês (ja)
+- 🇨🇳 Chinês (zh)
 
 ## 📋 Pré-requisitos
 
 - Node.js (versão 14 ou superior)
 - NPM ou Yarn
-- Conta no Firebase (para autenticação)
 
 ## 🛠️ Instalação
 
 1. Clone o repositório:
 ```bash
-git clone [url-do-repositório]
+git clone https://github.com/ferforastieri/mundo-de-miriam.git
 ```
 
 2. Entre no diretório do projeto:
 ```bash
-cd portfolio-miriam
+cd mundo-de-miriam
 ```
 
 3. Instale as dependências:
@@ -45,17 +56,6 @@ cd portfolio-miriam
 npm install
 # ou
 yarn install
-```
-
-4. Configure as variáveis de ambiente:
-Crie um arquivo `.env` na raiz do projeto e adicione suas configurações do Firebase:
-```
-VITE_FIREBASE_API_KEY=sua_api_key
-VITE_FIREBASE_AUTH_DOMAIN=seu_auth_domain
-VITE_FIREBASE_PROJECT_ID=seu_project_id
-VITE_FIREBASE_STORAGE_BUCKET=seu_storage_bucket
-VITE_FIREBASE_MESSAGING_SENDER_ID=seu_messaging_sender_id
-VITE_FIREBASE_APP_ID=seu_app_id
 ```
 
 ## 🚀 Executando o Projeto
@@ -79,38 +79,78 @@ yarn preview
 ## 📱 Estrutura do Projeto
 
 ```
-portfolio-miriam/
+mundo-de-miriam/
 ├── public/
+│   ├── assets/
+│   │   ├── artisticstyle/    # Imagens do portfólio artístico
+│   │   ├── beautystyle/      # Imagens do portfólio beauty
+│   │   ├── e-commerce/       # Imagens de fotografia e-commerce
+│   │   ├── partnership/      # Imagens de parcerias
+│   │   └── profile/          # Imagens de perfil
 │   └── favicon.ico
 ├── src/
 │   ├── api/
-│   │   └── auth/
-│   │       └── AuthService.vue
+│   │   ├── dashboard/        # Serviços de dashboard
+│   │   ├── storage/          # Serviços de armazenamento
+│   │   └── translation/     # Serviços de tradução
 │   ├── components/
-│   │   └── LoginForm.vue
-│   ├── views/
-│   │   └── Home.vue
+│   │   ├── about/           # Componentes da página sobre
+│   │   ├── common/          # Componentes comuns (TranslatableText, LanguageSwitcher, etc)
+│   │   ├── curriculum/     # Componentes do currículo
+│   │   ├── home/           # Componentes da home
+│   │   └── portfolio/      # Componentes dos portfólios
+│   ├── layouts/            # Layouts das páginas
+│   ├── locales/             # Arquivos de tradução (pt, en, es, fr, ja, zh)
+│   ├── router/             # Configuração de rotas
+│   ├── views/              # Views principais
+│   ├── App.vue
+│   ├── i18n.js             # Configuração do i18n
 │   ├── main.js
 │   └── style.css
-└── index.html
+├── index.html
+├── package.json
+├── vite.config.js
+└── vercel.json
 ```
 
-## 🔒 Autenticação
+## 📄 Páginas do Site
 
-O projeto utiliza Firebase Authentication para gerenciar o acesso à área administrativa. O sistema inclui:
+- **Home** - Página inicial com apresentação e navegação
+- **Sobre Mim** - História e paixão pela arte da maquiagem
+- **Currículo** - Experiência profissional completa com download em PDF
+- **Portfólio Artístico** - Galeria de trabalhos de maquiagem artística
+- **Portfólio Beauty** - Galeria de trabalhos de maquiagem beauty
+- **Fotografia E-commerce** - Galeria de fotografias para produtos
+- **Parcerias** - Trabalhos em parceria com marcas
 
-- Login seguro com email/senha
-- Proteção de rotas administrativas
-- Gerenciamento de estado de autenticação
-- Feedback visual para o usuário
+## 🎨 Personalização
 
-## 💅 Personalização
-
-O projeto utiliza a fonte Gilda Display do Google Fonts e um esquema de cores minimalista em preto e branco. Para modificar o estilo:
+O projeto utiliza a fonte Gilda Display do Google Fonts e um esquema de cores minimalista. Para modificar o estilo:
 
 1. Edite `src/style.css` para alterações globais
 2. Modifique os componentes individuais para alterações específicas
 3. Ajuste as variáveis de cores e fontes conforme necessário
+
+## 🌐 Internacionalização
+
+O projeto utiliza `vue-i18n` para gerenciar traduções. Os arquivos de tradução estão localizados em `src/locales/`:
+
+- `pt.json` - Português
+- `en.json` - Inglês
+- `es.json` - Espanhol
+- `fr.json` - Francês
+- `ja.json` - Japonês
+- `zh.json` - Chinês
+
+Para adicionar novas traduções, edite os arquivos JSON correspondentes e use o componente `TranslatableText` ou a função `t()` do `useI18n()`.
+
+## 📦 Deploy
+
+O projeto está configurado para deploy na Vercel. O arquivo `vercel.json` contém as configurações necessárias.
+
+## 📝 Licença
+
+Este projeto é privado e pertence a Miriam Cleres Forastieri.
 
 ---
 

@@ -1,0 +1,36 @@
+{
+  "name": "Mundo de Miriam",
+  "short_name": "Mundo de Miriam",
+  "description": "Portfólio Profissional de Maquiagem Artística, Beauty e Fotografia E-commerce",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#82734c",
+  "theme_color": "#82734c",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
