@@ -7,7 +7,7 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
             <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
           </svg>
-          <span>Voltar</span>
+          <span><TranslatableText text="Voltar" /></span>
         </button>
         
         <div class="header-content">
@@ -22,13 +22,13 @@
 
       <!-- Portfolio Gallery -->
       <div v-if="beautyImages.length === 0" class="loading">
-        Carregando imagens...
+        <TranslatableText text="Carregando imagens..." />
       </div>
       <PortfolioGallery v-else :images="beautyImages" />
       
       <!-- Debug -->
       <div v-if="beautyImages.length > 0" class="debug-info">
-        {{ beautyImages.length }} imagens carregadas
+        {{ beautyImages.length }} <TranslatableText text="imagens carregadas" />
       </div>
     </div>
   </PortfolioLayout>
@@ -68,7 +68,6 @@ export default {
   },
   methods: {
     async loadBeautyImages() {
-      // Carrega todas as imagens da pasta beauty style
       const imageCount = 17
       const images = []
       
@@ -81,12 +80,7 @@ export default {
         }
         
         this.beautyImages = images
-        console.log('Beauty images loaded:', this.beautyImages.length)
-        if (this.beautyImages.length > 0) {
-          console.log('First image URL:', this.beautyImages[0]?.src)
-        }
       } catch (error) {
-        console.error('Error loading images:', error)
       }
     }
   }
@@ -184,7 +178,6 @@ export default {
   }
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .portfolio-title {
     font-size: 2rem;

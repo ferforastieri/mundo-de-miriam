@@ -42,13 +42,13 @@
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"/>
               </svg>
-              Meu Portfolio
+              <TranslatableText text="Meu Portfolio" />
             </a>
             <a href="https://instagram.com/mihforastieri" target="_blank" rel="noopener noreferrer" class="instagram-link">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
               </svg>
-              Instagram
+              <TranslatableText text="Instagram" />
             </a>
             <a href="https://wa.me/5515920029139" target="_blank" class="whatsapp-link">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -66,7 +66,7 @@
 
       <!-- About Section -->
       <div class="section">
-        <h3 class="section-title">Sobre</h3>
+        <h3 class="section-title"><TranslatableText text="Sobre" /></h3>
         <div class="section-content">
           <p>
             Maquiadora profissional especializada em maquiagem artística, beauty e fotografia e-commerce. Experiência em vendas, atendimento ao cliente e operações de loja.
@@ -79,10 +79,10 @@
 
       <!-- Skills Section -->
       <div class="section">
-        <h3 class="section-title">Habilidades</h3>
+        <h3 class="section-title"><TranslatableText text="Habilidades" /></h3>
         <div class="skills-content">
           <div class="skill-category">
-            <h4>Maquiagem</h4>
+            <h4><TranslatableText text="Maquiagem" /></h4>
             <ul>
               <li>Maquiagem Artística</li>
               <li>Beauty Makeup</li>
@@ -90,7 +90,7 @@
             </ul>
           </div>
           <div class="skill-category">
-            <h4>Vendas e Operações</h4>
+            <h4><TranslatableText text="Vendas e Operações" /></h4>
             <ul>
               <li>Vendas Consultivas</li>
               <li>Operação de Caixa</li>
@@ -98,7 +98,7 @@
             </ul>
           </div>
           <div class="skill-category">
-            <h4>Fotografia</h4>
+            <h4><TranslatableText text="Fotografia" /></h4>
             <ul>
               <li>Fotografia Beauty</li>
               <li>Marketing Digital</li>
@@ -109,7 +109,7 @@
 
       <!-- Education Section -->
       <div class="section">
-        <h3 class="section-title">Educação</h3>
+        <h3 class="section-title"><TranslatableText text="Educação" /></h3>
         <div class="education-content">
           <div class="education-item">
             <div class="education-header">
@@ -137,7 +137,7 @@
 
       <!-- Specializations Section -->
       <div class="section">
-        <h3 class="section-title">Especializações</h3>
+        <h3 class="section-title"><TranslatableText text="Especializações" /></h3>
         <div class="education-content">
           <div class="education-item">
             <div class="education-header">
@@ -251,7 +251,7 @@
 
       <!-- Experience Section -->
       <div class="section">
-        <h3 class="section-title">Experiência</h3>
+        <h3 class="section-title"><TranslatableText text="Experiência" /></h3>
         <div class="experience-content">
           <div class="experience-item">
             <div class="experience-header">
@@ -324,6 +324,7 @@
 <script>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { TranslatableText } from '../common'
 import html2pdf from 'html2pdf.js'
 
@@ -334,6 +335,7 @@ export default {
   },
   setup() {
     const router = useRouter()
+    const { t } = useI18n()
     const curriculumContent = ref(null)
     const downloadBtn = ref(null)
     const downloadTraditionalBtn = ref(null)
@@ -344,19 +346,17 @@ export default {
 
     const downloadPDF = async () => {
       try {
-        // Mostrar loading no botão
         const originalText = downloadBtn.value.innerHTML
         downloadBtn.value.innerHTML = `
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="animate-spin">
             <path d="M12 2v4m0 12v4m10-10h-4M6 12H2m15.364-6.364l-2.828 2.828M7.464 16.536l-2.828 2.828m12.728-12.728l-2.828-2.828M7.464 7.464L4.636 4.636"/>
           </svg>
-          <span>Gerando PDF...</span>
+          <span>${t('Gerando PDF...')}</span>
         `
         downloadBtn.value.disabled = true
 
-        // Configurações do PDF
         const opt = {
-          margin: [0.3, 0.3, 0.3, 0.3], // Top, Left, Bottom, Right
+          margin: [0.3, 0.3, 0.3, 0.3],
           filename: 'curriculo-miriam.pdf',
           image: { type: 'jpeg', quality: 0.98 },
           html2canvas: { 
@@ -379,24 +379,19 @@ export default {
           }
         }
 
-        // Aplicar estilos específicos para o PDF
         curriculumContent.value.classList.add('pdf-export')
         
-        // Gerar PDF mantendo os links clicáveis
         await html2pdf().set(opt).from(curriculumContent.value).save()
         
-        // Remover classe após exportação
         curriculumContent.value.classList.remove('pdf-export')
 
-        // Restaurar botão
         downloadBtn.value.innerHTML = originalText
         downloadBtn.value.disabled = false
 
       } catch (error) {
-        console.error('Erro ao gerar PDF:', error)
         downloadBtn.value.innerHTML = originalText
         downloadBtn.value.disabled = false
-        alert('Erro ao gerar PDF. Tente novamente.')
+        alert(t('Erro ao gerar PDF. Tente novamente.'))
       }
     }
 
@@ -405,21 +400,16 @@ export default {
       let tempDiv = null
       
       try {
-        console.log('=== INICIANDO GERAÇÃO PDF TRADICIONAL ===')
-        
-        // Mostrar loading no botão
         downloadTraditionalBtn.value.innerHTML = `
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="animate-spin">
             <path d="M12 2v4m0 12v4m10-10h-4M6 12H2m15.364-6.364l-2.828 2.828M7.464 16.536l-2.828 2.828m12.728-12.728l-2.828-2.828M7.464 7.464L4.636 4.636"/>
           </svg>
-          <span>Gerando...</span>
+          <span>${t('Gerando...')}</span>
         `
         downloadTraditionalBtn.value.disabled = true
 
-        // Criar conteúdo HTML tradicional condensado
         const traditionalContent = createTraditionalContent()
         
-        // Criar overlay escuro para cobrir o currículo durante a geração
         const overlay = document.createElement('div')
         overlay.style.position = 'fixed'
         overlay.style.top = '0'
@@ -434,26 +424,23 @@ export default {
         overlay.style.color = 'white'
         overlay.style.fontSize = '20px'
         overlay.style.fontFamily = 'Arial, sans-serif'
-        overlay.innerHTML = '<div style="text-align: center;"><div style="font-size: 40px; margin-bottom: 10px;">⏳</div><div>Gerando PDF Tradicional...</div></div>'
+        overlay.innerHTML = `<div style="text-align: center;"><div style="font-size: 40px; margin-bottom: 10px;">⏳</div><div>${t('Gerando PDF Tradicional...')}</div></div>`
         document.body.appendChild(overlay)
         
-        // Criar elemento temporário (atrás do overlay)
         tempDiv = document.createElement('div')
         tempDiv.innerHTML = traditionalContent
         tempDiv.style.position = 'fixed'
         tempDiv.style.top = '0'
         tempDiv.style.left = '0'
-        tempDiv.style.width = '210mm' // A4 width
+        tempDiv.style.width = '210mm'
         tempDiv.style.zIndex = '9998'
         tempDiv.style.background = 'white'
         tempDiv.style.visibility = 'visible'
         tempDiv.style.opacity = '1'
         document.body.appendChild(tempDiv)
 
-        // Aguardar renderização
         await new Promise(resolve => setTimeout(resolve, 1000))
 
-        // Configurações do PDF - formato mais compacto para uma página
         const opt = {
           margin: [0.4, 0.5, 0.4, 0.5],
           filename: 'curriculo-miriam-tradicional.pdf',
@@ -477,22 +464,16 @@ export default {
           }
         }
 
-        // Gerar PDF
         await html2pdf().set(opt).from(tempDiv).save()
         
-        // Remover elementos temporários
         document.body.removeChild(tempDiv)
         document.body.removeChild(overlay)
         tempDiv = null
 
-        // Restaurar botão
         downloadTraditionalBtn.value.innerHTML = originalText
         downloadTraditionalBtn.value.disabled = false
 
       } catch (error) {
-        console.error('Erro ao gerar PDF tradicional:', error)
-        
-        // Limpar elementos temporários
         if (tempDiv && tempDiv.parentNode) {
           document.body.removeChild(tempDiv)
         }
@@ -503,7 +484,7 @@ export default {
         
         downloadTraditionalBtn.value.innerHTML = originalText
         downloadTraditionalBtn.value.disabled = false
-        alert('Erro ao gerar PDF. Tente novamente.')
+        alert(t('Erro ao gerar PDF. Tente novamente.'))
       }
     }
 
@@ -816,7 +797,6 @@ export default {
   border: 4px solid #520;
 }
 
-/* Estilos específicos para PDF */
 .pdf-export .profile-image img {
   width: 120px !important;
   height: 120px !important;
@@ -835,7 +815,6 @@ export default {
   padding: 1rem !important;
 }
 
-/* Controle de quebras de página para PDF */
 .pdf-export .section {
   page-break-inside: avoid;
   margin-bottom: 1.5rem;
@@ -857,7 +836,6 @@ export default {
   visibility: visible !important;
 }
 
-/* Layout consistente para PDF - independente do dispositivo */
 .pdf-export {
   width: 100% !important;
   max-width: 100% !important;
@@ -1051,7 +1029,6 @@ export default {
   animation: spin 1s linear infinite;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .curriculum-header {
     flex-direction: column;
@@ -1103,7 +1080,6 @@ export default {
     padding: 1.5rem;
   }
   
-  /* Links empilhados no mobile - exceto no PDF */
   .profile-info .website {
     display: flex !important;
     flex-direction: column !important;
@@ -1140,7 +1116,6 @@ export default {
   
 }
 
-/* Estilos para impressão - mostra links reais */
 @media print {
   .portfolio-link::after {
     content: " (https://mundodemiriam.vercel.app/)";

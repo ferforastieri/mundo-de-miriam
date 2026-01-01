@@ -7,7 +7,7 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
             <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
           </svg>
-          <span>Voltar</span>
+          <span><TranslatableText text="Voltar" /></span>
         </button>
         
         <div class="header-content">
@@ -22,13 +22,13 @@
 
       <!-- Portfolio Gallery -->
       <div v-if="artisticImages.length === 0" class="loading">
-        Carregando arte...
+        <TranslatableText text="Carregando arte..." />
       </div>
       <PortfolioGallery v-else :images="artisticImages" />
       
       <!-- Debug -->
       <div v-if="artisticImages.length > 0" class="debug-info">
-        {{ artisticImages.length }} obras carregadas
+        {{ artisticImages.length }} <TranslatableText text="obras carregadas" />
       </div>
     </div>
   </PortfolioLayout>
@@ -68,13 +68,11 @@ export default {
   },
   methods: {
     async loadArtisticImages() {
-      // Carrega todas as imagens da pasta artisticstyle
       const imageCount = 21
       const images = []
       
       try {
         for (let i = 1; i <= imageCount; i++) {
-          // Tenta diferentes caminhos possíveis
           images.push({
             src: `/assets/artisticstyle/ArtisticStyle${i}.jpeg`,
             alt: `Artistic Style ${i}`
@@ -82,12 +80,7 @@ export default {
         }
         
         this.artisticImages = images
-        console.log('Artistic images loaded:', this.artisticImages.length)
-        if (this.artisticImages.length > 0) {
-          console.log('First image URL:', this.artisticImages[0]?.src)
-        }
       } catch (error) {
-        console.error('Error loading images:', error)
       }
     }
   }
@@ -184,7 +177,6 @@ export default {
   }
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .portfolio-title {
     font-size: 2rem;

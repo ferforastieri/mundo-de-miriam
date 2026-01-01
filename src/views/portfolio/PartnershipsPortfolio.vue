@@ -7,7 +7,7 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
             <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
           </svg>
-          <span>Voltar</span>
+          <span><TranslatableText text="Voltar" /></span>
         </button>
         
         <div class="header-content">
@@ -22,7 +22,7 @@
 
       <!-- Partnerships Gallery -->
       <div v-if="partnerships.length === 0" class="loading">
-        Carregando parcerias...
+        <TranslatableText text="Carregando parcerias..." />
       </div>
       <PartnershipsGallery 
         v-else 
@@ -99,7 +99,6 @@ export default {
           for (let i = 1; i <= partnership.count; i++) {
             let fileName = `${partnership.folder}${i}`
             
-            // Correção para freshlady que tem nome diferente
             if (partnership.folder === 'freshlady') {
               fileName = `freashlady${i}`
             }
@@ -121,20 +120,16 @@ export default {
         }
         
         this.partnerships = partnerships
-        console.log('Partnerships loaded:', this.partnerships.length)
       } catch (error) {
-        console.error('Error loading partnerships:', error)
       }
     },
     togglePartnership(index) {
-      // Fecha todas as outras parcerias
       this.partnerships.forEach((partnership, i) => {
         if (i !== index) {
           partnership.isExpanded = false
         }
       })
       
-      // Toggle da parceria clicada
       this.partnerships[index].isExpanded = !this.partnerships[index].isExpanded
     }
   }
@@ -331,7 +326,6 @@ export default {
   object-fit: cover;
 }
 
-/* Modal Styles */
 .modal {
   position: fixed;
   top: 0;
@@ -441,7 +435,6 @@ export default {
   }
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .partnerships-grid {
     grid-template-columns: 1fr;

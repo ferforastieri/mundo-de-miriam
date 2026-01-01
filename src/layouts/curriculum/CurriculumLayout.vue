@@ -7,7 +7,6 @@
 </template>
 
 <script setup>
-// Layout específico para a página de currículo
 </script>
 
 <style scoped>

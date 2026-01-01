@@ -1,5 +1,4 @@
 <script setup>
-// O router-view vai gerenciar qual componente mostrar
 </script>
 
 <template>

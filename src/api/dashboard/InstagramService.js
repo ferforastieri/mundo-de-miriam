@@ -8,7 +8,6 @@ class InstagramService {
 
   async initialize(accessToken) {
     this.accessToken = accessToken
-    // Obter o user ID do Instagram
     const response = await fetch(`${this.baseUrl}/me?fields=id,username&access_token=${this.accessToken}`)
     const data = await response.json()
     this.userId = data.id
@@ -52,26 +51,20 @@ class InstagramService {
     return (averageEngagement / followerCount) * 100
   }
 
-  // Método para autenticar com o Instagram
   async authenticate() {
-    // Aqui você implementará o fluxo de autenticação OAuth do Instagram
-    // Por enquanto, retornando um token mockado
     return 'mock_access_token'
   }
 
-  // Verifica se está autenticado
   isAuthenticated() {
     return !!(this.accessToken && this.userId)
   }
 
-  // Limpa os dados de autenticação
   clearAuth() {
     this.accessToken = null
     this.userId = null
   }
 }
 
-// Instância singleton
 const instagramService = new InstagramService()
 
 export default instagramService

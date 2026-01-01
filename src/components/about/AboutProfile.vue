@@ -362,7 +362,6 @@ export default {
   }
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .about-title {
     font-size: 2rem;

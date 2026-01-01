@@ -7,7 +7,7 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
             <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
           </svg>
-          <span>Voltar</span>
+          <span><TranslatableText text="Voltar" /></span>
         </button>
         
         <div class="header-content">
@@ -22,13 +22,13 @@
 
       <!-- Portfolio Gallery -->
       <div v-if="ecommerceImages.length === 0" class="loading">
-        Carregando fotos...
+        <TranslatableText text="Carregando fotos..." />
       </div>
       <PortfolioGallery v-else :images="ecommerceImages" />
       
       <!-- Debug -->
       <div v-if="ecommerceImages.length > 0" class="debug-info">
-        {{ ecommerceImages.length }} fotos carregadas
+        {{ ecommerceImages.length }} <TranslatableText text="fotos carregadas" />
       </div>
     </div>
   </PortfolioLayout>
@@ -68,7 +68,6 @@ export default {
   },
   methods: {
     async loadEcommerceImages() {
-      // Carrega todas as imagens da pasta e-commerce (7 fotos)
       const imageCount = 7
       const images = []
       
@@ -81,12 +80,7 @@ export default {
         }
         
         this.ecommerceImages = images
-        console.log('E-commerce images loaded:', this.ecommerceImages.length)
-        if (this.ecommerceImages.length > 0) {
-          console.log('First image URL:', this.ecommerceImages[0]?.src)
-        }
       } catch (error) {
-        console.error('Error loading images:', error)
       }
     }
   }
@@ -183,7 +177,6 @@ export default {
   }
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .portfolio-title {
     font-size: 2rem;

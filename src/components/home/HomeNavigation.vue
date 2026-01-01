@@ -71,7 +71,6 @@ export default {
   animation: slideUp 0.5s ease 0.2s backwards;
 }
 
-/* Estilos removidos - agora usando CustomButton */
 
 @keyframes slideUp {
   from {
@@ -84,5 +83,4 @@ export default {
   }
 }
 
-/* Responsividade agora gerenciada pelo CustomButton */
 </style> 

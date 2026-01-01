@@ -18,23 +18,21 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import translationService from '../../api/translation/TranslationService.js'
 
+const { locale } = useI18n()
 const selectedLanguage = ref('pt')
 const supportedLanguages = ref([])
 
-// Carrega idiomas suportados
 onMounted(() => {
   supportedLanguages.value = translationService.getSupportedLanguages()
-  selectedLanguage.value = translationService.getCurrentLanguage()
+  selectedLanguage.value = locale.value
 })
 
-// Função para mudar idioma
 const changeLanguage = () => {
-  // Marca como escolha manual do usuário
   translationService.setLanguage(selectedLanguage.value, true)
-  
-  // Não precisa recarregar a página - os componentes reagem automaticamente
+  locale.value = selectedLanguage.value
 }
 </script>
 

@@ -105,7 +105,6 @@ export default {
   },
   methods: {
     togglePartnership(index) {
-      // Emite evento para o componente pai
       this.$emit('toggle-partnership', index)
     },
     openModal(images, index) {
@@ -258,7 +257,6 @@ export default {
   object-fit: cover;
 }
 
-/* Modal Styles */
 .modal {
   position: fixed;
   top: 0;
@@ -357,7 +355,6 @@ export default {
   font-size: 1.1rem;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .partnerships-gallery {
     grid-template-columns: 1fr;

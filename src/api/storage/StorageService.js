@@ -1,9 +1,8 @@
 class StorageService {
   constructor() {
-    this.baseUrl = 'https://api.example.com' // Substitua pela sua API real
+    this.baseUrl = 'https://api.example.com'
   }
 
-  // Upload de arquivo
   async uploadFile(file, path = 'uploads/') {
     try {
       const formData = new FormData()
@@ -26,7 +25,6 @@ class StorageService {
         filename: result.filename
       }
     } catch (error) {
-      console.error('Erro no upload:', error)
       return {
         success: false,
         error: error.message
@@ -34,7 +32,6 @@ class StorageService {
     }
   }
 
-  // Deletar arquivo
   async deleteFile(fileUrl) {
     try {
       const response = await fetch(`${this.baseUrl}/delete`, {
@@ -53,7 +50,6 @@ class StorageService {
         success: true
       }
     } catch (error) {
-      console.error('Erro ao deletar arquivo:', error)
       return {
         success: false,
         error: error.message
@@ -61,7 +57,6 @@ class StorageService {
     }
   }
 
-  // Listar arquivos
   async listFiles(path = 'uploads/') {
     try {
       const response = await fetch(`${this.baseUrl}/list?path=${path}`)
@@ -76,7 +71,6 @@ class StorageService {
         files
       }
     } catch (error) {
-      console.error('Erro ao listar arquivos:', error)
       return {
         success: false,
         error: error.message,
@@ -85,7 +79,6 @@ class StorageService {
     }
   }
 
-  // Mock para desenvolvimento - simula upload local
   async uploadFileMock(file, path = 'uploads/') {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -95,11 +88,10 @@ class StorageService {
           url: mockUrl,
           filename: file.name
         })
-      }, 1000) // Simula delay de upload
+      }, 1000)
     })
   }
 
-  // Mock para desenvolvimento - simula delete
   async deleteFileMock(fileUrl) {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -112,7 +104,6 @@ class StorageService {
   }
 }
 
-// Instância singleton
 const storageService = new StorageService()
 
 export default storageService

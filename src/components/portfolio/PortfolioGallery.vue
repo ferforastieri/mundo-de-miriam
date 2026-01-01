@@ -152,7 +152,6 @@ export default {
   opacity: 1;
 }
 
-/* Modal Styles */
 .modal {
   position: fixed;
   top: 0;
@@ -251,7 +250,6 @@ export default {
   font-size: 1.1rem;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .portfolio-gallery {
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));

@@ -138,9 +138,7 @@ export default {
   letter-spacing: 2px;
 }
 
-/* Estilo removido - agora usando subtitle-inline */
 
-/* Estilos para informações de contato */
 .contact-info {
   margin: 0.5rem 0;
   display: flex;
@@ -212,7 +210,6 @@ export default {
   transform: scale(1.1) rotate(5deg);
 }
 
-/* Estilos removidos - agora usando CustomButton */
 
 @media (max-width: 480px) {
   .services-section {
@@ -266,6 +263,5 @@ export default {
     font-size: 0.9rem;
   }
 
-  /* Responsividade agora gerenciada pelo CustomButton */
 }
 </style> 

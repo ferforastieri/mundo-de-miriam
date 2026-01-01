@@ -17,7 +17,6 @@
 import { computed } from 'vue'
 
 const props = defineProps({
-  // Conteúdo
   text: {
     type: String,
     default: ''
@@ -27,7 +26,6 @@ const props = defineProps({
     default: ''
   },
   
-  // Comportamento
   type: {
     type: String,
     default: 'button',
@@ -42,7 +40,6 @@ const props = defineProps({
     default: false
   },
   
-  // Variantes de estilo
   variant: {
     type: String,
     default: 'primary',
@@ -54,7 +51,6 @@ const props = defineProps({
     validator: (value) => ['small', 'medium', 'large'].includes(value)
   },
   
-  // Estilo
   fullWidth: {
     type: Boolean,
     default: false
@@ -109,7 +105,6 @@ const buttonClasses = computed(() => {
   outline: none;
 }
 
-/* Tamanhos */
 .custom-button--small {
   padding: 8px 16px;
   font-size: 14px;
@@ -128,12 +123,10 @@ const buttonClasses = computed(() => {
   letter-spacing: 2px;
 }
 
-/* Largura */
 .custom-button--full-width {
   width: 100%;
 }
 
-/* Bordas */
 .custom-button--rounded {
   border-radius: 8px;
 }
@@ -142,7 +135,6 @@ const buttonClasses = computed(() => {
   border-radius: 4px;
 }
 
-/* Variantes */
 .custom-button--primary {
   background-color: #520;
   color: white;
@@ -218,7 +210,6 @@ const buttonClasses = computed(() => {
   transform: translateY(-2px);
 }
 
-/* Estados */
 .custom-button--disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -234,7 +225,6 @@ const buttonClasses = computed(() => {
   opacity: 0.7;
 }
 
-/* Loading spinner */
 .loading-spinner {
   width: 16px;
   height: 16px;
@@ -249,18 +239,15 @@ const buttonClasses = computed(() => {
   100% { transform: rotate(360deg); }
 }
 
-/* Ícone */
 .button-icon {
   font-size: 1.1em;
 }
 
-/* Foco */
 .custom-button:focus-visible {
   outline: 2px solid #520;
   outline-offset: 2px;
 }
 
-/* Responsividade */
 @media (max-width: 480px) {
   .custom-button--small {
     padding: 6px 12px;
