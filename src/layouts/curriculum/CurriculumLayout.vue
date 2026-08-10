@@ -2,11 +2,13 @@
   <div class="curriculum-layout">
     <div class="layout-container">
       <slot />
+      <SiteFooter />
     </div>
   </div>
 </template>
 
 <script setup>
+import { SiteFooter } from '../../components/common'
 </script>
 
 <style scoped>

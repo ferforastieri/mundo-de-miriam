@@ -1,17 +1,21 @@
 <template>
   <div class="about-layout">
     <LanguageSwitcher />
-    <slot></slot>
+    <div class="layout-content">
+      <slot></slot>
+      <SiteFooter />
+    </div>
   </div>
 </template>
 
 <script>
-import { LanguageSwitcher } from '../../components/common'
+import { LanguageSwitcher, SiteFooter } from '../../components/common'
 
 export default {
   name: 'AboutLayout',
   components: {
-    LanguageSwitcher
+    LanguageSwitcher,
+    SiteFooter
   }
 }
 </script>
@@ -30,6 +34,13 @@ export default {
   right: 0;
   bottom: 0;
   overflow-y: auto;
+}
+
+.layout-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
 }
 
 @media (max-width: 480px) {
