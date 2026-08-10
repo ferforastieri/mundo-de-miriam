@@ -2,6 +2,7 @@
 import { useRouter } from 'vue-router'
 import HomeLayout from '@/layouts/HomeLayout.vue'
 import HomeProfile from '@/components/home/HomeProfile.vue'
+import InstagramStats from '@/components/home/InstagramStats.vue'
 import HomeNavigation from '@/components/home/HomeNavigation.vue'
 import ServicesSection from '@/components/home/ServicesSection.vue'
 
@@ -12,6 +13,7 @@ const router = useRouter()
   <HomeLayout>
     <div class="profile-section">
       <HomeProfile />
+      <InstagramStats />
       <HomeNavigation />
       <ServicesSection />
     </div>
@@ -76,4 +78,4 @@ const router = useRouter()
     transform: translateY(0);
   }
 }
-</style> 
+</style>

@@ -68,7 +68,7 @@ export default {
   },
   methods: {
     async loadArtisticImages() {
-      const imageCount = 21
+      const imageCount = 24
       const images = []
       
       try {

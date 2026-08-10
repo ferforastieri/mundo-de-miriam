@@ -68,7 +68,7 @@ export default {
   },
   methods: {
     async loadEcommerceImages() {
-      const imageCount = 7
+      const imageCount = 10
       const images = []
       
       try {

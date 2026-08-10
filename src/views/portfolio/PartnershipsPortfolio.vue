@@ -69,9 +69,19 @@ export default {
     async loadPartnerships() {
       const partnershipsData = [
         {
+          name: 'Chocolashes',
+          folder: 'chocolashes',
+          count: 2
+        },
+        {
           name: 'Fresh Lady',
           folder: 'freshlady',
           count: 7
+        },
+        {
+          name: 'Gliben',
+          folder: 'gliben',
+          count: 2
         },
         {
           name: 'Icoice',
