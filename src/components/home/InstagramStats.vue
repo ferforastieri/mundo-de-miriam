@@ -1,11 +1,21 @@
 <template>
   <section class="instagram-stats" aria-labelledby="instagram-stats-title">
     <header class="stats-header">
-      <div>
-        <p class="eyebrow">@mihforastieri</p>
-        <h2 id="instagram-stats-title">
-          <TranslatableText text="Instagram em números" />
-        </h2>
+      <div class="instagram-brand">
+        <span class="instagram-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.8" />
+            <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.8" />
+            <circle cx="17.4" cy="6.7" r="1.1" fill="currentColor" />
+          </svg>
+        </span>
+
+        <div>
+          <p class="eyebrow">@mihforastieri</p>
+          <h2 id="instagram-stats-title">
+            <TranslatableText text="Instagram em números" />
+          </h2>
+        </div>
       </div>
 
       <a
@@ -90,8 +100,8 @@ export default {
 
 <style scoped>
 .instagram-stats {
-  margin: 0 0 3rem;
-  padding: 1.5rem;
+  margin: 0 0 2rem;
+  padding: 1.1rem 1.25rem;
   color: #552200;
   background: #fff;
   border: 1px solid rgba(85, 34, 0, 0.16);
@@ -103,21 +113,46 @@ export default {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 1.5rem;
-  padding-bottom: 1rem;
+  gap: 1rem;
+  padding-bottom: 0.8rem;
   border-bottom: 1px solid rgba(85, 34, 0, 0.22);
 }
 
+.instagram-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.instagram-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: #fff;
+  background: #552200;
+  border-radius: 10px;
+  box-shadow: 0 5px 12px rgba(85, 34, 0, 0.2);
+}
+
+.instagram-icon svg {
+  width: 23px;
+  height: 23px;
+}
+
 .eyebrow {
-  margin: 0 0 0.35rem;
-  font-size: 0.72rem;
+  margin: 0 0 0.2rem;
+  font-size: 0.66rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
 }
 
 h2 {
   margin: 0;
-  font-size: 1.55rem;
+  font-size: 1.25rem;
   font-weight: normal;
   letter-spacing: 0.04em;
 }
@@ -126,9 +161,9 @@ h2 {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.45rem 0;
+  padding: 0.3rem 0;
   color: #552200;
-  font-size: 0.82rem;
+  font-size: 0.76rem;
   letter-spacing: 0.08em;
   text-decoration: none;
   border-bottom: 1px solid currentColor;
@@ -146,12 +181,12 @@ h2 {
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  padding: 1.25rem 0 1rem;
+  padding: 0.9rem 0 0.75rem;
 }
 
 .stat-item {
   min-width: 0;
-  padding: 0 0.85rem;
+  padding: 0 0.7rem;
   border-left: 1px solid rgba(85, 34, 0, 0.16);
 }
 
@@ -162,7 +197,7 @@ h2 {
 
 .stat-item strong {
   display: block;
-  font-size: clamp(1.35rem, 4vw, 2rem);
+  font-size: clamp(1.25rem, 3.5vw, 1.7rem);
   font-weight: normal;
   line-height: 1;
   letter-spacing: -0.03em;
@@ -170,9 +205,9 @@ h2 {
 
 .stat-item span {
   display: block;
-  margin-top: 0.55rem;
+  margin-top: 0.4rem;
   color: #765b4c;
-  font-size: 0.68rem;
+  font-size: 0.64rem;
   line-height: 1.25;
   letter-spacing: 0.06em;
 }
@@ -180,7 +215,7 @@ h2 {
 .stats-note {
   margin: 0;
   color: #8b7569;
-  font-size: 0.7rem;
+  font-size: 0.66rem;
   line-height: 1.45;
 }
 
@@ -197,7 +232,7 @@ h2 {
 
 @media (max-width: 560px) {
   .instagram-stats {
-    padding: 1.25rem;
+    padding: 1rem;
   }
 
   .stats-header {
@@ -206,7 +241,7 @@ h2 {
 
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
-    row-gap: 1.25rem;
+    row-gap: 1rem;
   }
 
   .stat-item:nth-child(3) {
