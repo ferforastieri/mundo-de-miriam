@@ -13,7 +13,7 @@ import AboutProfile from '@/components/about/AboutProfile.vue'
 
 <style scoped>
 .about-container {
-  max-width: 800px;
+  max-width: 1200px;
   width: 100%;
   animation: fadeIn 0.8s ease;
 }

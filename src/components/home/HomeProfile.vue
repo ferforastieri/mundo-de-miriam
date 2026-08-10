@@ -28,7 +28,7 @@ export default {
 
 <style scoped>
 .profile-section {
-  max-width: 600px;
+  max-width: 1200px;
   width: 100%;
   animation: fadeIn 0.8s ease;
 }

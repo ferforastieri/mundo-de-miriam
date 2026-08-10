@@ -23,7 +23,7 @@ import { SiteFooter } from '../../components/common'
 
 .layout-container {
   width: 100%;
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 

@@ -122,7 +122,7 @@ export default {
 
 <style scoped>
 .about-profile {
-  max-width: 800px;
+  max-width: 1200px;
   width: 100%;
   animation: fadeIn 0.8s ease;
 }
@@ -134,6 +134,9 @@ export default {
   padding: 2rem;
   margin-bottom: 2rem;
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
 }
 
 .back-button {
@@ -149,7 +152,7 @@ export default {
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-bottom: 1.5rem;
+  flex: 0 0 auto;
 }
 
 .back-button:hover {
@@ -159,7 +162,9 @@ export default {
 }
 
 .header-content {
+  flex: 1;
   text-align: center;
+  padding-right: 7rem;
 }
 
 .about-title {
@@ -363,6 +368,14 @@ export default {
 }
 
 @media (max-width: 768px) {
+  .about-header {
+    gap: 0.75rem;
+  }
+
+  .header-content {
+    padding-right: 5rem;
+  }
+
   .about-title {
     font-size: 2rem;
   }
@@ -386,6 +399,11 @@ export default {
 }
 
 @media (max-width: 480px) {
+  .header-content {
+    padding-right: 0;
+    text-align: left;
+  }
+
   .about-title {
     font-size: 1.5rem;
   }

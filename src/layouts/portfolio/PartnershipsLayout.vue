@@ -39,6 +39,8 @@ export default {
   flex-direction: column;
   align-items: center;
   width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 @media (max-width: 480px) {

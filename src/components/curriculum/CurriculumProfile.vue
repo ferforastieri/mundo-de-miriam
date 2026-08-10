@@ -1031,13 +1031,15 @@ export default {
 
 @media (max-width: 768px) {
   .curriculum-header {
-    flex-direction: column;
-    align-items: stretch;
-    text-align: center;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    text-align: left;
   }
   
   .header-content {
-    justify-content: center;
+    justify-content: flex-start;
+    align-items: stretch;
     flex-direction: column;
     gap: 1rem;
   }
