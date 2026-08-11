@@ -15,7 +15,7 @@ import { SiteFooter } from '../../components/common'
 .curriculum-layout {
   min-height: 100vh;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  padding: 2rem;
+  padding: 2rem 2rem 0;
   display: flex;
   align-items: flex-start;
   justify-content: center;

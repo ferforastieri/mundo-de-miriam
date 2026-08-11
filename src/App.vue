@@ -4,6 +4,7 @@ import LanguageSwitcher from './components/common/LanguageSwitcher.vue'
 import NavigationDrawer from './components/common/NavigationDrawer.vue'
 
 const isDark = ref(false)
+const isDrawerOpen = ref(window.matchMedia('(min-width: 769px)').matches)
 
 const applyTheme = (dark) => {
   isDark.value = dark
@@ -19,10 +20,13 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="app">
+  <div
+    class="app"
+    :style="{ '--desktop-drawer-offset': isDrawerOpen ? 'var(--desktop-drawer-width)' : '0px' }"
+  >
     <header class="site-header">
       <div class="site-header__left">
-        <NavigationDrawer />
+        <NavigationDrawer @update:open="isDrawerOpen = $event" />
       </div>
       <RouterLink to="/" class="site-logo" aria-label="Página inicial">
         <img src="/apple-touch-icon.png" alt="Mundo de Miriam" />
@@ -110,6 +114,16 @@ onMounted(() => {
 
 .site-page {
   padding-top: calc(68px + env(safe-area-inset-top));
+}
+
+@media (min-width: 769px) {
+  .app {
+    padding-left: var(--desktop-drawer-offset);
+  }
+
+  .site-header {
+    left: var(--desktop-drawer-offset);
+  }
 }
 
 @media (max-width: 480px) {

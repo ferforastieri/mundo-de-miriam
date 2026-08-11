@@ -21,14 +21,14 @@ export default {
 <style scoped>
 .portfolio-layout {
   min-height: 100vh;
-  min-width: 100vw;
+  min-width: 0;
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
   display: flex;
   justify-content: center;
-  padding: 20px;
+  padding: 20px 20px 0;
   position: fixed;
   top: calc(68px + env(safe-area-inset-top));
-  left: 0;
+  left: var(--desktop-drawer-offset);
   right: 0;
   bottom: 0;
   overflow-y: auto;
@@ -45,7 +45,15 @@ export default {
 
 @media (max-width: 480px) {
   .portfolio-layout {
+    left: 0;
     padding: 10px;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .portfolio-layout {
+    left: 0;
+    padding-bottom: 20px;
   }
 }
 </style>
