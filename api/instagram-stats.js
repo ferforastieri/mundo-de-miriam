@@ -1,5 +1,9 @@
 const INSTAGRAM_USERNAME = 'mihforastieri'
 const INSTAGRAM_APP_ID = '936619743392459'
+// Fifteen minutes keeps the public counter fresh while protecting the
+// unauthenticated Instagram endpoint from a request per page view.
+const CACHE_SECONDS = 15 * 60
+const STALE_SECONDS = 24 * 60 * 60
 const FALLBACK_STATS = {
   followers: 3139,
   posts: 157,
@@ -55,7 +59,7 @@ export default async function handler(request, response) {
       return total + likes + comments
     }, 0)
 
-    response.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate=86400')
+    setCacheHeaders(response, CACHE_SECONDS)
     return response.status(200).json({
       followers: profile.edge_followed_by?.count || 0,
       posts: profile.edge_owner_to_timeline_media?.count || 0,
@@ -65,7 +69,15 @@ export default async function handler(request, response) {
       updatedAt: new Date().toISOString()
     })
   } catch (error) {
-    response.setHeader('Cache-Control', 's-maxage=900, stale-while-revalidate=86400')
+    // Keep a stale value available when Instagram temporarily throttles or
+    // changes its public response, instead of making clients retry at once.
+    setCacheHeaders(response, CACHE_SECONDS)
     return response.status(200).json(FALLBACK_STATS)
   }
+}
+
+function setCacheHeaders(response, maxAge) {
+  const cacheControl = `public, max-age=0, s-maxage=${maxAge}, stale-while-revalidate=${STALE_SECONDS}`
+  response.setHeader('Cache-Control', cacheControl)
+  response.setHeader('CDN-Cache-Control', cacheControl)
 }
