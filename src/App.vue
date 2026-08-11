@@ -72,6 +72,10 @@ onMounted(() => {
   gap: 8px;
 }
 
+.site-header__right > * {
+  flex: 0 0 42px;
+}
+
 .header-icon-button {
   display: grid;
   width: 42px;
