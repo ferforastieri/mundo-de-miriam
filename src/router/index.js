@@ -6,6 +6,7 @@ import BeautyPortfolio from '../views/portfolio/BeautyPortfolio.vue'
 import ArtisticPortfolio from '../views/portfolio/ArtisticPortfolio.vue'
 import PartnershipsPortfolio from '../views/portfolio/PartnershipsPortfolio.vue'
 import EcommercePortfolio from '../views/portfolio/EcommercePortfolio.vue'
+import { applySeo } from '../seo'
 
 const routes = [
   {
@@ -53,4 +54,8 @@ const router = createRouter({
   }
 })
 
-export default router 
+router.afterEach((to) => {
+  applySeo(to.path)
+})
+
+export default router

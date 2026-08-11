@@ -4,6 +4,30 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
+      "source": "/about",
+      "destination": "/about/index.html"
+    },
+    {
+      "source": "/curriculum",
+      "destination": "/curriculum/index.html"
+    },
+    {
+      "source": "/beauty-portfolio",
+      "destination": "/beauty-portfolio/index.html"
+    },
+    {
+      "source": "/artistic-portfolio",
+      "destination": "/artistic-portfolio/index.html"
+    },
+    {
+      "source": "/ecommerce",
+      "destination": "/ecommerce/index.html"
+    },
+    {
+      "source": "/partnerships",
+      "destination": "/partnerships/index.html"
+    },
+    {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
     }

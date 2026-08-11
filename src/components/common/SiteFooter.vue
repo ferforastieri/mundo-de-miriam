@@ -78,7 +78,7 @@ export default {
 .site-footer {
   width: 100%;
   max-width: 1200px;
-  margin: 4rem auto 0;
+  margin: 0 auto;
   color: #fff;
   background: #552200;
   box-shadow: 0 16px 38px rgba(85, 34, 0, 0.16);
@@ -194,7 +194,7 @@ export default {
 
 @media (max-width: 600px) {
   .site-footer {
-    margin-top: 2.75rem;
+    margin-top: 0;
   }
 
   .footer-main {
