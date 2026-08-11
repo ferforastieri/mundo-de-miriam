@@ -10,7 +10,7 @@
       <span></span><span></span><span></span>
     </button>
 
-    <div v-if="isOpen" class="drawer-backdrop" @click="close"></div>
+    <div v-if="isOpen && !isDesktop" class="drawer-backdrop" @click="close"></div>
 
     <aside
       class="navigation-drawer"
@@ -18,12 +18,12 @@
       aria-label="Navegação principal"
     >
       <header class="drawer-header">
-        <RouterLink to="/" class="drawer-brand" @click="close">Mundo de Miriam</RouterLink>
+        <RouterLink to="/" class="drawer-brand" @click="closeOnNavigation">Mundo de Miriam</RouterLink>
         <button class="drawer-close" type="button" aria-label="Fechar navegação" @click="close">×</button>
       </header>
 
       <nav class="drawer-links">
-        <RouterLink v-for="item in links" :key="item.to" :to="item.to" @click="close">
+        <RouterLink v-for="item in links" :key="item.to" :to="item.to" @click="closeOnNavigation">
           <span>{{ item.label }}</span>
         </RouterLink>
       </nav>
@@ -46,10 +46,12 @@
 </template>
 
 <script setup>
-import { onBeforeUnmount, ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import LanguageSwitcher from './LanguageSwitcher.vue'
 
-const isOpen = ref(false)
+const desktopMedia = window.matchMedia('(min-width: 769px)')
+const isDesktop = ref(desktopMedia.matches)
+const isOpen = ref(isDesktop.value)
 const links = [
   { to: '/', label: 'Início' },
   { to: '/about', label: 'Sobre mim' },
@@ -62,6 +64,14 @@ const links = [
 
 const open = () => { isOpen.value = true }
 const close = () => { isOpen.value = false }
+const closeOnNavigation = () => {
+  if (!isDesktop.value) close()
+}
+
+const handleViewportChange = (event) => {
+  isDesktop.value = event.matches
+  isOpen.value = event.matches
+}
 
 let overflowBeforeDrawer
 const setPageScrollLocked = (locked) => {
@@ -82,8 +92,16 @@ const setPageScrollLocked = (locked) => {
   overflowBeforeDrawer = undefined
 }
 
-watch(isOpen, setPageScrollLocked)
+watch([isOpen, isDesktop], ([open, desktop]) => {
+  setPageScrollLocked(open && !desktop)
+})
+
+onMounted(() => {
+  desktopMedia.addEventListener('change', handleViewportChange)
+})
+
 onBeforeUnmount(() => {
+  desktopMedia.removeEventListener('change', handleViewportChange)
   setPageScrollLocked(false)
 })
 </script>

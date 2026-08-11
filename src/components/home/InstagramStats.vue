@@ -42,67 +42,46 @@
   </section>
 </template>
 
-<script>
+<script setup>
+import { computed } from 'vue'
+import { useQuery } from '@tanstack/vue-query'
 import { TranslatableText } from '../common'
 
-const fallbackStats = {
-  followers: 3139,
-  posts: 157,
-  recentViews: 13838,
-  recentInteractions: 1653
-}
+const CACHE_TIME = 15 * 60 * 1000
 
-export default {
-  name: 'InstagramStats',
-  components: {
-    TranslatableText
-  },
-  data() {
-    return {
-      stats: fallbackStats,
-      refreshTimer: null
-    }
-  },
-  computed: {
-    metrics() {
-      return [
-        { label: 'Seguidores', value: this.stats.followers },
-        { label: 'Publicações', value: this.stats.posts },
-        { label: 'Visualizações recentes', value: this.stats.recentViews },
-        { label: 'Interações recentes', value: this.stats.recentInteractions }
-      ]
-    }
-  },
-  mounted() {
-    this.loadStats()
+const { data: stats } = useQuery({
+  queryKey: ['instagram-stats'],
+  queryFn: async () => {
+    const response = await fetch('/api/instagram-stats', {
+      headers: { Accept: 'application/json' }
+    })
 
-    this.refreshTimer = window.setInterval(this.loadStats, 5 * 60 * 1000)
-  },
-  beforeUnmount() {
-    window.clearInterval(this.refreshTimer)
-  },
-  methods: {
-    async loadStats() {
-      try {
-        const response = await fetch('/api/instagram-stats', {
-          headers: { Accept: 'application/json' }
-        })
-        if (!response.ok) return
-
-        const stats = await response.json()
-        if (stats.followers > 0) {
-          this.stats = stats
-        }
-      } catch (error) {
-      }
-    },
-    formatNumber(value) {
-      return new Intl.NumberFormat('pt-BR', {
-        notation: value >= 10000 ? 'compact' : 'standard',
-        maximumFractionDigits: 1
-      }).format(value)
+    if (!response.ok) {
+      throw new Error('Não foi possível atualizar o Instagram')
     }
-  }
+
+    return response.json()
+  },
+  staleTime: CACHE_TIME,
+  gcTime: CACHE_TIME * 2,
+  refetchInterval: CACHE_TIME,
+  retry: 1
+})
+
+const metrics = computed(() => [
+  { label: 'Seguidores', value: stats.value?.followers },
+  { label: 'Publicações', value: stats.value?.posts },
+  { label: 'Visualizações recentes', value: stats.value?.recentViews },
+  { label: 'Interações recentes', value: stats.value?.recentInteractions }
+])
+
+function formatNumber(value) {
+  if (!Number.isFinite(value)) return '—'
+
+  return new Intl.NumberFormat('pt-BR', {
+    notation: value >= 10000 ? 'compact' : 'standard',
+    maximumFractionDigits: 1
+  }).format(value)
 }
 </script>
 

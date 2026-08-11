@@ -85,6 +85,15 @@ export default {
   box-sizing: border-box;
 }
 
+@media (min-width: 769px) {
+  .site-footer {
+    width: 100vw;
+    max-width: none;
+    margin-right: calc(50% - 50vw);
+    margin-left: calc(50% - 50vw);
+  }
+}
+
 .footer-main {
   display: flex;
   align-items: center;

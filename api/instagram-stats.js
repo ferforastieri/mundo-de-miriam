@@ -1,18 +1,6 @@
-const INSTAGRAM_USERNAME = 'mihforastieri'
-const INSTAGRAM_APP_ID = '936619743392459'
-// Five minutes keeps the public counter fresh while protecting the
-// unauthenticated Instagram endpoint from a request per page view.
-const CACHE_SECONDS = 5 * 60
-const STALE_SECONDS = 60 * 60
-const FALLBACK_STATS = {
-  followers: 3139,
-  posts: 157,
-  recentViews: 13838,
-  recentInteractions: 1653,
-  recentItems: 11,
-  updatedAt: '2026-08-10T00:00:00.000Z',
-  cached: true
-}
+const GRAPH_API_VERSION = 'v23.0'
+const INSTAGRAM_USER_ID = '17841464226067946'
+const CACHE_SECONDS = 15 * 60
 
 export default async function handler(request, response) {
   if (request.method !== 'GET') {
@@ -20,64 +8,84 @@ export default async function handler(request, response) {
     return response.status(405).json({ error: 'Método não permitido' })
   }
 
+  const accessToken = process.env.INSTAGRAM_ACCESS_TOKEN
+
   try {
-    const instagramResponse = await fetch(
-      `https://www.instagram.com/api/v1/users/web_profile_info/?username=${INSTAGRAM_USERNAME}`,
-      {
-        headers: {
-          'X-IG-App-ID': INSTAGRAM_APP_ID,
-          'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/124 Safari/537.36',
-          Accept: 'application/json'
-        }
-      }
-    )
+    const [profile, mediaPayload] = await Promise.all([
+      graphRequest(INSTAGRAM_USER_ID, {
+        fields: 'followers_count,media_count',
+        access_token: accessToken
+      }),
+      graphRequest(`${INSTAGRAM_USER_ID}/media`, {
+        fields: 'id,media_type,like_count,comments_count',
+        limit: '12',
+        access_token: accessToken
+      })
+    ])
 
-    if (!instagramResponse.ok) {
-      throw new Error(`Instagram respondeu com status ${instagramResponse.status}`)
-    }
-
-    const payload = await instagramResponse.json()
-    const profile = payload?.data?.user
-
-    if (!profile) {
-      throw new Error('Perfil do Instagram não encontrado')
-    }
-
-    const recentMedia = [
-      ...new Map(
-        (profile.edge_owner_to_timeline_media?.edges || []).map(({ node }) => [node.shortcode, node])
-      ).values()
-    ]
-
-    const recentViews = recentMedia.reduce(
-      (total, media) => total + (media.video_view_count || 0),
+    const recentMedia = mediaPayload.data
+    const recentInteractions = recentMedia.reduce(
+      (total, media) => total + (media.like_count || 0) + (media.comments_count || 0),
       0
     )
-    const recentInteractions = recentMedia.reduce((total, media) => {
-      const likes = media.edge_liked_by?.count ?? media.edge_media_preview_like?.count ?? 0
-      const comments = media.edge_media_to_comment?.count ?? 0
-      return total + likes + comments
-    }, 0)
+    const recentViews = await getRecentViews(recentMedia, accessToken)
 
-    setCacheHeaders(response, CACHE_SECONDS)
+    setCacheHeaders(response)
     return response.status(200).json({
-      followers: profile.edge_followed_by?.count || 0,
-      posts: profile.edge_owner_to_timeline_media?.count || 0,
+      followers: profile.followers_count,
+      posts: profile.media_count,
       recentViews,
       recentInteractions,
       recentItems: recentMedia.length,
       updatedAt: new Date().toISOString()
     })
   } catch (error) {
-    // Keep a stale value available when Instagram temporarily throttles or
-    // changes its public response, instead of making clients retry at once.
-    setCacheHeaders(response, CACHE_SECONDS)
-    return response.status(200).json(FALLBACK_STATS)
+    console.error('Falha ao atualizar estatísticas do Instagram:', error.message)
+    setNoStoreHeaders(response)
+    return response.status(502).json({ error: 'Não foi possível atualizar o Instagram' })
   }
 }
 
-function setCacheHeaders(response, maxAge) {
-  const cacheControl = `public, max-age=0, s-maxage=${maxAge}, stale-while-revalidate=${STALE_SECONDS}`
-  response.setHeader('Cache-Control', cacheControl)
-  response.setHeader('CDN-Cache-Control', cacheControl)
+async function getRecentViews(mediaItems, accessToken) {
+  const viewCounts = await Promise.all(
+    mediaItems.map(async (media) => {
+      const insights = await graphRequest(`${media.id}/insights`, {
+        metric: 'views',
+        access_token: accessToken
+      })
+      return insights.data.find((metric) => metric.name === 'views').values[0].value
+    })
+  )
+
+  return viewCounts.reduce((total, views) => total + views, 0)
+}
+
+async function graphRequest(path, query) {
+  const url = new URL(`https://graph.instagram.com/${GRAPH_API_VERSION}/${path}`)
+  Object.entries(query).forEach(([key, value]) => url.searchParams.set(key, value))
+
+  const graphResponse = await fetch(url, {
+    headers: { Accept: 'application/json' }
+  })
+  const payload = await graphResponse.json()
+
+  if (!graphResponse.ok || payload.error) {
+    const message = payload.error?.message || `Meta Graph API respondeu com status ${graphResponse.status}`
+    throw new Error(message)
+  }
+
+  return payload
+}
+
+function setCacheHeaders(response) {
+  response.setHeader('Cache-Control', 'public, max-age=0, must-revalidate')
+  response.setHeader(
+    'Vercel-CDN-Cache-Control',
+    `public, s-maxage=${CACHE_SECONDS}`
+  )
+}
+
+function setNoStoreHeaders(response) {
+  response.setHeader('Cache-Control', 'no-store')
+  response.setHeader('Vercel-CDN-Cache-Control', 'no-store')
 }
