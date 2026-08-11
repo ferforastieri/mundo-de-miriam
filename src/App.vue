@@ -16,7 +16,9 @@ const applyTheme = (dark) => {
 const toggleTheme = () => applyTheme(!isDark.value)
 
 onMounted(() => {
-  applyTheme(false)
+  const savedTheme = localStorage.getItem('themePreference')
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+  applyTheme(savedTheme ? savedTheme === 'dark' : prefersDark)
 })
 </script>
 
@@ -27,7 +29,11 @@ onMounted(() => {
   >
     <header class="site-header">
       <div class="site-header__left">
-        <NavigationDrawer @update:open="isDrawerOpen = $event" />
+        <NavigationDrawer
+          :is-dark="isDark"
+          @toggle-theme="toggleTheme"
+          @update:open="isDrawerOpen = $event"
+        />
       </div>
       <RouterLink to="/" class="site-logo" aria-label="Página inicial">
         <img src="/apple-touch-icon.png" alt="Mundo de Miriam" />

@@ -116,7 +116,8 @@ export default {
 }
 
 .about-header {
-  background: white;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 16px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
   padding: 2rem;
@@ -131,11 +132,11 @@ export default {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: #f8f9fa;
+  background: var(--surface-muted);
   border: none;
   border-radius: 8px;
   padding: 0.75rem 1rem;
-  color: #520;
+  color: var(--primary);
   font-family: 'Gilda Display', serif;
   font-size: 0.9rem;
   cursor: pointer;
@@ -144,8 +145,8 @@ export default {
 }
 
 .back-button:hover {
-  background: #520;
-  color: white;
+  background: var(--primary);
+  color: var(--on-primary);
   transform: translateY(-2px);
 }
 
@@ -158,7 +159,7 @@ export default {
 .about-title {
   font-family: 'Gilda Display', serif;
   font-size: 2.5rem;
-  color: #520;
+  color: var(--primary);
   margin: 0 0 0.5rem 0;
   font-weight: normal;
   letter-spacing: 2px;
@@ -167,14 +168,15 @@ export default {
 .about-subtitle {
   font-family: 'Gilda Display', serif;
   font-size: 1.2rem;
-  color: #666;
+  color: var(--muted);
   margin: 0;
   font-style: italic;
   letter-spacing: 1px;
 }
 
 .profile-section {
-  background: white;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 16px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
   padding: 2rem;
@@ -193,7 +195,7 @@ export default {
   height: 200px;
   border-radius: 50%;
   object-fit: cover;
-  border: 4px solid #520;
+  border: 4px solid var(--primary);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
@@ -204,7 +206,7 @@ export default {
 .profile-name {
   font-family: 'Gilda Display', serif;
   font-size: 2.2rem;
-  color: #520;
+  color: var(--primary);
   margin: 0 0 0.5rem 0;
   font-weight: normal;
   letter-spacing: 1px;
@@ -213,7 +215,7 @@ export default {
 .profile-title {
   font-family: 'Gilda Display', serif;
   font-size: 1.1rem;
-  color: #666;
+  color: var(--muted);
   margin: 0 0 2rem 0;
   font-style: italic;
   letter-spacing: 1px;
@@ -228,7 +230,7 @@ export default {
   font-family: 'Gilda Display', serif;
   font-size: 1rem;
   line-height: 1.6;
-  color: #333;
+  color: var(--text);
   margin-bottom: 1rem;
 }
 
@@ -239,7 +241,7 @@ export default {
 .skills-section h3 {
   font-family: 'Gilda Display', serif;
   font-size: 1.8rem;
-  color: #520;
+  color: var(--primary);
   margin: 0 0 1.5rem 0;
   font-weight: normal;
   letter-spacing: 1px;
@@ -252,16 +254,16 @@ export default {
 }
 
 .skill-item {
-  background: #f8f9fa;
+  background: var(--surface-muted);
   padding: 1.5rem;
   border-radius: 12px;
-  border-left: 4px solid #520;
+  border-left: 4px solid var(--primary);
 }
 
 .skill-item h4 {
   font-family: 'Gilda Display', serif;
   font-size: 1.2rem;
-  color: #520;
+  color: var(--primary);
   margin: 0 0 0.5rem 0;
   font-weight: normal;
 }
@@ -269,13 +271,13 @@ export default {
 .skill-item p {
   font-family: 'Gilda Display', serif;
   font-size: 0.9rem;
-  color: #666;
+  color: var(--muted);
   margin: 0;
   line-height: 1.4;
 }
 
 .contact-section {
-  background: #f8f9fa;
+  background: var(--surface-muted);
   padding: 1.5rem;
   border-radius: 12px;
   text-align: center;
@@ -284,7 +286,7 @@ export default {
 .contact-section h3 {
   font-family: 'Gilda Display', serif;
   font-size: 1.5rem;
-  color: #520;
+  color: var(--primary);
   margin: 0 0 1rem 0;
   font-weight: normal;
 }
@@ -292,14 +294,14 @@ export default {
 .contact-section p {
   font-family: 'Gilda Display', serif;
   font-size: 1rem;
-  color: #666;
+  color: var(--muted);
   margin: 0;
   line-height: 1.5;
 }
 
 .curriculum-section {
-  background: #520;
-  color: white;
+  background: var(--primary);
+  color: var(--on-primary);
   padding: 1.5rem;
   border-radius: 12px;
   text-align: center;
@@ -309,7 +311,7 @@ export default {
 .curriculum-section h3 {
   font-family: 'Gilda Display', serif;
   font-size: 1.5rem;
-  color: white;
+  color: var(--on-primary);
   margin: 0 0 1rem 0;
   font-weight: normal;
 }
@@ -317,7 +319,7 @@ export default {
 .curriculum-section p {
   font-family: 'Gilda Display', serif;
   font-size: 1rem;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--on-primary);
   margin: 0 0 1.5rem 0;
   line-height: 1.5;
 }
@@ -326,8 +328,8 @@ export default {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: white;
-  color: #520;
+  background: var(--surface);
+  color: var(--primary);
   border: none;
   border-radius: 8px;
   padding: 0.75rem 1.5rem;
@@ -339,7 +341,7 @@ export default {
 }
 
 .curriculum-button:hover {
-  background: #f8f9fa;
+  background: var(--surface-muted);
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }

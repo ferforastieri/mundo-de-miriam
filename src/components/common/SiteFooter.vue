@@ -119,8 +119,8 @@ export default {
   justify-content: center;
   width: 44px;
   height: 44px;
-  color: #552200;
-  background: #fff;
+  color: var(--primary);
+  background: var(--on-primary);
   border-radius: 50%;
   font-size: 1.8rem;
   line-height: 1;

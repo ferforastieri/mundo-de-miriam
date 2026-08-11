@@ -95,6 +95,17 @@ const changeLanguage = () => {
   border-color: var(--primary);
 }
 
+html[data-theme="dark"] .language-switcher--drawer .language-select {
+  background: var(--surface-muted);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+html[data-theme="dark"] .language-switcher--drawer .language-select option {
+  background: var(--surface);
+  color: var(--text);
+}
+
 .language-indicator {
   position: absolute;
   inset: 0;

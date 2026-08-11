@@ -162,7 +162,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 11000;
   padding: 2rem;
 }
 
@@ -170,7 +170,8 @@ export default {
   position: relative;
   max-width: 90vw;
   max-height: 90vh;
-  background: white;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
@@ -216,11 +217,12 @@ export default {
   justify-content: center;
   gap: 2rem;
   padding: 1rem;
-  background: #f8f9fa;
+  background: var(--surface-muted);
+  border-top: 1px solid var(--border);
 }
 
 .nav-button {
-  background: #520;
+  background: var(--primary);
   border: none;
   border-radius: 50%;
   width: 40px;
@@ -228,24 +230,26 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--on-primary);
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .nav-button:hover:not(:disabled) {
-  background: #333;
+  background: var(--text);
+  color: var(--surface);
   transform: scale(1.1);
 }
 
 .nav-button:disabled {
-  background: #ccc;
+  background: var(--border);
+  color: var(--muted);
   cursor: not-allowed;
 }
 
 .image-counter {
   font-family: 'Gilda Display', serif;
-  color: #520;
+  color: var(--primary);
   font-weight: bold;
   font-size: 1.1rem;
 }

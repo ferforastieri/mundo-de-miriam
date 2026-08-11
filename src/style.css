@@ -101,3 +101,25 @@ html[data-theme="dark"] #app :is(.drawer-trigger, .drawer-close, .language-selec
   border-color: var(--border) !important;
   color: var(--primary) !important;
 }
+
+html[data-theme="dark"] #app .curriculum-section :is(h3, p) {
+  color: var(--on-primary) !important;
+}
+
+html[data-theme="dark"] #app .curriculum-button {
+  background: var(--surface) !important;
+  color: var(--primary) !important;
+}
+
+html[data-theme="dark"] #app .modal .nav-button:not(:disabled) {
+  color: var(--on-primary) !important;
+}
+
+html[data-theme="dark"] #app .modal .nav-button:disabled {
+  color: var(--muted) !important;
+}
+
+html[data-theme="dark"] #app .site-footer .brand-monogram {
+  background: var(--primary) !important;
+  color: var(--on-primary) !important;
+}
