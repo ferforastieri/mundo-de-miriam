@@ -1,5 +1,5 @@
 <template>
-  <div class="language-switcher">
+  <div class="language-switcher" :class="{ 'language-switcher--embedded': embedded }">
     <select
       v-model="selectedLanguage"
       @change="changeLanguage"
@@ -21,6 +21,13 @@ import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import translationService from '../../api/translation/TranslationService.js'
 
+defineProps({
+  embedded: {
+    type: Boolean,
+    default: false
+  }
+})
+
 const { locale } = useI18n()
 const selectedLanguage = ref('pt')
 const supportedLanguages = ref([])
@@ -38,11 +45,16 @@ const changeLanguage = () => {
 
 <style>
 .language-switcher {
+  position: fixed;
+  top: max(12px, env(safe-area-inset-top));
+  right: max(12px, env(safe-area-inset-right));
+  z-index: 10002;
   display: flex;
   justify-content: flex-end;
-  width: 100%;
-  padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) 0;
-  box-sizing: border-box;
+}
+
+.language-switcher.language-switcher--embedded {
+  position: static;
 }
 
 .language-select {

@@ -3,13 +3,6 @@
     <div class="portfolio-container">
       <!-- Header Section -->
       <div class="portfolio-header">
-        <button @click="goBack" class="back-button">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
-          </svg>
-          <span><TranslatableText text="Voltar" /></span>
-        </button>
-        
         <div class="header-content">
           <h1 class="portfolio-title">
             <TranslatableText text="Portfólio Beauty" />
@@ -35,7 +28,6 @@
 </template>
 
 <script>
-import { useRouter } from 'vue-router'
 import PortfolioLayout from '@/layouts/portfolio/PortfolioLayout.vue'
 import { TranslatableText } from '@/components/common'
 import { PortfolioGallery } from '@/components/portfolio'
@@ -46,17 +38,6 @@ export default {
     PortfolioLayout,
     TranslatableText,
     PortfolioGallery
-  },
-  setup() {
-    const router = useRouter()
-    
-    const goBack = () => {
-      router.push('/')
-    }
-    
-    return {
-      goBack
-    }
   },
   data() {
     return {
