@@ -88,12 +88,10 @@ export default {
 @media (min-width: 769px) {
   .site-footer {
     position: relative;
-    left: auto;
     z-index: 10005;
-    width: calc(100% - var(--desktop-drawer-offset));
+    width: 100%;
     max-width: none;
-    margin: 0 0 0 var(--desktop-drawer-offset);
-    transform: none;
+    margin: 0;
   }
 }
 
