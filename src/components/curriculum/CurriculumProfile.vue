@@ -1017,9 +1017,7 @@ export default {
 
 @media (max-width: 768px) {
   .curriculum-header {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    align-items: start;
+    display: block;
     text-align: left;
   }
   
