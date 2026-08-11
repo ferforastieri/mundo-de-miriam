@@ -38,9 +38,13 @@ const changeLanguage = () => {
 
 <style>
 .language-switcher {
-  position: fixed !important;
-  top: max(12px, env(safe-area-inset-top)) !important;
-  right: max(12px, env(safe-area-inset-right)) !important;
+  position: sticky !important;
+  top: 0 !important;
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) 0;
+  box-sizing: border-box;
   z-index: 2147483647 !important;
   isolation: isolate;
 }
@@ -72,11 +76,6 @@ const changeLanguage = () => {
 }
 
 @media (max-width: 768px) {
-  .language-switcher {
-    top: max(10px, env(safe-area-inset-top)) !important;
-    right: max(10px, env(safe-area-inset-right)) !important;
-  }
-  
   .language-select {
     padding: 6px 8px;
     font-size: 12px;
@@ -85,12 +84,6 @@ const changeLanguage = () => {
 }
 
 @media (max-width: 480px) {
-  .language-switcher {
-    top: max(8px, env(safe-area-inset-top)) !important;
-    right: max(8px, env(safe-area-inset-right)) !important;
-    left: auto;
-  }
-  
   .language-select {
     padding: 5px 6px;
     font-size: 11px;
@@ -100,11 +93,6 @@ const changeLanguage = () => {
 }
 
 @media (max-width: 360px) {
-  .language-switcher {
-    top: max(5px, env(safe-area-inset-top)) !important;
-    right: max(5px, env(safe-area-inset-right)) !important;
-  }
-  
   .language-select {
     padding: 4px 5px;
     font-size: 10px;
@@ -113,11 +101,6 @@ const changeLanguage = () => {
 }
 
 @media (max-height: 600px) and (orientation: landscape) {
-  .language-switcher {
-    top: max(5px, env(safe-area-inset-top)) !important;
-    right: max(5px, env(safe-area-inset-right)) !important;
-  }
-  
   .language-select {
     padding: 4px 6px;
     font-size: 11px;
