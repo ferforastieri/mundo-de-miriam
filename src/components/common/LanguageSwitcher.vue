@@ -38,15 +38,11 @@ const changeLanguage = () => {
 
 <style>
 .language-switcher {
-  position: sticky !important;
-  top: 0 !important;
   display: flex;
   justify-content: flex-end;
   width: 100%;
   padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) 0;
   box-sizing: border-box;
-  z-index: 2147483647 !important;
-  isolation: isolate;
 }
 
 .language-select {
