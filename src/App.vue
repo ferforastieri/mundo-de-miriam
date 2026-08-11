@@ -122,10 +122,11 @@ onMounted(() => {
 @media (min-width: 769px) {
   .site-page {
     margin-left: var(--desktop-drawer-offset);
+    padding-top: 0;
   }
 
   .site-header {
-    left: var(--desktop-drawer-offset);
+    display: none;
   }
 }
 

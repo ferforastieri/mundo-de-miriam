@@ -44,4 +44,10 @@
     padding-bottom: 20px;
   }
 }
+
+@media (min-width: 769px) {
+  .partnerships-layout {
+    top: 0;
+  }
+}
 </style>

@@ -1,9 +1,13 @@
 <template>
   <div class="language-switcher" :class="{ 'language-switcher--embedded': embedded, 'language-switcher--drawer': drawer }">
+    <span v-if="embedded" class="language-indicator" aria-hidden="true">
+      {{ selectedLanguage.toUpperCase() }}
+    </span>
     <select
       v-model="selectedLanguage"
       @change="changeLanguage"
       class="language-select"
+      aria-label="Selecionar idioma"
     >
       <option
         v-for="lang in supportedLanguages"
@@ -91,13 +95,15 @@ const changeLanguage = () => {
   border-color: var(--primary);
 }
 
-.language-switcher.language-switcher--embedded::before {
-  content: "🌐";
+.language-indicator {
   position: absolute;
   inset: 0;
   display: grid;
   place-items: center;
-  font-size: 1.5rem;
+  font-family: system-ui, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   pointer-events: none;
 }
 
