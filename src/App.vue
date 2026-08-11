@@ -2,6 +2,7 @@
 import { onMounted, ref } from "vue"
 import LanguageSwitcher from './components/common/LanguageSwitcher.vue'
 import NavigationDrawer from './components/common/NavigationDrawer.vue'
+import SiteFooter from './components/common/SiteFooter.vue'
 
 const isDark = ref(false)
 const isDrawerOpen = ref(window.matchMedia('(min-width: 769px)').matches)
@@ -41,6 +42,7 @@ onMounted(() => {
     <main class="site-page">
       <router-view />
     </main>
+    <SiteFooter />
   </div>
 </template>
 
@@ -53,7 +55,7 @@ onMounted(() => {
 .site-header {
   position: fixed;
   inset: 0 0 auto;
-  z-index: 10002;
+  z-index: 10005;
   display: grid;
   grid-template-columns: minmax(42px, 1fr) auto minmax(42px, 1fr);
   align-items: center;
@@ -113,16 +115,13 @@ onMounted(() => {
 }
 
 .site-page {
+  min-height: 100vh;
   padding-top: calc(68px + env(safe-area-inset-top));
 }
 
 @media (min-width: 769px) {
-  .app {
-    padding-left: var(--desktop-drawer-offset);
-  }
-
-  .site-header {
-    left: var(--desktop-drawer-offset);
+  .site-page {
+    margin-left: var(--desktop-drawer-offset);
   }
 }
 

@@ -35,7 +35,7 @@ body {
   --primary: #552200;
   --on-primary: #ffffff;
   --border: rgba(85, 34, 0, 0.16);
-  --desktop-drawer-width: 340px;
+  --desktop-drawer-width: 260px;
   --desktop-drawer-offset: 0px;
 }
 

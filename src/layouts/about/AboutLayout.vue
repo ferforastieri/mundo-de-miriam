@@ -2,21 +2,9 @@
   <div class="about-layout">
     <div class="layout-content">
       <slot></slot>
-      <SiteFooter />
     </div>
   </div>
 </template>
-
-<script>
-import { SiteFooter } from '../../components/common'
-
-export default {
-  name: 'AboutLayout',
-  components: {
-    SiteFooter
-  }
-}
-</script>
 
 <style scoped>
 .about-layout {
@@ -26,7 +14,7 @@ export default {
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
   display: flex;
   justify-content: center;
-  padding: 40px 20px 0;
+  padding: 40px 20px;
 }
 
 .layout-content {

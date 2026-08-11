@@ -2,21 +2,9 @@
   <div class="portfolio-layout">
     <div class="layout-content">
       <slot></slot>
-      <SiteFooter />
     </div>
   </div>
 </template>
-
-<script>
-import { SiteFooter } from '../../components/common'
-
-export default {
-  name: 'PortfolioLayout',
-  components: {
-    SiteFooter
-  }
-}
-</script>
 
 <style scoped>
 .portfolio-layout {
@@ -25,7 +13,7 @@ export default {
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
   display: flex;
   justify-content: center;
-  padding: 20px 20px 0;
+  padding: 20px;
   position: fixed;
   top: calc(68px + env(safe-area-inset-top));
   left: var(--desktop-drawer-offset);

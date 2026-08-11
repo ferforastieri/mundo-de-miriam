@@ -2,21 +2,9 @@
   <div class="home-layout">
     <div class="layout-content">
       <slot></slot>
-      <SiteFooter />
     </div>
   </div>
 </template>
-
-<script>
-import { SiteFooter } from '../components/common'
-
-export default {
-  name: 'HomeLayout',
-  components: {
-    SiteFooter
-  }
-}
-</script>
 
 <style scoped>
 .home-layout {
@@ -26,7 +14,7 @@ export default {
   background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
   display: flex;
   justify-content: center;
-  padding: 40px 20px 0;
+  padding: 40px 20px;
 }
 
 .layout-content {

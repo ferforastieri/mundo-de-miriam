@@ -2,20 +2,15 @@
   <div class="curriculum-layout">
     <div class="layout-container">
       <slot />
-      <SiteFooter />
     </div>
   </div>
 </template>
-
-<script setup>
-import { SiteFooter } from '../../components/common'
-</script>
 
 <style scoped>
 .curriculum-layout {
   min-height: 100vh;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  padding: 2rem 2rem 0;
+  padding: 2rem;
   display: flex;
   align-items: flex-start;
   justify-content: center;
