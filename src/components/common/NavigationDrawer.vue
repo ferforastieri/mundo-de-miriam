@@ -46,7 +46,7 @@
 </template>
 
 <script setup>
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import LanguageSwitcher from './LanguageSwitcher.vue'
 
 const isOpen = ref(false)
@@ -65,6 +65,27 @@ const links = [
 
 const open = () => { isOpen.value = true }
 const close = () => { isOpen.value = false }
+
+let overflowBeforeDrawer
+const setPageScrollLocked = (locked) => {
+  if (locked) {
+    if (overflowBeforeDrawer) return
+    overflowBeforeDrawer = {
+      body: document.body.style.overflow,
+      document: document.documentElement.style.overflow
+    }
+    document.body.style.overflow = "hidden"
+    document.documentElement.style.overflow = "hidden"
+    return
+  }
+
+  if (!overflowBeforeDrawer) return
+  document.body.style.overflow = overflowBeforeDrawer.body
+  document.documentElement.style.overflow = overflowBeforeDrawer.document
+  overflowBeforeDrawer = undefined
+}
+
+watch(isOpen, setPageScrollLocked)
 const onTouchStart = (event) => {
   startX.value = event.changedTouches[0]?.clientX ?? 0
   startY.value = event.changedTouches[0]?.clientY ?? 0
@@ -74,12 +95,12 @@ const onTouchEnd = (event) => {
   const endY = event.changedTouches[0]?.clientY ?? startY.value
   const distanceX = endX - startX.value
   const distanceY = endY - startY.value
-  if (distanceX < -48 && Math.abs(distanceX) > Math.abs(distanceY)) close()
+  if (distanceX < -48 && Math.abs(distanceX) > Math.abs(distanceY) && Math.abs(distanceX) > 40) close()
 }
 
 const onEdgeTouchStart = (event) => {
   const touch = event.touches[0]
-  edgeSwipeStarted.value = !isOpen.value && (touch?.clientX ?? 999) < 28
+  edgeSwipeStarted.value = !isOpen.value && (touch?.clientX ?? 999) < 48
   if (edgeSwipeStarted.value) {
     startX.value = touch.clientX
     startY.value = touch.clientY
@@ -93,7 +114,7 @@ const onEdgeTouchEnd = (event) => {
   const endY = event.changedTouches[0]?.clientY ?? startY.value
   const distanceX = endX - startX.value
   const distanceY = endY - startY.value
-  if (distanceX > 56 && Math.abs(distanceX) > Math.abs(distanceY)) open()
+  if (distanceX > 48 && Math.abs(distanceX) > Math.abs(distanceY)) open()
 }
 
 onMounted(() => {
@@ -102,6 +123,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  setPageScrollLocked(false)
   window.removeEventListener('touchstart', onEdgeTouchStart)
   window.removeEventListener('touchend', onEdgeTouchEnd)
 })

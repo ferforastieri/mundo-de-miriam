@@ -54,7 +54,34 @@ const changeLanguage = () => {
 }
 
 .language-switcher.language-switcher--embedded {
-  position: static;
+  position: relative;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(85, 34, 0, 0.2);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--primary);
+}
+
+.language-switcher.language-switcher--embedded::before {
+  content: "🌐";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 1.5rem;
+  pointer-events: none;
+}
+
+.language-switcher.language-switcher--embedded .language-select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  opacity: 0;
+  cursor: pointer;
 }
 
 .language-select {

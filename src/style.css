@@ -25,3 +25,60 @@ body {
   color: #213547;
   background-color: #ffffff;
 }
+
+:root {
+  --page-bg: #ffffff;
+  --surface: #ffffff;
+  --surface-muted: #f8f9fa;
+  --text: #213547;
+  --muted: #666666;
+  --primary: #552200;
+  --on-primary: #ffffff;
+  --border: rgba(85, 34, 0, 0.16);
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --page-bg: #171311;
+  --surface: #251e1a;
+  --surface-muted: #332923;
+  --text: #f7eee9;
+  --muted: #d7c6bb;
+  --primary: #f1b886;
+  --on-primary: #26140a;
+  --border: rgba(241, 184, 134, 0.28);
+}
+
+body, #app {
+  background: var(--page-bg);
+  color: var(--text);
+}
+
+html[data-theme="dark"] #app :is(.home-layout, .about-layout, .curriculum-layout, .portfolio-layout, .partnerships-layout) {
+  background: var(--page-bg) !important;
+}
+
+html[data-theme="dark"] #app :is(.site-header, .navigation-drawer, .curriculum-header, .curriculum-content, .portfolio-header, .partnership-card, .gallery-item, .about-profile, .services-section, .instagram-stats, .site-footer, .stat-item, .skill-item) {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+html[data-theme="dark"] #app :is(.portfolio-title, .curriculum-title, .section-title, .profile-info .name, .education-header h4, .experience-header h4, .skill-category h4, .company, .drawer-brand, .drawer-links a) {
+  color: var(--primary) !important;
+}
+
+html[data-theme="dark"] #app :is(.portfolio-subtitle, .loading, .location, .period, .education-item .description, .profile-info .title, .profile-info .location, .section-content p, .skill-category li, .responsibilities li) {
+  color: var(--muted) !important;
+}
+
+html[data-theme="dark"] #app :is(.debug-info, .period, .profile-info .website a) {
+  background: var(--surface-muted) !important;
+  color: var(--primary) !important;
+}
+
+html[data-theme="dark"] #app :is(.header-icon-button, .language-switcher--embedded) {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--primary) !important;
+}

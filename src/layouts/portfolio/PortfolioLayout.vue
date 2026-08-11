@@ -27,7 +27,7 @@ export default {
   justify-content: center;
   padding: 20px;
   position: fixed;
-  top: 0;
+  top: calc(68px + env(safe-area-inset-top));
   left: 0;
   right: 0;
   bottom: 0;
