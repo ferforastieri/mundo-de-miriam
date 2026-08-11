@@ -14,8 +14,7 @@ const applyTheme = (dark) => {
 const toggleTheme = () => applyTheme(!isDark.value)
 
 onMounted(() => {
-  const savedTheme = localStorage.getItem("themePreference")
-  applyTheme(savedTheme ? savedTheme === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches)
+  applyTheme(false)
 })
 </script>
 
@@ -54,7 +53,8 @@ onMounted(() => {
   display: grid;
   grid-template-columns: minmax(42px, 1fr) auto minmax(42px, 1fr);
   align-items: center;
-  min-height: calc(68px + env(safe-area-inset-top));
+  height: calc(68px + env(safe-area-inset-top));
+  box-sizing: border-box;
   padding: max(8px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) 8px max(12px, env(safe-area-inset-left));
   background: var(--surface);
   border-bottom: 1px solid var(--border);
