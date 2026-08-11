@@ -60,16 +60,16 @@
       </nav>
 
       <div class="drawer-theme-row">
-        <span>{{ props.isDark ? 'Modo claro' : 'Modo escuro' }}</span>
-        <button
-          class="drawer-theme"
-          type="button"
-          :title="themeLabel"
-          :aria-label="themeLabel"
-          @click="emit('toggle-theme')"
+        <span>Tema</span>
+        <select
+          class="drawer-theme-select"
+          :value="props.isDark ? 'dark' : 'light'"
+          aria-label="Selecionar tema"
+          @change="changeTheme"
         >
-          <span aria-hidden="true">{{ props.isDark ? '☀' : '☾' }}</span>
-        </button>
+          <option value="light">Modo claro</option>
+          <option value="dark">Modo escuro</option>
+        </select>
       </div>
 
       <div class="drawer-language">
@@ -90,7 +90,7 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import LanguageSwitcher from './LanguageSwitcher.vue'
 
 const props = defineProps({
@@ -103,7 +103,6 @@ const emit = defineEmits(['update:open', 'toggle-theme'])
 const desktopMedia = window.matchMedia('(min-width: 769px)')
 const isDesktop = ref(desktopMedia.matches)
 const isOpen = ref(isDesktop.value)
-const themeLabel = computed(() => props.isDark ? 'Ativar modo claro' : 'Ativar modo escuro')
 const links = [
   { to: '/', label: 'Início', iconPaths: ['M3 11.5 12 4l9 7.5', 'M5.5 10v10h13V10', 'M9.5 20v-6h5v6'] },
   { to: '/about', label: 'Sobre mim', iconPaths: ['M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z', 'M4.5 21a7.5 7.5 0 0 1 15 0'] },
@@ -117,6 +116,10 @@ const links = [
 const open = () => { isOpen.value = true }
 const close = () => { isOpen.value = false }
 const toggle = () => { isOpen.value = !isOpen.value }
+const changeTheme = (event) => {
+  const wantsDark = event.target.value === 'dark'
+  if (wantsDark !== props.isDark) emit('toggle-theme')
+}
 const closeOnNavigation = () => {
   if (!isDesktop.value) close()
 }
@@ -161,11 +164,11 @@ onBeforeUnmount(() => {
 </script>
 
 <style>
-.drawer-trigger{position:fixed;top:max(12px,calc(env(safe-area-inset-top) + 9px));left:max(12px,env(safe-area-inset-left));z-index:10002;display:grid;gap:4px;width:42px;height:42px;padding:11px 10px;border:1px solid rgba(85,34,0,.2);border-radius:50%;background:#fff;color:#552200;box-shadow:0 8px 20px rgba(85,34,0,.16);cursor:pointer}.drawer-trigger span{display:block;height:2px;background:currentColor;border-radius:2px}.drawer-backdrop{position:fixed;inset:0;z-index:10003;background:rgba(31,15,7,.38);backdrop-filter:blur(2px)}.navigation-drawer{position:fixed;top:0;bottom:0;left:0;z-index:10004;display:flex;flex-direction:column;width:min(84vw,340px);padding:max(20px,env(safe-area-inset-top)) 1.5rem 1.5rem;background:#fff;color:#552200;box-shadow:12px 0 40px rgba(31,15,7,.2);transform:translateX(-105%);transition:transform .26s ease}.navigation-drawer.is-open{transform:translateX(0)}.drawer-header{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-bottom:1.25rem;border-bottom:1px solid rgba(85,34,0,.16)}.drawer-brand{display:inline-flex;color:inherit;text-decoration:none}.drawer-brand img{width:44px;height:44px;border-radius:50%;box-shadow:0 3px 10px rgba(85,34,0,.18)}.drawer-close{width:36px;height:36px;border:0;border-radius:50%;background:#f6efeb;color:inherit;font-size:1.7rem;line-height:1;cursor:pointer}.drawer-links{display:grid;gap:.25rem;padding:1.25rem 0}.drawer-links a{display:flex;align-items:center;gap:.75rem;padding:.8rem .2rem;color:inherit;font-size:1rem;text-decoration:none;border-bottom:1px solid rgba(85,34,0,.1)}.drawer-links a.router-link-active{font-weight:bold}.drawer-language{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem 0}.drawer-language>span{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase}.drawer-footer{margin-top:auto;padding-top:1rem;border-top:1px solid rgba(85,34,0,.16)}.drawer-footer p{margin:0 0 .7rem;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase}.drawer-socials{display:flex;flex-wrap:wrap;gap:.55rem}.drawer-socials a{color:inherit;font-size:.82rem;text-decoration:none;border-bottom:1px solid currentColor}@media (prefers-reduced-motion:reduce){.navigation-drawer{transition:none}}
-.drawer-link-icon{flex:0 0 auto;width:22px;height:22px}.drawer-theme-row{display:none;align-items:center;justify-content:space-between;gap:1rem;padding:1rem 0 0}.drawer-theme-row>span{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase}.drawer-theme{display:grid;width:42px;height:42px;padding:0;place-items:center;border:1px solid var(--border);border-radius:50%;background:var(--surface-muted);color:var(--primary);font:inherit;font-size:1.35rem;cursor:pointer;transition:background .2s ease,color .2s ease}.drawer-theme:hover{background:var(--primary);color:var(--on-primary)}
+.drawer-trigger{position:fixed;top:max(12px,calc(env(safe-area-inset-top) + 9px));left:max(12px,env(safe-area-inset-left));z-index:10002;display:grid;gap:4px;width:42px;height:42px;padding:11px 10px;border:1px solid rgba(85,34,0,.2);border-radius:50%;background:#fff;color:#552200;box-shadow:0 8px 20px rgba(85,34,0,.16);cursor:pointer}.drawer-trigger span{display:block;height:2px;background:currentColor;border-radius:2px}.drawer-backdrop{position:fixed;inset:0;z-index:10003;background:rgba(31,15,7,.38);backdrop-filter:blur(2px)}.navigation-drawer{position:fixed;top:0;bottom:0;left:0;z-index:10004;display:flex;flex-direction:column;width:min(84vw,340px);padding:max(20px,env(safe-area-inset-top)) 1.5rem 1.5rem;background:#fff;color:#552200;box-shadow:12px 0 40px rgba(31,15,7,.2);overflow-y:auto;transform:translateX(-105%);transition:transform .26s ease}.navigation-drawer.is-open{transform:translateX(0)}.drawer-header{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-bottom:1.25rem;border-bottom:1px solid rgba(85,34,0,.16)}.drawer-brand{display:inline-flex;color:inherit;text-decoration:none}.drawer-brand img{width:44px;height:44px;border-radius:50%;box-shadow:0 3px 10px rgba(85,34,0,.18)}.drawer-close{width:36px;height:36px;border:0;border-radius:50%;background:#f6efeb;color:inherit;font-size:1.7rem;line-height:1;cursor:pointer}.drawer-links{display:grid;gap:.25rem;padding:1.25rem 0}.drawer-links a{display:flex;align-items:center;gap:.75rem;padding:.8rem .2rem;color:inherit;font-size:1rem;text-decoration:none;border-bottom:1px solid rgba(85,34,0,.1)}.drawer-links a.router-link-active{font-weight:bold}.drawer-language{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem 0}.drawer-language>span{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase}.drawer-footer{margin-top:0;padding-top:1rem;border-top:1px solid rgba(85,34,0,.16)}.drawer-footer p{margin:0 0 .7rem;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase}.drawer-socials{display:flex;flex-wrap:wrap;gap:.55rem}.drawer-socials a{color:inherit;font-size:.82rem;text-decoration:none;border-bottom:1px solid currentColor}@media (prefers-reduced-motion:reduce){.navigation-drawer{transition:none}}
+.drawer-link-icon{flex:0 0 auto;width:22px;height:22px}.drawer-theme-row{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-top:auto;padding:1rem 0 0}.drawer-theme-row>span{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase}.drawer-theme-select{width:auto;min-width:120px;height:auto;padding:8px 12px;border:2px solid var(--primary);border-radius:8px;background:var(--surface);color:var(--primary);font-family:'Gilda Display',serif;font-size:14px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.1)}.drawer-theme-select:focus{outline:none;box-shadow:0 0 0 3px rgba(82,0,0,.2)}.drawer-theme-select option{background:var(--surface);color:var(--text)}
 
 html[data-theme="dark"] .navigation-drawer{background:var(--surface);color:var(--text);border-color:var(--border)}html[data-theme="dark"] .drawer-header,html[data-theme="dark"] .drawer-links a,html[data-theme="dark"] .drawer-footer{border-color:var(--border)}html[data-theme="dark"] .drawer-close{background:var(--surface-muted);color:var(--primary)}
 
 @media (max-width:768px){.drawer-trigger{z-index:10006}.drawer-backdrop{z-index:10007}.navigation-drawer{z-index:10008}}
-@media (min-width:769px){.drawer-trigger{display:none}.navigation-drawer{top:0;width:var(--desktop-drawer-width);padding:0 1rem 1.25rem;border-right:1px solid rgba(85,34,0,.16);box-shadow:none;overflow-y:auto;transform:translateX(0);transition:width .26s ease,padding .26s ease}.drawer-header{height:calc(68px + env(safe-area-inset-top));padding:env(safe-area-inset-top) 0 0}.drawer-theme-row{display:flex;margin-top:auto}.drawer-footer{margin-top:0}.navigation-drawer.is-compact{width:var(--desktop-drawer-collapsed-width);padding-right:.65rem;padding-left:.65rem}.navigation-drawer.is-compact .drawer-header{justify-content:center}.navigation-drawer.is-compact .drawer-brand,.navigation-drawer.is-compact .drawer-link-label,.navigation-drawer.is-compact .drawer-theme-row>span,.navigation-drawer.is-compact .drawer-language,.navigation-drawer.is-compact .drawer-footer{display:none}.navigation-drawer.is-compact .drawer-links a{justify-content:center;padding:.8rem 0}.navigation-drawer.is-compact .drawer-theme-row{justify-content:center}.navigation-drawer.is-compact .drawer-close{display:grid;place-items:center}}
+@media (min-width:769px){.drawer-trigger{display:none}.navigation-drawer{top:0;width:var(--desktop-drawer-width);padding:0 1rem 1.25rem;border-right:1px solid rgba(85,34,0,.16);box-shadow:none;overflow-y:auto;transform:translateX(0);transition:width .26s ease,padding .26s ease}.drawer-header{height:calc(68px + env(safe-area-inset-top));padding:env(safe-area-inset-top) 0 0}.navigation-drawer.is-compact{width:var(--desktop-drawer-collapsed-width);padding-right:.65rem;padding-left:.65rem}.navigation-drawer.is-compact .drawer-header{justify-content:center}.navigation-drawer.is-compact .drawer-brand,.navigation-drawer.is-compact .drawer-link-label,.navigation-drawer.is-compact .drawer-theme-row,.navigation-drawer.is-compact .drawer-language,.navigation-drawer.is-compact .drawer-footer{display:none}.navigation-drawer.is-compact .drawer-links a{justify-content:center;padding:.8rem 0}.navigation-drawer.is-compact .drawer-close{display:grid;place-items:center}}
 </style>

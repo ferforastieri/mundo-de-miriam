@@ -89,6 +89,7 @@ const changeLanguage = () => {
   min-width: 120px;
   height: auto;
   padding: 8px 12px;
+  font-size: 14px;
   opacity: 1;
   background: var(--surface);
   color: var(--primary);
