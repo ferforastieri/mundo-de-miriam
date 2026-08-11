@@ -1,5 +1,5 @@
 <template>
-  <div class="language-switcher" :class="{ 'language-switcher--embedded': embedded }">
+  <div class="language-switcher" :class="{ 'language-switcher--embedded': embedded, 'language-switcher--drawer': drawer }">
     <select
       v-model="selectedLanguage"
       @change="changeLanguage"
@@ -23,6 +23,10 @@ import translationService from '../../api/translation/TranslationService.js'
 
 defineProps({
   embedded: {
+    type: Boolean,
+    default: false
+  },
+  drawer: {
     type: Boolean,
     default: false
   }
@@ -55,12 +59,36 @@ const changeLanguage = () => {
 
 .language-switcher.language-switcher--embedded {
   position: relative;
+  top: auto;
+  right: auto;
+  z-index: auto;
   width: 42px;
   height: 42px;
   border: 1px solid rgba(85, 34, 0, 0.2);
   border-radius: 50%;
   background: var(--surface);
   color: var(--primary);
+}
+
+.language-switcher.language-switcher--drawer {
+  position: static;
+  width: auto;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.language-switcher.language-switcher--drawer .language-select {
+  position: static;
+  width: auto;
+  min-width: 120px;
+  height: auto;
+  padding: 8px 12px;
+  opacity: 1;
+  background: var(--surface);
+  color: var(--primary);
+  border-color: var(--primary);
 }
 
 .language-switcher.language-switcher--embedded::before {
