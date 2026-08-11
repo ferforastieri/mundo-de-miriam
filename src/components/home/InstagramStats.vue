@@ -76,9 +76,6 @@ export default {
   mounted() {
     this.loadStats()
 
-    // The API is CDN-cached for 15 minutes. Polling a little more often makes
-    // the card update as soon as the next cached version is available, without
-    // increasing calls made to Instagram itself.
     this.refreshTimer = window.setInterval(this.loadStats, 5 * 60 * 1000)
   },
   beforeUnmount() {
@@ -116,7 +113,6 @@ export default {
   color: #552200;
   background: #fff;
   border: 1px solid rgba(85, 34, 0, 0.16);
-  border-radius: 18px;
   box-shadow: 0 14px 35px rgba(85, 34, 0, 0.08);
   animation: revealStats 0.55s ease 0.15s backwards;
 }
@@ -194,7 +190,6 @@ h2 {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   padding: 0.9rem 0 0.75rem;
-  overflow: hidden;
 }
 
 .stat-item {
@@ -245,20 +240,11 @@ h2 {
 
 @media (max-width: 560px) {
   .instagram-stats {
-    margin-bottom: 1.5rem;
     padding: 1rem;
-    border-radius: 14px;
   }
 
   .stats-header {
     align-items: flex-start;
-    flex-direction: column;
-    gap: 0.8rem;
-  }
-
-  .profile-link {
-    min-height: 36px;
-    padding: 0.45rem 0;
   }
 
   .stats-grid {
@@ -269,18 +255,6 @@ h2 {
   .stat-item:nth-child(3) {
     padding-left: 0;
     border-left: 0;
-  }
-
-  .stat-item:nth-child(even) {
-    padding-right: 0;
-  }
-
-  .stat-item strong {
-    font-size: 1.5rem;
-  }
-
-  .stats-note {
-    max-width: 34ch;
   }
 }
 
