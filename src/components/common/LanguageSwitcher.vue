@@ -1,6 +1,9 @@
 <template>
   <Teleport to="body">
-    <div class="language-switcher">
+    <div
+      class="language-switcher"
+      style="position: fixed; top: max(12px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right)); z-index: 2147483647;"
+    >
       <select
         v-model="selectedLanguage"
         @change="changeLanguage"

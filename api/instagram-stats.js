@@ -1,9 +1,9 @@
 const INSTAGRAM_USERNAME = 'mihforastieri'
 const INSTAGRAM_APP_ID = '936619743392459'
-// Fifteen minutes keeps the public counter fresh while protecting the
+// Five minutes keeps the public counter fresh while protecting the
 // unauthenticated Instagram endpoint from a request per page view.
-const CACHE_SECONDS = 15 * 60
-const STALE_SECONDS = 24 * 60 * 60
+const CACHE_SECONDS = 5 * 60
+const STALE_SECONDS = 60 * 60
 const FALLBACK_STATS = {
   followers: 3139,
   posts: 157,

@@ -186,10 +186,15 @@ export default {
   }
 
   .footer-main {
-    align-items: flex-start;
+    align-items: center;
     flex-direction: column;
     gap: 1.25rem;
     padding: 1.25rem;
+    text-align: center;
+  }
+
+  .footer-brand {
+    justify-content: center;
   }
 
   .brand-copy small {
@@ -198,19 +203,21 @@ export default {
 
   .footer-base {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     gap: 0.25rem;
     padding: 0.75rem 1.25rem;
+    text-align: center;
   }
 
   .footer-links {
-    align-self: flex-start;
+    align-self: center;
   }
 }
 
 @media (max-width: 400px) {
   .footer-brand {
-    align-items: flex-start;
+    align-items: center;
+    flex-direction: column;
   }
 
   .brand-copy strong {
