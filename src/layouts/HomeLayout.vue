@@ -22,18 +22,13 @@ export default {
 
 <style scoped>
 .home-layout {
-  min-height: 100vh;
-  min-width: 100vw;
+  min-height: 100dvh;
+  width: 100%;
+  box-sizing: border-box;
   background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
   display: flex;
   justify-content: center;
   padding: 40px 20px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  overflow-y: auto;
 }
 
 .layout-content {
@@ -41,6 +36,7 @@ export default {
   flex-direction: column;
   align-items: center;
   width: 100%;
+  min-width: 0;
   max-width: 1200px;
   margin: 0 auto;
 }

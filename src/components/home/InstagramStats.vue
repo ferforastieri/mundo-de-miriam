@@ -244,17 +244,57 @@ h2 {
   }
 
   .stats-header {
-    align-items: flex-start;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .instagram-brand {
+    gap: 0.6rem;
+  }
+
+  .instagram-icon {
+    width: 34px;
+    height: 34px;
+  }
+
+  h2 {
+    font-size: 1.08rem;
+  }
+
+  .profile-link {
+    flex: 0 0 auto;
+    padding: 0.45rem 0;
+    font-size: 0.7rem;
   }
 
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
-    row-gap: 1rem;
+    padding-top: 0.55rem;
+    row-gap: 0;
+  }
+
+  .stat-item {
+    padding: 0.8rem 0.7rem;
+  }
+
+  .stat-item:first-child,
+  .stat-item:nth-child(2) {
+    padding-top: 0.35rem;
   }
 
   .stat-item:nth-child(3) {
     padding-left: 0;
     border-left: 0;
+    border-top: 1px solid rgba(85, 34, 0, 0.16);
+  }
+
+  .stat-item:nth-child(4) {
+    padding-right: 0;
+    border-top: 1px solid rgba(85, 34, 0, 0.16);
+  }
+
+  .stat-item:nth-child(even) {
+    padding-right: 0;
   }
 }
 

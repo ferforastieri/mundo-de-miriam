@@ -82,6 +82,7 @@ export default {
   color: #fff;
   background: #552200;
   box-shadow: 0 16px 38px rgba(85, 34, 0, 0.16);
+  box-sizing: border-box;
 }
 
 .footer-main {
@@ -186,6 +187,8 @@ export default {
 
   .footer-main {
     align-items: flex-start;
+    flex-direction: column;
+    gap: 1.25rem;
     padding: 1.25rem;
   }
 
@@ -195,14 +198,28 @@ export default {
 
   .footer-base {
     flex-direction: column;
+    align-items: flex-start;
     gap: 0.25rem;
     padding: 0.75rem 1.25rem;
+  }
+
+  .footer-links {
+    align-self: flex-start;
   }
 }
 
 @media (max-width: 400px) {
-  .footer-main {
-    flex-direction: column;
+  .footer-brand {
+    align-items: flex-start;
+  }
+
+  .brand-copy strong {
+    font-size: 1.02rem;
+  }
+
+  .footer-links {
+    width: 100%;
+    justify-content: space-between;
   }
 }
 

@@ -1,19 +1,21 @@
 <template>
-  <div class="language-switcher">
-    <select 
-      v-model="selectedLanguage" 
-      @change="changeLanguage"
-      class="language-select"
-    >
-      <option 
-        v-for="lang in supportedLanguages" 
-        :key="lang.code" 
-        :value="lang.code"
+  <Teleport to="body">
+    <div class="language-switcher">
+      <select
+        v-model="selectedLanguage"
+        @change="changeLanguage"
+        class="language-select"
       >
-        {{ lang.flag }} {{ lang.name }}
-      </option>
-    </select>
-  </div>
+        <option
+          v-for="lang in supportedLanguages"
+          :key="lang.code"
+          :value="lang.code"
+        >
+          {{ lang.flag }} {{ lang.name }}
+        </option>
+      </select>
+    </div>
+  </Teleport>
 </template>
 
 <script setup>
