@@ -1,6 +1,5 @@
 <template>
   <div class="about-layout">
-    <LanguageSwitcher />
     <div class="layout-content">
       <slot></slot>
       <SiteFooter />
@@ -9,12 +8,11 @@
 </template>
 
 <script>
-import { LanguageSwitcher, SiteFooter } from '../../components/common'
+import { SiteFooter } from '../../components/common'
 
 export default {
   name: 'AboutLayout',
   components: {
-    LanguageSwitcher,
     SiteFooter
   }
 }

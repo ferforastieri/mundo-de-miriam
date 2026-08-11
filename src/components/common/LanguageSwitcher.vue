@@ -1,24 +1,19 @@
 <template>
-  <Teleport to="body">
-    <div
-      class="language-switcher"
-      style="position: fixed; top: max(12px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right)); z-index: 2147483647;"
+  <div class="language-switcher">
+    <select
+      v-model="selectedLanguage"
+      @change="changeLanguage"
+      class="language-select"
     >
-      <select
-        v-model="selectedLanguage"
-        @change="changeLanguage"
-        class="language-select"
+      <option
+        v-for="lang in supportedLanguages"
+        :key="lang.code"
+        :value="lang.code"
       >
-        <option
-          v-for="lang in supportedLanguages"
-          :key="lang.code"
-          :value="lang.code"
-        >
-          {{ lang.flag }} {{ lang.name }}
-        </option>
-      </select>
-    </div>
-  </Teleport>
+        {{ lang.flag }} {{ lang.name }}
+      </option>
+    </select>
+  </div>
 </template>
 
 <script setup>
@@ -41,12 +36,12 @@ const changeLanguage = () => {
 }
 </script>
 
-<style scoped>
+<style>
 .language-switcher {
-  position: fixed;
-  top: max(12px, env(safe-area-inset-top));
-  right: max(12px, env(safe-area-inset-right));
-  z-index: 2000;
+  position: fixed !important;
+  top: max(12px, env(safe-area-inset-top)) !important;
+  right: max(12px, env(safe-area-inset-right)) !important;
+  z-index: 2147483647 !important;
   isolation: isolate;
 }
 
@@ -78,8 +73,8 @@ const changeLanguage = () => {
 
 @media (max-width: 768px) {
   .language-switcher {
-    top: max(10px, env(safe-area-inset-top));
-    right: max(10px, env(safe-area-inset-right));
+    top: max(10px, env(safe-area-inset-top)) !important;
+    right: max(10px, env(safe-area-inset-right)) !important;
   }
   
   .language-select {
@@ -91,8 +86,8 @@ const changeLanguage = () => {
 
 @media (max-width: 480px) {
   .language-switcher {
-    top: max(8px, env(safe-area-inset-top));
-    right: max(8px, env(safe-area-inset-right));
+    top: max(8px, env(safe-area-inset-top)) !important;
+    right: max(8px, env(safe-area-inset-right)) !important;
     left: auto;
   }
   
@@ -106,8 +101,8 @@ const changeLanguage = () => {
 
 @media (max-width: 360px) {
   .language-switcher {
-    top: max(5px, env(safe-area-inset-top));
-    right: max(5px, env(safe-area-inset-right));
+    top: max(5px, env(safe-area-inset-top)) !important;
+    right: max(5px, env(safe-area-inset-right)) !important;
   }
   
   .language-select {
@@ -119,8 +114,8 @@ const changeLanguage = () => {
 
 @media (max-height: 600px) and (orientation: landscape) {
   .language-switcher {
-    top: max(5px, env(safe-area-inset-top));
-    right: max(5px, env(safe-area-inset-right));
+    top: max(5px, env(safe-area-inset-top)) !important;
+    right: max(5px, env(safe-area-inset-right)) !important;
   }
   
   .language-select {

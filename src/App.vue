@@ -1,15 +1,17 @@
 <script setup>
+import LanguageSwitcher from './components/common/LanguageSwitcher.vue'
 </script>
 
 <template>
   <div class="app">
-    <router-view></router-view>
+    <LanguageSwitcher />
+    <router-view />
   </div>
 </template>
 
 <style scoped>
 .app {
   width: 100%;
-  height: 100%;
+  min-height: 100vh;
 }
 </style>
