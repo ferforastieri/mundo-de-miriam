@@ -36,6 +36,7 @@ body {
   --on-primary: #ffffff;
   --border: rgba(85, 34, 0, 0.16);
   --desktop-drawer-width: 260px;
+  --desktop-drawer-collapsed-width: 72px;
   --desktop-drawer-offset: 0px;
 }
 

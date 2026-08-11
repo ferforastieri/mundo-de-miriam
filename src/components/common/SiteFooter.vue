@@ -90,9 +90,9 @@ export default {
     position: relative;
     left: auto;
     z-index: 10005;
-    width: 100%;
+    width: calc(100% - var(--desktop-drawer-offset));
     max-width: none;
-    margin: 0;
+    margin: 0 0 0 var(--desktop-drawer-offset);
     transform: none;
   }
 }

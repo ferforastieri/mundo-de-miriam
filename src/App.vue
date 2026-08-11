@@ -23,7 +23,7 @@ onMounted(() => {
 <template>
   <div
     class="app"
-    :style="{ '--desktop-drawer-offset': isDrawerOpen ? 'var(--desktop-drawer-width)' : '0px' }"
+    :style="{ '--desktop-drawer-offset': isDrawerOpen ? 'var(--desktop-drawer-width)' : 'var(--desktop-drawer-collapsed-width)' }"
   >
     <header class="site-header">
       <div class="site-header__left">
@@ -122,6 +122,10 @@ onMounted(() => {
 @media (min-width: 769px) {
   .site-page {
     margin-left: var(--desktop-drawer-offset);
+  }
+
+  .site-header {
+    left: var(--desktop-drawer-offset);
   }
 }
 
