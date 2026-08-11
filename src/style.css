@@ -82,3 +82,19 @@ html[data-theme="dark"] #app :is(.header-icon-button, .language-switcher--embedd
   border-color: var(--border) !important;
   color: var(--primary) !important;
 }
+
+
+/* Contraste acessível: nenhum texto do app permanece marrom no modo escuro. */
+html[data-theme="dark"] #app :is(h1, h2, h3, h4, h5, h6, p, li, span, small, label, a, button, select, option) {
+  color: var(--text) !important;
+}
+
+html[data-theme="dark"] #app :is(.drawer-link-icon, .drawer-brand, .portfolio-title, .curriculum-title, .section-title, .profile-info .name, .education-header h4, .experience-header h4, .skill-category h4, .company) {
+  color: var(--primary) !important;
+}
+
+html[data-theme="dark"] #app :is(.drawer-trigger, .drawer-close, .language-select, .header-icon-button) {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+  color: var(--primary) !important;
+}
