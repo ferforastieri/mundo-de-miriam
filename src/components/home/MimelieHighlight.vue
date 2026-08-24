@@ -11,7 +11,7 @@
         <img src="/assets/mimelie/mimelie-symbol.png" alt="Símbolo da Mimelie" />
       </div>
       <div class="mimelie-highlight__copy">
-        <span>Empreendedorismo</span>
+        <span>Marca autoral</span>
         <h2>Criadora da marca Mimelie</h2>
         <p>Cílios leves e maquiagem delicada para acompanhar a beleza real.</p>
       </div>

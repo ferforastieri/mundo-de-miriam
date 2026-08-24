@@ -3,6 +3,9 @@
     <CustomButton variant="outline" size="medium" full-width @click="navigateToAbout">
       <TranslatableText text="SOBRE MIM" />
     </CustomButton>
+    <CustomButton variant="outline" size="medium" full-width @click="navigateToCurriculum">
+      <TranslatableText text="CURRÍCULO" />
+    </CustomButton>
     <CustomButton variant="outline" size="medium" full-width @click="navigateToArtisticPortfolio">
       <TranslatableText text="MAQUIAGEM ARTISTICA" />
     </CustomButton>
@@ -51,7 +54,12 @@ export default {
       router.push('/about')
     }
 
+    const navigateToCurriculum = () => {
+      router.push('/curriculum')
+    }
+
     return {
+      navigateToCurriculum,
       navigateToAbout,
       navigateToBeautyPortfolio,
       navigateToArtisticPortfolio,
