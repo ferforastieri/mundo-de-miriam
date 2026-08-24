@@ -215,11 +215,14 @@ html[data-theme="dark"] #app :is(.site-mobile-links, .site-desktop-links) :is(a.
     transform: var(--interactive-lift);
   }
 
-  #app .menu-trigger .menu-trigger__mark {
-    transition: transform 0.25s ease;
+  #app .menu-trigger {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
   }
 
-  #app .menu-trigger:hover .menu-trigger__mark { transform: var(--interactive-lift); }
+  #app .menu-trigger:hover {
+    transform: var(--interactive-lift);
+    box-shadow: var(--interactive-shadow);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -239,7 +242,8 @@ html[data-theme="dark"] #app :is(.site-mobile-links, .site-desktop-links) :is(a.
     .site-dock a svg,
     .site-dock a img,
     .contact-icon,
-    .instagram-icon
+    .instagram-icon,
+    .menu-trigger
   ) {
     transition: none !important;
   }
@@ -260,13 +264,13 @@ html[data-theme="dark"] #app :is(.site-mobile-links, .site-desktop-links) :is(a.
     .site-dock a svg,
     .site-dock a img,
     .contact-icon,
-    .instagram-icon
+    .instagram-icon,
+    .menu-trigger
   ):hover {
     transform: none !important;
   }
 
-  #app .site-dock a:hover :is(svg, img),
-  #app .menu-trigger:hover .menu-trigger__mark {
+  #app .site-dock a:hover :is(svg, img) {
     transform: none !important;
     box-shadow: none !important;
   }

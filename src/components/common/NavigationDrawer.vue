@@ -218,8 +218,8 @@ onBeforeUnmount(() => {
   color: var(--primary);
   background: color-mix(in srgb, var(--surface) 88%, transparent);
   border: 1px solid var(--border);
-  border-radius: 999px;
-  box-shadow: none;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
   cursor: pointer;
 }
 
@@ -397,8 +397,16 @@ html.menu-is-open body { overflow: hidden; }
 .preview-image-leave-to { opacity: 0; }
 
 @media (max-width: 768px) {
-  .menu-trigger { width: 58px; height: 58px; padding: 3px; overflow: visible; background: transparent; border: 0; }
-  .menu-trigger__mark { width: 52px; height: 52px; padding: 3px; background: var(--surface); border: 1px solid var(--border); }
+  .menu-trigger {
+    width: 58px;
+    height: 58px;
+    padding: 3px;
+    overflow: visible;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+  }
+  .menu-trigger__mark { width: 50px; height: 50px; padding: 3px; background: var(--surface); border: 0; }
   .menu-trigger__letter { display: none; }
   .menu-trigger__mark img { display: block; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
   .menu-trigger__badge {
