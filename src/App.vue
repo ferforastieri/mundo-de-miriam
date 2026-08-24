@@ -147,10 +147,16 @@ watch(() => route.fullPath, async () => {
       </nav>
       <div class="site-dock__right">
         <div class="site-desktop-socials" aria-label="Contato e redes sociais">
-          <span class="site-desktop-socials__prompt" aria-hidden="true">
-            <span>Vamos conversar</span>
+          <a
+            class="site-desktop-socials__prompt"
+            href="https://wa.me/5515991962479"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Vamos conversar pelo WhatsApp"
+          >
+            <span class="site-desktop-socials__prompt-text">Vamos conversar</span>
             <i class="site-desktop-socials__prompt-arrow">→</i>
-          </span>
+          </a>
           <a href="https://wa.me/5515991962479" target="_blank" rel="noopener noreferrer" aria-label="Falar pelo WhatsApp" title="WhatsApp">
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M20 11.6a8 8 0 0 1-11.8 7l-4.2 1.1 1.1-4A8 8 0 1 1 20 11.6Z" stroke="currentColor" stroke-width="1.65" stroke-linejoin="round" />
@@ -251,21 +257,42 @@ watch(() => route.fullPath, async () => {
 }
 
 .site-desktop-socials__prompt {
+  --contact-card-pulse: rgba(111, 47, 24, 0.12);
   display: none;
   align-items: center;
   gap: 0.35rem;
   margin-right: 0.55rem;
-  padding: 0 0.25rem;
+  padding: 0.48rem 0.7rem;
   color: var(--muted);
+  background-color: var(--surface-muted);
+  background-image: linear-gradient(105deg, transparent 28%, var(--contact-card-pulse) 48%, transparent 68%);
+  background-position: 125% 0;
+  background-size: 280% 100%;
+  border: 1px solid var(--border);
+  border-radius: 10px;
   font-family: system-ui, sans-serif;
-  font-size: 0.58rem;
+  font-size: 0.84rem;
+  font-weight: 650;
   letter-spacing: 0.04em;
+  text-decoration: none;
   white-space: nowrap;
 }
 
-.site-desktop-socials__prompt-arrow { font-size: 0.85rem; font-style: normal; line-height: 1; }
+.site-desktop-socials__prompt-arrow { color: #6f2f18; font-size: 1.05rem; font-style: normal; line-height: 1; }
 
-.site-desktop-socials a {
+.site-desktop-socials__prompt-text {
+  color: inherit;
+}
+
+:global(html[data-theme="dark"] .site-desktop-socials__prompt) {
+  --contact-card-pulse: rgba(225, 161, 127, 0.16);
+}
+
+:global(html[data-theme="dark"] .site-desktop-socials__prompt-arrow) {
+  color: #e1a17f;
+}
+
+.site-desktop-socials > a:not(.site-desktop-socials__prompt) {
   display: grid;
   width: 36px;
   height: 36px;
@@ -275,17 +302,22 @@ watch(() => route.fullPath, async () => {
   text-decoration: none;
 }
 
-.site-desktop-socials a:hover { color: var(--primary); }
-.site-desktop-socials a:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
-.site-desktop-socials a svg { width: 20px; height: 20px; }
+.site-desktop-socials > a:not(.site-desktop-socials__prompt):hover { color: var(--primary); }
+.site-desktop-socials > a:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.site-desktop-socials > a:not(.site-desktop-socials__prompt) svg { width: 20px; height: 20px; }
+.site-desktop-socials__prompt:hover { color: var(--text); border-color: #6f2f18; }
 
 @media (min-width: 769px) and (prefers-reduced-motion: no-preference) {
-  .site-desktop-socials__prompt-arrow { animation: contact-arrow 1.4s ease-in-out infinite; }
+  .site-desktop-socials__prompt { animation: contact-card-pulse 2.2s linear infinite; }
 
-  @keyframes contact-arrow {
-    0%, 100% { opacity: 0.5; transform: translateX(-2px); }
-    50% { opacity: 1; transform: translateX(3px); }
+  @keyframes contact-card-pulse {
+    from { background-position: 125% 0; }
+    to { background-position: -35% 0; }
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-desktop-socials__prompt { background-image: none; }
 }
 
 .site-mobile-links { display: none; }

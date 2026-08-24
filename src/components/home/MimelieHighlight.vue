@@ -42,7 +42,16 @@
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 .mimelie-highlight:hover { transform: var(--interactive-lift); box-shadow: var(--interactive-shadow); }
-.mimelie-highlight__symbol { display: grid; aspect-ratio: 1; place-items: center; padding: 0.9rem; background: #542a30; border-radius: 50%; }
+.mimelie-highlight__symbol {
+  display: grid;
+  aspect-ratio: 1;
+  place-items: center;
+  padding: 0.9rem;
+  background: #fff7ef;
+  border: 1px solid rgba(84, 42, 48, 0.2);
+  border-radius: 50%;
+  box-shadow: 0 8px 22px rgba(84, 42, 48, 0.12);
+}
 .mimelie-highlight__symbol img { width: 100%; height: 100%; object-fit: contain; }
 .mimelie-highlight__copy > span { color: #9f4d4d; font-family: system-ui, sans-serif; font-size: 0.64rem; font-weight: 750; letter-spacing: 0.16em; text-transform: uppercase; }
 .mimelie-highlight h2 { margin: 0.4rem 0; color: #542a30; font-size: clamp(1.8rem, 3.5vw, 3rem); font-weight: normal; line-height: 1; }
@@ -51,20 +60,21 @@
 .mimelie-highlight__action i { font-size: 1.1rem; font-style: normal; transition: transform 0.2s ease; }
 .mimelie-highlight:hover .mimelie-highlight__action i { transform: translate(3px, -3px); }
 
-:global(html[data-theme="dark"]) .mimelie-highlight {
+:global(html[data-theme="dark"] .mimelie-highlight) {
   color: #fff8f3 !important;
-  background: #48252b;
-  border-color: #8f5e61;
+  background: #351b20;
+  border-color: #9e686d;
   box-shadow: inset 0 0 0 1px rgba(255, 248, 243, 0.08), 0 12px 30px rgba(0, 0, 0, 0.2);
 }
-:global(html[data-theme="dark"]) .mimelie-highlight__symbol {
-  background: #fff0e4;
+:global(html[data-theme="dark"] .mimelie-highlight__symbol) {
+  background: #fff7ef;
+  border-color: rgba(255, 255, 255, 0.68);
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28);
 }
-:global(html[data-theme="dark"]) .mimelie-highlight__copy > span { color: #ffc7a5 !important; }
-:global(html[data-theme="dark"]) .mimelie-highlight h2 { color: #ffffff !important; }
-:global(html[data-theme="dark"]) .mimelie-highlight p { color: #f7ded4 !important; }
-:global(html[data-theme="dark"]) .mimelie-highlight__action { color: #ffffff !important; }
+:global(html[data-theme="dark"] .mimelie-highlight__copy > span) { color: #ffc7a5 !important; }
+:global(html[data-theme="dark"] .mimelie-highlight h2) { color: #ffffff !important; }
+:global(html[data-theme="dark"] .mimelie-highlight p) { color: #f7ded4 !important; }
+:global(html[data-theme="dark"] .mimelie-highlight__action) { color: #ffffff !important; }
 
 @media (max-width: 680px) {
   .mimelie-highlight-wrap { margin-bottom: 2rem; }

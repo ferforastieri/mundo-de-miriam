@@ -5,7 +5,7 @@
     </div>
     
     <div class="profile-info">
-      <h1>MIRIAM CLERES FORASTIERI</h1>
+      <h1>MIRIAM CLÉRES FORASTIERI</h1>
       <h2><TranslatableText text="MAQUIADORA E FOTÓGRAFA" /></h2>
       
       <p class="description">
