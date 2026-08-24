@@ -396,6 +396,7 @@ watch(() => route.fullPath, async () => {
     border-width: 1px 0 0;
     border-radius: 0;
     box-shadow: none;
+    touch-action: pan-x;
   }
 
   .site-dock__left { grid-column: 1; justify-content: flex-start; }

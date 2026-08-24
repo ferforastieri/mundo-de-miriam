@@ -32,7 +32,13 @@
         tabindex="-1"
         @keydown="handleDialogKeydown"
       >
-        <header class="editorial-menu__header">
+        <header
+          class="editorial-menu__header"
+          @touchstart="startCloseGesture"
+          @touchmove="moveCloseGesture"
+          @touchend="endCloseGesture"
+          @touchcancel="resetCloseGesture"
+        >
           <RouterLink to="/" class="editorial-menu__brand" @click="close">
             <span>Mundo de Miriam</span>
             <small>Maquiagem · Fotografia · Beleza</small>
@@ -115,13 +121,26 @@
             </div>
           </div>
         </footer>
+
+        <button
+          ref="mobileCloseButton"
+          class="editorial-menu__mobile-close"
+          type="button"
+          aria-label="Fechar menu"
+          @click="close"
+        >
+          <span class="editorial-menu__mobile-close-mark" aria-hidden="true">
+            <img src="/apple-touch-icon.png" alt="" />
+            <span class="editorial-menu__mobile-close-badge"><i></i><i></i></span>
+          </span>
+        </button>
       </div>
     </Transition>
   </Teleport>
 </template>
 
 <script setup>
-import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import LanguageSwitcher from './LanguageSwitcher.vue'
 import StyledSelect from './StyledSelect.vue'
@@ -139,7 +158,14 @@ const isOpen = ref(false)
 const activePath = ref('/beauty-portfolio')
 const triggerButton = ref(null)
 const closeButton = ref(null)
+const mobileCloseButton = ref(null)
 const menuDialog = ref(null)
+const SWIPE_THRESHOLD = 52
+const SWIPE_AXIS_RATIO = 1.2
+let dockElement = null
+
+const openGesture = { active: false, recognized: false, startX: 0, startY: 0, currentX: 0, currentY: 0 }
+const closeGesture = { active: false, recognized: false, startX: 0, startY: 0, currentX: 0, currentY: 0 }
 
 const links = [
   { to: '/', label: 'Início', category: 'Boas-vindas', image: '/assets/profile/fotodalinda.jpg' },
@@ -165,12 +191,14 @@ const selectedTheme = computed({
 })
 
 const activeItem = computed(() => links.find((item) => item.to === activePath.value) || links[0])
+const isMobileViewport = () => window.matchMedia('(max-width: 768px)').matches
 
 const open = async () => {
   activePath.value = route.path
   isOpen.value = true
   await nextTick()
-  closeButton.value?.focus()
+  const focusTarget = isMobileViewport() ? mobileCloseButton.value : closeButton.value
+  focusTarget?.focus()
 }
 
 const close = () => {
@@ -199,12 +227,108 @@ const handleDialogKeydown = (event) => {
   }
 }
 
+const resetGesture = (gesture) => {
+  gesture.active = false
+  gesture.recognized = false
+}
+
+const startOpenGesture = (event) => {
+  if (isOpen.value || !isMobileViewport() || event.touches.length !== 1) return
+  const touch = event.touches[0]
+  Object.assign(openGesture, {
+    active: true,
+    recognized: false,
+    startX: touch.clientX,
+    startY: touch.clientY,
+    currentX: touch.clientX,
+    currentY: touch.clientY
+  })
+}
+
+const moveOpenGesture = (event) => {
+  if (!openGesture.active || event.touches.length !== 1) return
+  const touch = event.touches[0]
+  openGesture.currentX = touch.clientX
+  openGesture.currentY = touch.clientY
+  const deltaX = touch.clientX - openGesture.startX
+  const deltaY = touch.clientY - openGesture.startY
+
+  if (deltaY < -10 && Math.abs(deltaY) > Math.abs(deltaX) * SWIPE_AXIS_RATIO) {
+    openGesture.recognized = true
+    event.preventDefault()
+  }
+}
+
+const endOpenGesture = (event) => {
+  if (!openGesture.active) return
+  const distance = openGesture.startY - openGesture.currentY
+  const shouldOpen = openGesture.recognized && distance >= SWIPE_THRESHOLD
+  resetGesture(openGesture)
+
+  if (shouldOpen) {
+    event.preventDefault()
+    open()
+  }
+}
+
+const startCloseGesture = (event) => {
+  if (!isMobileViewport() || event.touches.length !== 1) return
+  const touch = event.touches[0]
+  Object.assign(closeGesture, {
+    active: true,
+    recognized: false,
+    startX: touch.clientX,
+    startY: touch.clientY,
+    currentX: touch.clientX,
+    currentY: touch.clientY
+  })
+}
+
+const moveCloseGesture = (event) => {
+  if (!closeGesture.active || event.touches.length !== 1) return
+  const touch = event.touches[0]
+  closeGesture.currentX = touch.clientX
+  closeGesture.currentY = touch.clientY
+  const deltaX = touch.clientX - closeGesture.startX
+  const deltaY = touch.clientY - closeGesture.startY
+
+  if (deltaY > 10 && deltaY > Math.abs(deltaX) * SWIPE_AXIS_RATIO) {
+    closeGesture.recognized = true
+    event.preventDefault()
+  }
+}
+
+const endCloseGesture = (event) => {
+  if (!closeGesture.active) return
+  const distance = closeGesture.currentY - closeGesture.startY
+  const shouldClose = closeGesture.recognized && distance >= SWIPE_THRESHOLD
+  resetGesture(closeGesture)
+
+  if (shouldClose) {
+    event.preventDefault()
+    close()
+  }
+}
+
+const resetCloseGesture = () => resetGesture(closeGesture)
+
+onMounted(() => {
+  dockElement = triggerButton.value?.closest('.site-dock')
+  dockElement?.addEventListener('touchstart', startOpenGesture, { passive: true })
+  dockElement?.addEventListener('touchmove', moveOpenGesture, { passive: false })
+  dockElement?.addEventListener('touchend', endOpenGesture, { passive: false })
+  dockElement?.addEventListener('touchcancel', () => resetGesture(openGesture), { passive: true })
+})
+
 watch(isOpen, (open) => {
   document.documentElement.classList.toggle('menu-is-open', open)
 })
 
 onBeforeUnmount(() => {
   document.documentElement.classList.remove('menu-is-open')
+  dockElement?.removeEventListener('touchstart', startOpenGesture)
+  dockElement?.removeEventListener('touchmove', moveOpenGesture)
+  dockElement?.removeEventListener('touchend', endOpenGesture)
 })
 </script>
 
@@ -378,6 +502,7 @@ onBeforeUnmount(() => {
 .editorial-menu__preferences { display: flex; align-items: center; gap: 1.5rem; }
 .editorial-menu__preferences label,
 .editorial-menu__language { display: flex; align-items: center; gap: 0.65rem; }
+.editorial-menu__mobile-close { display: none; }
 .menu-trigger:focus-visible,
 .editorial-menu a:focus-visible,
 .editorial-menu button:focus-visible { outline: 2px solid var(--primary); outline-offset: 4px; }
@@ -433,6 +558,7 @@ html.menu-is-open body { overflow: hidden; }
     padding: max(14px, env(safe-area-inset-top)) 14px max(14px, env(safe-area-inset-bottom));
   }
   .editorial-menu__header { padding-bottom: 0.75rem; }
+  .editorial-menu__header { touch-action: pan-x; }
   .editorial-menu__brand span { font-size: 1rem; }
   .editorial-menu__brand small,
   .editorial-menu__preview { display: none; }
@@ -464,6 +590,52 @@ html.menu-is-open body { overflow: hidden; }
   .editorial-menu__socials a { width: 42px; height: 42px; }
   .editorial-menu__socials svg { width: 23px; height: 23px; }
   .editorial-menu__preferences { align-items: flex-end; flex-direction: column; gap: 0.55rem; }
+  .editorial-menu__mobile-close {
+    position: fixed;
+    left: max(12px, env(safe-area-inset-left));
+    bottom: calc(max(7px, env(safe-area-inset-bottom)) + 2px);
+    z-index: 2;
+    display: grid;
+    width: 58px;
+    height: 58px;
+    padding: 3px;
+    place-items: center;
+    color: var(--primary);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+  }
+  .editorial-menu__mobile-close-mark {
+    position: relative;
+    display: grid;
+    width: 50px;
+    height: 50px;
+    padding: 3px;
+    place-items: center;
+    background: var(--surface);
+    border-radius: 50%;
+  }
+  .editorial-menu__mobile-close-mark img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+  .editorial-menu__mobile-close-badge {
+    position: absolute;
+    right: -3px;
+    bottom: -2px;
+    width: 19px;
+    height: 19px;
+    background: var(--primary);
+    border: 1.5px solid var(--surface);
+    border-radius: 50%;
+  }
+  .editorial-menu__mobile-close-badge i {
+    position: absolute;
+    top: 8px;
+    left: 4px;
+    width: 9px;
+    height: 1px;
+    background: var(--on-primary);
+    transform: rotate(45deg);
+  }
+  .editorial-menu__mobile-close-badge i:last-child { transform: rotate(-45deg); }
 }
 
 @media (max-width: 520px) {

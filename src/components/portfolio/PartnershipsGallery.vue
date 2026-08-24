@@ -48,36 +48,37 @@
       </div>
     </div>
 
-    <!-- Modal -->
-    <div v-if="modalOpen" class="modal" @click="closeModal">
-      <div class="modal-content" @click.stop>
-        <button class="modal-close" @click="closeModal">
+    <Teleport to="body">
+      <div v-if="modalOpen" class="modal" role="dialog" aria-modal="true" aria-label="Visualizador de fotos da parceria" @click="closeModal">
+        <div class="modal-content" @click.stop>
+          <button class="modal-close" type="button" aria-label="Fechar foto" @click="closeModal">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
             <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
           </svg>
-        </button>
-        
-        <div class="modal-image-container">
-          <img :src="currentImage.src" :alt="currentImage.alt" />
-        </div>
-        
-        <div class="modal-navigation">
-          <button @click="previousImage" class="nav-button prev" :disabled="currentIndex === 0">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
-            </svg>
           </button>
+        
+          <div class="modal-image-container">
+            <img :src="currentImage.src" :alt="currentImage.alt" />
+          </div>
+        
+          <div class="modal-navigation">
+            <button type="button" class="nav-button prev" :disabled="currentIndex === 0" aria-label="Foto anterior" @click="previousImage">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+              </svg>
+            </button>
           
-          <span class="image-counter">{{ currentIndex + 1 }} / {{ currentImages.length }}</span>
+            <span class="image-counter">{{ currentIndex + 1 }} / {{ currentImages.length }}</span>
           
-          <button @click="nextImage" class="nav-button next" :disabled="currentIndex === currentImages.length - 1">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
-            </svg>
-          </button>
+            <button type="button" class="nav-button next" :disabled="currentIndex === currentImages.length - 1" aria-label="Próxima foto" @click="nextImage">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </Teleport>
   </div>
 </template>
 
@@ -261,22 +262,22 @@ export default {
 
 .modal {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
   background: rgba(0, 0, 0, 0.9);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 11000;
-  padding: 2rem;
+  display: grid;
+  place-items: center;
+  z-index: 20000;
+  padding: 1rem;
 }
 
 .modal-content {
   position: relative;
-  max-width: 90vw;
-  max-height: 90vh;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  width: min(1100px, calc(100vw - 2rem));
+  height: min(900px, calc(100dvh - 2rem));
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 16px;
@@ -307,14 +308,18 @@ export default {
 }
 
 .modal-image-container {
-  max-height: 80vh;
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  place-items: center;
   overflow: hidden;
+  background: #0d0d0d;
 }
 
 .modal-image-container img {
+  display: block;
   width: 100%;
-  height: auto;
-  max-height: 80vh;
+  height: 100%;
   object-fit: contain;
 }
 
@@ -373,8 +378,10 @@ export default {
   }
   
   .modal {
-    padding: 1rem;
+    padding: 0.5rem;
   }
+
+  .modal-content { width: calc(100vw - 1rem); height: calc(100dvh - 1rem); }
   
   .modal-navigation {
     gap: 1rem;
