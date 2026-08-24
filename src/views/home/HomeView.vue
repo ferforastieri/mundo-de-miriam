@@ -5,6 +5,7 @@ import HomeProfile from '@/components/home/HomeProfile.vue'
 import InstagramStats from '@/components/home/InstagramStats.vue'
 import HomeNavigation from '@/components/home/HomeNavigation.vue'
 import ServicesSection from '@/components/home/ServicesSection.vue'
+import MimelieHighlight from '@/components/home/MimelieHighlight.vue'
 
 const router = useRouter()
 </script>
@@ -14,8 +15,9 @@ const router = useRouter()
     <div class="profile-section">
       <HomeProfile />
       <InstagramStats />
+      <MimelieHighlight />
       <HomeNavigation />
-      <ServicesSection />
+      <ServicesSection class="home-contact-card" />
     </div>
   </HomeLayout>
 </template>
@@ -57,6 +59,10 @@ const router = useRouter()
   font-style: italic;
   letter-spacing: 1px;
   font-size: 1.1rem;
+}
+
+@media (min-width: 769px) {
+  .home-contact-card { display: none; }
 }
 
 @keyframes fadeIn {

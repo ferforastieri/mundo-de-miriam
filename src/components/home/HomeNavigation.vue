@@ -50,7 +50,7 @@ export default {
     const navigateToAbout = () => {
       router.push('/about')
     }
-    
+
     return {
       navigateToAbout,
       navigateToBeautyPortfolio,
@@ -83,4 +83,4 @@ export default {
   }
 }
 
-</style> 
+</style>

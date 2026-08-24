@@ -11,10 +11,10 @@
   min-height: 100dvh;
   width: 100%;
   box-sizing: border-box;
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  background: var(--page-bg);
   display: flex;
   justify-content: center;
-  padding: 40px 20px;
+  padding: 20px;
 }
 
 .layout-content {
@@ -27,9 +27,26 @@
   margin: 0 auto;
 }
 
+.layout-content :deep(.about-header) {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
 @media (max-width: 480px) {
   .about-layout {
-    padding: 20px;
+    padding: 10px;
+  }
+
+  .layout-content :deep(.about-header) {
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+
+  .layout-content :deep(.about-header .header-content) {
+    padding-right: 0;
+    text-align: left;
   }
 }
 </style>

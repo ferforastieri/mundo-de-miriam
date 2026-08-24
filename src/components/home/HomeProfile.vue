@@ -34,9 +34,9 @@ export default {
 }
 
 .profile-image {
-  width: 180px;
-  height: 180px;
-  margin: 0 auto 2rem;
+  width: 150px;
+  height: 150px;
+  margin: 0 auto 1.25rem;
   position: relative;
   border: 3px solid #520;
   padding: 5px;
@@ -67,13 +67,13 @@ export default {
 
 .profile-info {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
   animation: slideUp 0.5s ease;
 }
 
 h1 {
   font-family: 'Gilda Display', serif;
-  font-size: 3rem;
+  font-size: clamp(2rem, 4vw, 2.6rem);
   color: #520;
   margin: 0;
   font-weight: normal;
@@ -82,20 +82,21 @@ h1 {
 
 h2 {
   font-family: 'Gilda Display', serif;
-  font-size: 1.1rem;
+  font-size: 0.9rem;
   color: #666;
-  margin: 1rem 0;
+  margin: 0.7rem 0;
   font-weight: normal;
   letter-spacing: 4px;
 }
 
 .description {
   font-family: 'Gilda Display', serif;
-  font-size: 1.2rem;
-  line-height: 1.8;
+  max-width: 760px;
+  font-size: 1rem;
+  line-height: 1.5;
   color: #520;
-  margin: 2rem 0;
-  letter-spacing: 1.5px;
+  margin: 0.7rem auto 0;
+  letter-spacing: 1px;
 }
 
 @keyframes fadeIn {
@@ -120,12 +121,15 @@ h2 {
 
 @media (max-width: 480px) {
   h1 {
-    font-size: 2rem;
+    font-size: 1.75rem;
   }
 
   .profile-image {
-    width: 150px;
-    height: 150px;
+    width: 120px;
+    height: 120px;
   }
+
+  h2 { font-size: 0.78rem; letter-spacing: 2.5px; }
+  .description { font-size: 0.9rem; line-height: 1.4; }
 }
 </style> 

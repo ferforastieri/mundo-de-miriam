@@ -1,7 +1,7 @@
 <template>
   <div class="portfolio-gallery">
     <div 
-      v-for="(image, index) in images" 
+      v-for="(image, index) in visibleImages"
       :key="index"
       class="gallery-item"
       @click="openModal(index)"
@@ -38,9 +38,9 @@
             </svg>
           </button>
           
-          <span class="image-counter">{{ currentIndex + 1 }} / {{ images.length }}</span>
+          <span class="image-counter">{{ currentIndex + 1 }} / {{ visibleImages.length }}</span>
           
-          <button @click="nextImage" class="nav-button next" :disabled="currentIndex === images.length - 1">
+          <button @click="nextImage" class="nav-button next" :disabled="currentIndex === visibleImages.length - 1">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
               <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
             </svg>
@@ -68,8 +68,13 @@ export default {
     }
   },
   computed: {
+    visibleImages() {
+      return this.images.filter((image) => (
+        !/\/artisticstyle\/ArtisticStyle(?:11|12)\.jpeg$/i.test(image.src)
+      ))
+    },
     currentImage() {
-      return this.images[this.currentIndex] || {}
+      return this.visibleImages[this.currentIndex] || {}
     }
   },
   methods: {
@@ -83,7 +88,7 @@ export default {
       document.body.style.overflow = 'auto'
     },
     nextImage() {
-      if (this.currentIndex < this.images.length - 1) {
+      if (this.currentIndex < this.visibleImages.length - 1) {
         this.currentIndex++
       }
     },

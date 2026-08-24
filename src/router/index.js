@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { nextTick } from 'vue'
 import HomeView from '../views/home/HomeView.vue'
 import AboutView from '../views/about/AboutView.vue'
 import CurriculumView from '../views/curriculum/CurriculumView.vue'
@@ -49,13 +50,19 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
-  scrollBehavior(_to, _from, savedPosition) {
-    return savedPosition || { left: 0, top: 0 }
+  scrollBehavior() {
+    return { left: 0, top: 0, behavior: 'auto' }
   }
 })
 
-router.afterEach((to) => {
+router.afterEach(async (to) => {
   applySeo(to.path)
+
+  await nextTick()
+  window.scrollTo({ left: 0, top: 0, behavior: 'auto' })
+  document
+    .querySelectorAll('.portfolio-layout, .partnerships-layout')
+    .forEach((element) => element.scrollTo({ left: 0, top: 0, behavior: 'auto' }))
 })
 
 export default router

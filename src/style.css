@@ -35,9 +35,8 @@ body {
   --primary: #552200;
   --on-primary: #ffffff;
   --border: rgba(85, 34, 0, 0.16);
-  --desktop-drawer-width: 260px;
-  --desktop-drawer-collapsed-width: 72px;
-  --desktop-drawer-offset: 0px;
+  --interactive-lift: translateY(-4px);
+  --interactive-shadow: 0 18px 36px rgba(84, 42, 48, 0.12);
 }
 
 html[data-theme="dark"] {
@@ -50,6 +49,20 @@ html[data-theme="dark"] {
   --primary: #ffd0aa;
   --on-primary: #26140a;
   --border: rgba(241, 184, 134, 0.28);
+  --interactive-shadow: 0 18px 36px rgba(0, 0, 0, 0.32);
+}
+
+@media (min-width: 769px) {
+  html[data-theme="dark"] {
+    --page-bg: #101010;
+    --surface: #1a1a1a;
+    --surface-muted: #282828;
+    --text: #f5f5f5;
+    --muted: #a8a8a8;
+    --primary: #e2e2e2;
+    --on-primary: #111111;
+    --border: rgba(255, 255, 255, 0.16);
+  }
 }
 
 body, #app {
@@ -61,13 +74,13 @@ html[data-theme="dark"] #app :is(.home-layout, .about-layout, .curriculum-layout
   background: var(--page-bg) !important;
 }
 
-html[data-theme="dark"] #app :is(.site-header, .navigation-drawer, .curriculum-header, .curriculum-content, .portfolio-header, .partnership-card, .gallery-item, .about-profile, .services-section, .instagram-stats, .site-footer, .stat-item, .skill-item) {
+html[data-theme="dark"] #app :is(.site-dock, .curriculum-header, .curriculum-content, .portfolio-header, .partnership-card, .gallery-item, .about-profile, .services-section, .instagram-stats, .stat-item, .skill-item) {
   background: var(--surface) !important;
   border-color: var(--border) !important;
   color: var(--text) !important;
 }
 
-html[data-theme="dark"] #app :is(.portfolio-title, .curriculum-title, .section-title, .profile-info .name, .education-header h4, .experience-header h4, .skill-category h4, .company, .drawer-brand, .drawer-links a) {
+html[data-theme="dark"] #app :is(.portfolio-title, .curriculum-title, .section-title, .profile-info .name, .education-header h4, .experience-header h4, .skill-category h4, .company) {
   color: var(--primary) !important;
 }
 
@@ -87,19 +100,31 @@ html[data-theme="dark"] #app :is(.header-icon-button, .language-switcher--embedd
 }
 
 
-/* Contraste acessível: nenhum texto do app permanece marrom no modo escuro. */
-html[data-theme="dark"] #app :is(h1, h2, h3, h4, h5, h6, p, li, span, small, label, a, button, select, option) {
+/* Textos de conteúdo ficam claros; elementos internos herdam o contraste do próprio componente. */
+html[data-theme="dark"] #app :is(h1, h2, h3, h4, h5, h6, p, li, label, a, button) {
   color: var(--text) !important;
 }
 
-html[data-theme="dark"] #app :is(.drawer-link-icon, .drawer-brand, .portfolio-title, .curriculum-title, .section-title, .profile-info .name, .education-header h4, .experience-header h4, .skill-category h4, .company) {
+html[data-theme="dark"] #app :is(.portfolio-title, .curriculum-title, .section-title, .profile-info .name, .education-header h4, .experience-header h4, .skill-category h4, .company) {
   color: var(--primary) !important;
 }
 
-html[data-theme="dark"] #app :is(.drawer-trigger, .drawer-close, .language-select, .header-icon-button) {
+html[data-theme="dark"] #app :is(.language-select, .header-icon-button) {
   background: var(--surface-muted) !important;
   border-color: var(--border) !important;
   color: var(--primary) !important;
+}
+
+@media (min-width: 769px) {
+  html[data-theme="dark"] #app .header-icon-button:hover {
+    background: var(--primary) !important;
+    color: var(--on-primary) !important;
+  }
+
+  html[data-theme="dark"] #app .back-button:hover {
+    background: var(--surface-muted) !important;
+    color: var(--text) !important;
+  }
 }
 
 html[data-theme="dark"] #app .curriculum-section :is(h3, p) {
@@ -119,7 +144,130 @@ html[data-theme="dark"] #app .modal .nav-button:disabled {
   color: var(--muted) !important;
 }
 
-html[data-theme="dark"] #app .site-footer .brand-monogram {
-  background: var(--primary) !important;
+html[data-theme="dark"] #app .page-back-button:hover {
   color: var(--on-primary) !important;
+}
+
+html[data-theme="dark"] #app :is(.site-mobile-links, .site-desktop-links) a {
+  color: var(--muted) !important;
+}
+
+html[data-theme="dark"] #app :is(.site-mobile-links, .site-desktop-links) :is(a.router-link-exact-active, a.router-link-active) {
+  color: var(--primary) !important;
+}
+
+/* Uma única assinatura de movimento para cards e controles com ícone. */
+@media (hover: hover) and (pointer: fine) {
+  #app :is(
+    .mimelie-highlight,
+    .gallery-item,
+    .partnership-card,
+    .skill-item,
+    .stat-item,
+    .contact-section,
+    .curriculum-section,
+    .instagram-stats,
+    .services-section,
+    .page-back-button,
+    .header-icon-button,
+    .expand-indicator
+  ) {
+    transition-property: transform, box-shadow, color, background-color, border-color;
+    transition-duration: 0.25s;
+    transition-timing-function: ease;
+  }
+
+  #app :is(
+    .mimelie-highlight,
+    .gallery-item,
+    .partnership-card,
+    .skill-item,
+    .stat-item,
+    .contact-section,
+    .curriculum-section,
+    .instagram-stats,
+    .services-section,
+    .page-back-button,
+    .header-icon-button,
+    .expand-indicator
+  ):hover {
+    transform: var(--interactive-lift);
+    box-shadow: var(--interactive-shadow);
+  }
+
+  #app .contact-item:hover .contact-icon,
+  #app .instagram-brand:hover .instagram-icon {
+    transform: var(--interactive-lift);
+    box-shadow: var(--interactive-shadow);
+  }
+
+  #app :is(.contact-icon, .instagram-icon) {
+    transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+  }
+
+  #app .site-dock a svg,
+  #app .site-dock a img {
+    transition: transform 0.25s ease;
+  }
+
+  #app .site-dock a:hover svg,
+  #app .site-dock a:hover img {
+    transform: var(--interactive-lift);
+  }
+
+  #app .menu-trigger .menu-trigger__mark {
+    transition: transform 0.25s ease;
+  }
+
+  #app .menu-trigger:hover .menu-trigger__mark { transform: var(--interactive-lift); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #app :is(
+    .mimelie-highlight,
+    .gallery-item,
+    .partnership-card,
+    .skill-item,
+    .stat-item,
+    .contact-section,
+    .curriculum-section,
+    .instagram-stats,
+    .services-section,
+    .page-back-button,
+    .header-icon-button,
+    .expand-indicator,
+    .site-dock a svg,
+    .site-dock a img,
+    .contact-icon,
+    .instagram-icon
+  ) {
+    transition: none !important;
+  }
+
+  #app :is(
+    .mimelie-highlight,
+    .gallery-item,
+    .partnership-card,
+    .skill-item,
+    .stat-item,
+    .contact-section,
+    .curriculum-section,
+    .instagram-stats,
+    .services-section,
+    .page-back-button,
+    .header-icon-button,
+    .expand-indicator,
+    .site-dock a svg,
+    .site-dock a img,
+    .contact-icon,
+    .instagram-icon
+  ):hover {
+    transform: none !important;
+  }
+
+  #app .site-dock a:hover :is(svg, img),
+  #app .menu-trigger:hover .menu-trigger__mark {
+    transform: none !important;
+    box-shadow: none !important;
+  }
 }

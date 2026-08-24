@@ -2,7 +2,7 @@
   <div class="partnerships-gallery">
     <div 
       v-for="(partnership, index) in partnerships" 
-      :key="index"
+      :key="partnership.name"
       class="partnership-card"
       :class="{ 'expanded': partnership.isExpanded }"
       @click="togglePartnership(index)"
@@ -138,6 +138,7 @@ export default {
 .partnerships-gallery {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  align-items: start;
   gap: 2rem;
   margin-bottom: 2rem;
 }

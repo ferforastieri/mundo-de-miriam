@@ -2,6 +2,7 @@
   <div class="about-profile">
     <!-- Header Section -->
     <div class="about-header">
+      <PageBackButton />
       <div class="header-content">
         <h1 class="about-title">
           <TranslatableText text="Sobre Mim" />
@@ -88,11 +89,13 @@
 <script>
 import { useRouter } from 'vue-router'
 import { TranslatableText } from '../common'
+import PageBackButton from '@/components/common/PageBackButton.vue'
 
 export default {
   name: 'AboutProfile',
   components: {
-    TranslatableText
+    TranslatableText,
+    PageBackButton
   },
   setup() {
     const router = useRouter()
