@@ -311,13 +311,14 @@ const endCloseGesture = (event) => {
 }
 
 const resetCloseGesture = () => resetGesture(closeGesture)
+const resetOpenGesture = () => resetGesture(openGesture)
 
 onMounted(() => {
   dockElement = triggerButton.value?.closest('.site-dock')
   dockElement?.addEventListener('touchstart', startOpenGesture, { passive: true })
   dockElement?.addEventListener('touchmove', moveOpenGesture, { passive: false })
   dockElement?.addEventListener('touchend', endOpenGesture, { passive: false })
-  dockElement?.addEventListener('touchcancel', () => resetGesture(openGesture), { passive: true })
+  dockElement?.addEventListener('touchcancel', resetOpenGesture, { passive: true })
 })
 
 watch(isOpen, (open) => {
@@ -329,6 +330,7 @@ onBeforeUnmount(() => {
   dockElement?.removeEventListener('touchstart', startOpenGesture)
   dockElement?.removeEventListener('touchmove', moveOpenGesture)
   dockElement?.removeEventListener('touchend', endOpenGesture)
+  dockElement?.removeEventListener('touchcancel', resetOpenGesture)
 })
 </script>
 
