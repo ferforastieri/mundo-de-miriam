@@ -402,10 +402,12 @@ html.menu-is-open body { overflow: hidden; }
     height: 58px;
     padding: 3px;
     overflow: visible;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
   }
+  .menu-trigger:hover { box-shadow: none; }
   .menu-trigger__mark { width: 50px; height: 50px; padding: 3px; background: var(--surface); border: 0; }
   .menu-trigger__letter { display: none; }
   .menu-trigger__mark img { display: block; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
