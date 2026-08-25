@@ -3,6 +3,52 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (() => {
+        let savedTheme = null
+        try { savedTheme = localStorage.getItem('themePreference') } catch {}
+        const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches
+        const isDark = savedTheme ? savedTheme === 'dark' : prefersDark
+        document.documentElement.dataset.theme = isDark ? 'dark' : 'light'
+        document.documentElement.style.colorScheme = isDark ? 'dark' : 'light'
+      })()
+    </script>
+    <style>
+      html, body, #app { min-height: 100%; background: #fff; }
+      html[data-theme="dark"],
+      html[data-theme="dark"] body,
+      html[data-theme="dark"] #app { background: #13100f; }
+      @media (min-width: 769px) {
+        html[data-theme="dark"],
+        html[data-theme="dark"] body,
+        html[data-theme="dark"] #app { background: #101010; }
+      }
+      #seo-fallback {
+        position: fixed !important;
+        width: 1px !important;
+        height: 1px !important;
+        margin: -1px !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        clip-path: inset(50%) !important;
+        white-space: nowrap !important;
+        border: 0 !important;
+      }
+    </style>
+    <noscript>
+      <style>
+        #seo-fallback {
+          position: static !important;
+          width: auto !important;
+          height: auto !important;
+          margin: 0 !important;
+          padding: 2rem !important;
+          overflow: visible !important;
+          clip-path: none !important;
+          white-space: normal !important;
+        }
+      </style>
+    </noscript>
     <title>Miriam Cléres Forastieri | Maquiadora e Fotógrafa</title>
     <meta name="description" content="Portfólio profissional de Miriam Cléres Forastieri, maquiadora artística e fotógrafa em Sorocaba. Conheça trabalhos de beleza, arte, e-commerce e parcerias." />
     <meta name="author" content="Miriam Cléres Forastieri" />
@@ -31,9 +77,9 @@
     <link rel="manifest" href="/manifest.json" />
     <!-- Favicon para navegadores web -->
     <link rel="shortcut icon" href="/favicon.ico" />
-    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/pwa-icon-192.png" />
     <!-- Favicon para dispositivos móveis -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/android-chrome-192x192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-v2.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Gilda+Display&display=swap" rel="stylesheet">
