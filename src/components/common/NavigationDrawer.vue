@@ -10,7 +10,7 @@
   >
     <span class="menu-trigger__mark" aria-hidden="true">
       <span class="menu-trigger__letter">M</span>
-      <img src="/apple-touch-icon.png" alt="" />
+      <img src="/pwa-icon-maskable-192.png" alt="" />
       <span class="menu-trigger__badge">
         <i></i><i></i><i></i>
       </span>
@@ -137,7 +137,7 @@
             @click="close"
           >
             <span class="editorial-menu__mobile-close-mark" aria-hidden="true">
-              <img src="/apple-touch-icon.png" alt="" />
+              <img src="/pwa-icon-maskable-192.png" alt="" />
               <span class="editorial-menu__mobile-close-badge"><i></i><i></i></span>
             </span>
           </button>
