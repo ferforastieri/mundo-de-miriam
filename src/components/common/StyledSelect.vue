@@ -183,6 +183,26 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', handleOutsideC
 .styled-select--compact { width: 42px; min-width: 42px; }
 .styled-select--compact .styled-select__trigger { display: grid; grid-template-columns: 1fr; width: 42px; height: 42px; min-height: 42px; padding: 0; place-items: center; border-radius: 50%; font-size: 0.7rem; font-weight: 750; letter-spacing: 0.06em; text-align: center; }
 .styled-select--compact .styled-select__menu { right: 0; }
+@media (max-width: 768px) {
+  .styled-select--compact { width: 50px; min-width: 50px; }
+  .styled-select--compact .styled-select__trigger {
+    width: 50px;
+    height: 22px;
+    min-height: 22px;
+    color: var(--muted);
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+  }
+  .styled-select--compact .styled-select__trigger span {
+    display: grid;
+    width: 100%;
+    height: 22px;
+    place-items: center;
+    line-height: 1;
+  }
+  .styled-select--compact .styled-select__trigger:hover { color: var(--primary); background: transparent; }
+}
 .styled-select-menu-enter-active,
 .styled-select-menu-leave-active { transition: opacity 0.16s ease, transform 0.16s ease; }
 .styled-select-menu-enter-from,

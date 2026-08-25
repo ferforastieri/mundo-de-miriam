@@ -8,6 +8,7 @@
       placement="top"
       @change="changeLanguage"
     />
+    <span v-if="embedded" class="language-switcher__label" aria-hidden="true">Idioma</span>
   </div>
 </template>
 
@@ -64,5 +65,28 @@ const changeLanguage = (language) => {
   position: static;
   width: auto;
   height: auto;
+}
+
+.language-switcher__label { display: none; }
+
+@media (max-width: 768px) {
+  .language-switcher.language-switcher--embedded {
+    display: grid;
+    grid-template-rows: 22px auto;
+    width: 50px;
+    height: 50px;
+    place-items: center;
+    align-content: center;
+    gap: 0.15rem;
+    color: var(--muted);
+  }
+
+  .language-switcher__label {
+    display: block;
+    font-family: system-ui, sans-serif;
+    font-size: 0.58rem;
+    line-height: 10px;
+    letter-spacing: 0.04em;
+  }
 }
 </style>

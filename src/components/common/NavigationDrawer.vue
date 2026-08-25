@@ -26,18 +26,25 @@
         id="editorial-menu"
         ref="menuDialog"
         class="editorial-menu"
+        :class="{ 'editorial-menu--dragging': isDraggingSheet }"
+        :style="mobileSheetStyle"
         role="dialog"
         aria-modal="true"
         aria-label="Menu principal"
         tabindex="-1"
         @keydown="handleDialogKeydown"
       >
-        <header
-          class="editorial-menu__header"
+        <div
+          ref="mobileSheet"
+          class="editorial-menu__sheet"
           @touchstart="startCloseGesture"
           @touchmove="moveCloseGesture"
           @touchend="endCloseGesture"
-          @touchcancel="resetCloseGesture"
+          @touchcancel="cancelCloseGesture"
+        >
+        <span class="editorial-menu__sheet-handle" aria-hidden="true"></span>
+        <header
+          class="editorial-menu__header"
         >
           <RouterLink to="/" class="editorial-menu__brand" @click="close">
             <span>Mundo de Miriam</span>
@@ -48,7 +55,7 @@
           </button>
         </header>
 
-        <div class="editorial-menu__body">
+        <div ref="menuBody" class="editorial-menu__body">
           <nav class="editorial-menu__links" aria-label="Navegação principal">
             <RouterLink
               v-for="item in links"
@@ -134,6 +141,7 @@
             <span class="editorial-menu__mobile-close-badge"><i></i><i></i></span>
           </span>
         </button>
+        </div>
       </div>
     </Transition>
   </Teleport>
@@ -160,12 +168,17 @@ const triggerButton = ref(null)
 const closeButton = ref(null)
 const mobileCloseButton = ref(null)
 const menuDialog = ref(null)
+const mobileSheet = ref(null)
+const menuBody = ref(null)
+const isDraggingSheet = ref(false)
+const sheetOffset = ref(0)
+const sheetProgress = ref(1)
 const SWIPE_THRESHOLD = 52
 const SWIPE_AXIS_RATIO = 1.2
 let dockElement = null
 
-const openGesture = { active: false, recognized: false, startX: 0, startY: 0, currentX: 0, currentY: 0 }
-const closeGesture = { active: false, recognized: false, startX: 0, startY: 0, currentX: 0, currentY: 0 }
+const openGesture = { active: false, recognized: false, startX: 0, startY: 0, currentX: 0, currentY: 0, startTime: 0 }
+const closeGesture = { active: false, recognized: false, eligible: false, startX: 0, startY: 0, currentX: 0, currentY: 0, startTime: 0 }
 
 const links = [
   { to: '/', label: 'Início', category: 'Boas-vindas', image: '/assets/profile/fotodalinda.jpg' },
@@ -192,9 +205,27 @@ const selectedTheme = computed({
 
 const activeItem = computed(() => links.find((item) => item.to === activePath.value) || links[0])
 const isMobileViewport = () => window.matchMedia('(max-width: 768px)').matches
+const getSheetHeight = () => Math.min(window.innerHeight * 0.92, 760)
+const mobileSheetStyle = computed(() => ({
+  '--mobile-sheet-offset': `${sheetOffset.value}px`,
+  '--mobile-sheet-progress': sheetProgress.value
+}))
+
+const setSheetPosition = (offset) => {
+  const height = getSheetHeight()
+  const nextOffset = Math.max(0, Math.min(height, offset))
+  sheetOffset.value = nextOffset
+  sheetProgress.value = Math.max(0, Math.min(1, 1 - nextOffset / height))
+}
+
+const focusMobileClose = () => {
+  window.setTimeout(() => mobileCloseButton.value?.focus({ preventScroll: true }), 320)
+}
 
 const open = async () => {
   activePath.value = route.path
+  isDraggingSheet.value = false
+  setSheetPosition(0)
   isOpen.value = true
   await nextTick()
   const focusTarget = isMobileViewport() ? mobileCloseButton.value : closeButton.value
@@ -202,8 +233,26 @@ const open = async () => {
 }
 
 const close = () => {
+  isDraggingSheet.value = false
   isOpen.value = false
+  setSheetPosition(0)
   nextTick(() => triggerButton.value?.focus())
+}
+
+const settleSheet = (openSheet) => {
+  isDraggingSheet.value = false
+
+  if (openSheet) {
+    setSheetPosition(0)
+    focusMobileClose()
+    return
+  }
+
+  isOpen.value = false
+  nextTick(() => {
+    setSheetPosition(0)
+    triggerButton.value?.focus()
+  })
 }
 
 const handleDialogKeydown = (event) => {
@@ -241,7 +290,8 @@ const startOpenGesture = (event) => {
     startX: touch.clientX,
     startY: touch.clientY,
     currentX: touch.clientX,
-    currentY: touch.clientY
+    currentY: touch.clientY,
+    startTime: performance.now()
   })
 }
 
@@ -254,7 +304,14 @@ const moveOpenGesture = (event) => {
   const deltaY = touch.clientY - openGesture.startY
 
   if (deltaY < -10 && Math.abs(deltaY) > Math.abs(deltaX) * SWIPE_AXIS_RATIO) {
-    openGesture.recognized = true
+    if (!openGesture.recognized) {
+      openGesture.recognized = true
+      activePath.value = route.path
+      isDraggingSheet.value = true
+      setSheetPosition(getSheetHeight())
+      isOpen.value = true
+    }
+    setSheetPosition(getSheetHeight() + deltaY)
     event.preventDefault()
   }
 }
@@ -262,12 +319,15 @@ const moveOpenGesture = (event) => {
 const endOpenGesture = (event) => {
   if (!openGesture.active) return
   const distance = openGesture.startY - openGesture.currentY
-  const shouldOpen = openGesture.recognized && distance >= SWIPE_THRESHOLD
+  const elapsed = Math.max(1, performance.now() - openGesture.startTime)
+  const velocity = distance / elapsed
+  const shouldOpen = openGesture.recognized && (sheetProgress.value >= 0.24 || distance >= SWIPE_THRESHOLD || velocity >= 0.45)
+  const wasRecognized = openGesture.recognized
   resetGesture(openGesture)
 
-  if (shouldOpen) {
+  if (wasRecognized) {
     event.preventDefault()
-    open()
+    settleSheet(shouldOpen)
   }
 }
 
@@ -277,10 +337,12 @@ const startCloseGesture = (event) => {
   Object.assign(closeGesture, {
     active: true,
     recognized: false,
+    eligible: (menuBody.value?.scrollTop || 0) <= 1,
     startX: touch.clientX,
     startY: touch.clientY,
     currentX: touch.clientX,
-    currentY: touch.clientY
+    currentY: touch.clientY,
+    startTime: performance.now()
   })
 }
 
@@ -292,8 +354,10 @@ const moveCloseGesture = (event) => {
   const deltaX = touch.clientX - closeGesture.startX
   const deltaY = touch.clientY - closeGesture.startY
 
-  if (deltaY > 10 && deltaY > Math.abs(deltaX) * SWIPE_AXIS_RATIO) {
+  if (closeGesture.eligible && deltaY > 10 && deltaY > Math.abs(deltaX) * SWIPE_AXIS_RATIO) {
     closeGesture.recognized = true
+    isDraggingSheet.value = true
+    setSheetPosition(deltaY)
     event.preventDefault()
   }
 }
@@ -301,17 +365,28 @@ const moveCloseGesture = (event) => {
 const endCloseGesture = (event) => {
   if (!closeGesture.active) return
   const distance = closeGesture.currentY - closeGesture.startY
-  const shouldClose = closeGesture.recognized && distance >= SWIPE_THRESHOLD
+  const elapsed = Math.max(1, performance.now() - closeGesture.startTime)
+  const velocity = distance / elapsed
+  const shouldClose = closeGesture.recognized && (sheetProgress.value <= 0.76 || distance >= SWIPE_THRESHOLD || velocity >= 0.45)
+  const wasRecognized = closeGesture.recognized
   resetGesture(closeGesture)
 
-  if (shouldClose) {
+  if (wasRecognized) {
     event.preventDefault()
-    close()
+    settleSheet(!shouldClose)
   }
 }
 
-const resetCloseGesture = () => resetGesture(closeGesture)
-const resetOpenGesture = () => resetGesture(openGesture)
+const cancelCloseGesture = () => {
+  const wasRecognized = closeGesture.recognized
+  resetGesture(closeGesture)
+  if (wasRecognized) settleSheet(true)
+}
+const resetOpenGesture = () => {
+  const wasRecognized = openGesture.recognized
+  resetGesture(openGesture)
+  if (wasRecognized) settleSheet(false)
+}
 
 onMounted(() => {
   dockElement = triggerButton.value?.closest('.site-dock')
@@ -390,6 +465,9 @@ onBeforeUnmount(() => {
   backdrop-filter: blur(20px);
   overflow-y: auto;
 }
+
+.editorial-menu__sheet { display: contents; }
+.editorial-menu__sheet-handle { display: none; }
 
 .editorial-menu__header,
 .editorial-menu__footer {
@@ -525,8 +603,8 @@ html.menu-is-open body { overflow: hidden; }
 
 @media (max-width: 768px) {
   .menu-trigger {
-    width: 58px;
-    height: 58px;
+    width: 50px;
+    height: 50px;
     padding: 3px;
     overflow: visible;
     background: transparent;
@@ -535,7 +613,7 @@ html.menu-is-open body { overflow: hidden; }
     box-shadow: none;
   }
   .menu-trigger:hover { box-shadow: none; }
-  .menu-trigger__mark { width: 50px; height: 50px; padding: 3px; background: var(--surface); border: 0; }
+  .menu-trigger__mark { width: 44px; height: 44px; padding: 3px; background: var(--surface); border: 0; }
   .menu-trigger__letter { display: none; }
   .menu-trigger__mark img { display: block; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
   .menu-trigger__badge {
@@ -544,8 +622,8 @@ html.menu-is-open body { overflow: hidden; }
     bottom: -2px;
     display: grid;
     gap: 2px;
-    width: 19px;
-    height: 19px;
+    width: 17px;
+    height: 17px;
     place-content: center;
     padding: 0;
     background: var(--primary);
@@ -556,15 +634,66 @@ html.menu-is-open body { overflow: hidden; }
   .menu-trigger__label,
   .menu-trigger__lines { display: none; }
   .editorial-menu {
+    display: block;
+    min-height: 100dvh;
+    padding: 0;
+    overflow: hidden;
+    background: rgb(20 11 7 / calc(var(--mobile-sheet-progress) * 0.46));
+    backdrop-filter: none;
+    transition: background-color 0.32s ease;
+  }
+  .editorial-menu__sheet {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: grid;
     grid-template-rows: auto minmax(0, 1fr) auto;
-    padding: max(14px, env(safe-area-inset-top)) 14px max(14px, env(safe-area-inset-bottom));
+    width: 100%;
+    height: min(92dvh, 760px);
+    max-height: calc(100dvh - 10px);
+    padding: 22px 14px max(14px, env(safe-area-inset-bottom));
+    overflow: hidden;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-bottom: 0;
+    border-radius: 22px 22px 0 0;
+    box-shadow: 0 -18px 55px rgb(24 10 4 / 0.2);
+    transform: translate3d(0, var(--mobile-sheet-offset), 0);
+    transition: transform 0.32s cubic-bezier(.22, .8, .25, 1);
+    will-change: transform;
+  }
+  .editorial-menu__sheet-handle {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    display: block;
+    width: 38px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 999px;
+    transform: translateX(-50%);
+  }
+  .editorial-menu--dragging,
+  .editorial-menu--dragging.editorial-menu-enter-from { opacity: 1; }
+  .editorial-menu--dragging .editorial-menu__sheet {
+    transform: translate3d(0, var(--mobile-sheet-offset), 0);
+    transition: none;
   }
   .editorial-menu__header { padding-bottom: 0.75rem; }
-  .editorial-menu__header { touch-action: pan-x; }
   .editorial-menu__brand span { font-size: 1rem; }
   .editorial-menu__brand small,
   .editorial-menu__preview { display: none; }
-  .editorial-menu__body { display: block; width: 100%; padding: 0.7rem 0; }
+  .editorial-menu__body {
+    display: block;
+    width: 100%;
+    min-height: 0;
+    padding: 0.7rem 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
   .editorial-menu__links { gap: 0.25rem; }
   .editorial-menu__links a {
     grid-template-columns: 48px minmax(0, 1fr) auto;
@@ -587,13 +716,55 @@ html.menu-is-open body { overflow: hidden; }
   .editorial-menu__links small { grid-column: 2; grid-row: 1; align-self: end; font-size: 0.56rem; }
   .editorial-menu__links span { grid-column: 2; grid-row: 2; align-self: start; font-size: clamp(1.2rem, 5.8vw, 1.65rem); line-height: 1; letter-spacing: -0.02em; }
   .editorial-menu__links i { grid-column: 3; grid-row: 1 / 3; align-self: center; opacity: 0.55; transform: none; }
-  .editorial-menu__footer { align-items: flex-start; padding-top: 0.75rem; gap: 1rem; }
-  .editorial-menu__socials { gap: 0.35rem; }
+  .editorial-menu__footer {
+    display: grid;
+    grid-template-columns: 58px minmax(0, 1fr);
+    align-items: end;
+    padding-top: 0.75rem;
+    padding-bottom: 0;
+    column-gap: 0.75rem;
+    row-gap: 0.45rem;
+  }
+  .editorial-menu__socials { grid-column: 1 / -1; gap: 0.35rem; }
   .editorial-menu__socials a { width: 42px; height: 42px; }
   .editorial-menu__socials svg { width: 23px; height: 23px; }
-  .editorial-menu__preferences { align-items: flex-end; flex-direction: column; gap: 0.55rem; }
+  .editorial-menu__preferences {
+    grid-column: 2;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: end;
+    width: 100%;
+    gap: 0.5rem;
+  }
+  .editorial-menu__preferences label,
+  .editorial-menu__language {
+    display: block;
+    min-width: 0;
+  }
+  .editorial-menu__preferences > label > span,
+  .editorial-menu__language > span { display: none; }
+  .editorial-menu__preferences :deep(.styled-select),
+  .editorial-menu__preferences :deep(.language-switcher--drawer) {
+    width: 100%;
+    min-width: 0;
+  }
+  .editorial-menu__preferences :deep(.styled-select__trigger) {
+    min-width: 0;
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+  }
+  .editorial-menu__preferences :deep(.styled-select__trigger span) {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .editorial-menu__preferences > label :deep(.styled-select__menu) {
+    right: auto;
+    left: 0;
+  }
   .editorial-menu__mobile-close {
-    position: fixed;
+    position: absolute;
     left: max(12px, env(safe-area-inset-left));
     bottom: calc(max(7px, env(safe-area-inset-bottom)) + 2px);
     z-index: 2;
@@ -638,11 +809,43 @@ html.menu-is-open body { overflow: hidden; }
     transform: rotate(45deg);
   }
   .editorial-menu__mobile-close-badge i:last-child { transform: rotate(-45deg); }
+
+  .editorial-menu-enter-active,
+  .editorial-menu-leave-active {
+    transition: background-color 0.32s ease, opacity 0.32s ease;
+  }
+  .editorial-menu-enter-active .editorial-menu__sheet,
+  .editorial-menu-leave-active .editorial-menu__sheet {
+    transition: transform 0.32s cubic-bezier(.22, .8, .25, 1);
+  }
+  .editorial-menu-enter-from,
+  .editorial-menu-leave-to {
+    opacity: 1;
+    background: rgb(20 11 7 / 0);
+  }
+  .editorial-menu-enter-from .editorial-menu__sheet,
+  .editorial-menu-leave-to .editorial-menu__sheet {
+    transform: translate3d(0, 100%, 0);
+  }
+  .editorial-menu-enter-from .editorial-menu__body,
+  .editorial-menu-leave-to .editorial-menu__body {
+    opacity: 1;
+    transform: none;
+  }
+  .editorial-menu--dragging.editorial-menu-enter-active,
+  .editorial-menu--dragging.editorial-menu-leave-active { transition: none; }
+  .editorial-menu--dragging.editorial-menu-enter-from,
+  .editorial-menu--dragging.editorial-menu-leave-to {
+    background: rgb(20 11 7 / calc(var(--mobile-sheet-progress) * 0.46));
+  }
+  .editorial-menu--dragging.editorial-menu-enter-from .editorial-menu__sheet,
+  .editorial-menu--dragging.editorial-menu-leave-to .editorial-menu__sheet {
+    transform: translate3d(0, var(--mobile-sheet-offset), 0);
+  }
 }
 
 @media (max-width: 520px) {
-  .editorial-menu__footer { flex-direction: column; }
-  .editorial-menu__preferences { align-items: flex-start; flex-direction: row; flex-wrap: wrap; }
+  .editorial-menu__preferences { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-height: 700px) and (max-width: 768px) {
@@ -668,5 +871,8 @@ html.menu-is-open body { overflow: hidden; }
   .preview-image-enter-active,
   .preview-image-leave-active,
   .editorial-menu__links span { transition: none; }
+
+  .editorial-menu,
+  .editorial-menu__sheet { transition-duration: 0.01ms !important; }
 }
 </style>

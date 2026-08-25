@@ -94,9 +94,17 @@ watch(() => route.fullPath, async () => {
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3.5 11.5 12 4l8.5 7.5M5.5 10v10h13V10M9.5 20v-6h5v6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
           <span>Início</span>
         </RouterLink>
+        <RouterLink to="/about" class="mobile-link--about" aria-label="Sobre mim">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.7" /><path d="M4.5 21a7.5 7.5 0 0 1 15 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" /></svg>
+          <span>Sobre</span>
+        </RouterLink>
         <RouterLink to="/beauty-portfolio" aria-label="Portfólio Beauty">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.5" y="5" width="17" height="14" rx="2" stroke="currentColor" stroke-width="1.7" /><path d="m5 16 4.2-4.2 3.2 3.1 2.2-2.2L19 17M16.8 8.5h.01" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
           <span>Beauty</span>
+        </RouterLink>
+        <RouterLink to="/curriculum" class="mobile-link--curriculum" aria-label="Currículo">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 3h9l3 3v15H6Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" /><path d="M15 3v4h4M9 11h6M9 15h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" /></svg>
+          <span>Currículo</span>
         </RouterLink>
         <RouterLink to="/artistic-portfolio" class="mobile-link--artistic" aria-label="Portfólio Artístico">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3a9 9 0 0 0 0 18h1.2a1.8 1.8 0 0 0 0-3.6h-.7a1.6 1.6 0 0 1 0-3.2H16a5 5 0 0 0 5-5C21 5.8 17 3 12 3Z" stroke="currentColor" stroke-width="1.7" /><path d="M7.5 10h.01M9 6.8h.01M13 6h.01M16.5 8h.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" /></svg>
@@ -178,7 +186,14 @@ watch(() => route.fullPath, async () => {
           </a>
         </div>
         <button class="header-icon-button" type="button" :aria-label="isDark ? 'Ativar modo claro' : 'Ativar modo escuro'" @click="toggleTheme">
-          <span aria-hidden="true">{{ isDark ? '☀' : '☾' }}</span>
+          <svg v-if="isDark" class="header-icon-button__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="3.5" stroke="currentColor" stroke-width="1.7" />
+            <path d="M12 2.8v2M12 19.2v2M21.2 12h-2M4.8 12h-2M18.5 5.5l-1.4 1.4M6.9 17.1l-1.4 1.4M18.5 18.5l-1.4-1.4M6.9 6.9 5.5 5.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+          </svg>
+          <svg v-else class="header-icon-button__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M20.3 15.4A8.5 8.5 0 0 1 8.6 3.7 8.5 8.5 0 1 0 20.3 15.4Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          <span class="header-icon-button__label">{{ isDark ? 'Claro' : 'Escuro' }}</span>
         </button>
         <LanguageSwitcher embedded />
       </div>
@@ -376,6 +391,9 @@ watch(() => route.fullPath, async () => {
   color: var(--on-primary);
 }
 
+.header-icon-button__icon { width: 22px; height: 22px; }
+.header-icon-button__label { display: none; }
+
 .site-page {
   min-height: 100vh;
   padding-bottom: calc(68px + env(safe-area-inset-bottom));
@@ -389,7 +407,7 @@ watch(() => route.fullPath, async () => {
     bottom: 0;
     left: 0;
     width: 100%;
-    grid-template-columns: 58px 1fr auto;
+    grid-template-columns: 50px minmax(0, 1fr) auto;
     gap: 0;
     height: calc(76px + env(safe-area-inset-bottom));
     padding: 7px max(12px, env(safe-area-inset-right)) max(7px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
@@ -399,32 +417,86 @@ watch(() => route.fullPath, async () => {
     touch-action: pan-x;
   }
 
-  .site-dock__left { grid-column: 1; justify-content: flex-start; }
+  .site-dock__left {
+    grid-column: 1;
+    width: 50px;
+    height: 50px;
+    justify-content: flex-start;
+  }
   .site-mobile-links {
     grid-column: 2;
     display: flex;
+    height: 50px;
     align-items: center;
     justify-content: center;
     gap: clamp(0.2rem, 1.5vw, 0.65rem);
   }
   .site-mobile-links a {
     display: grid;
+    grid-template-rows: 22px 10px;
+    width: 50px;
+    height: 50px;
     min-width: 50px;
-    justify-items: center;
+    place-items: center;
+    align-content: center;
     gap: 0.15rem;
     color: var(--muted);
     font-family: system-ui, sans-serif;
     font-size: 0.58rem;
+    line-height: 10px;
     letter-spacing: 0.04em;
     text-decoration: none;
   }
   .site-mobile-links svg { width: 22px; height: 22px; }
   .site-mobile-links a.router-link-exact-active,
   .site-mobile-links a.router-link-active { color: var(--primary); }
-  .site-mobile-links :is(.mobile-link--artistic, .mobile-link--ecommerce, .mobile-link--partnerships) { display: none; }
+  .site-mobile-links :is(.mobile-link--about, .mobile-link--curriculum, .mobile-link--artistic, .mobile-link--ecommerce, .mobile-link--partnerships) { display: none; }
   .site-desktop-links { display: none; }
   .site-desktop-socials { display: none; }
-  .site-dock__right { grid-column: 3; }
+  .site-dock__right {
+    grid-column: 3;
+    height: 50px;
+    align-items: center;
+    gap: clamp(0.1rem, 0.8vw, 0.3rem);
+  }
+
+  .site-dock__right > * { flex-basis: 50px; }
+
+  .header-icon-button {
+    display: grid;
+    grid-template-rows: 22px auto;
+    width: 50px;
+    height: 50px;
+    padding: 0;
+    place-items: center;
+    align-content: center;
+    gap: 0.15rem;
+    color: var(--muted);
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .header-icon-button:hover {
+    color: var(--primary);
+    background: transparent;
+  }
+
+  .header-icon-button__label {
+    display: block;
+    font-family: system-ui, sans-serif;
+    font-size: 0.58rem;
+    font-weight: 400;
+    line-height: 10px;
+    letter-spacing: 0.04em;
+  }
+
+  :global(html[data-theme="dark"] #app .header-icon-button),
+  :global(html[data-theme="dark"] #app .language-switcher--embedded .styled-select__trigger) {
+    color: var(--muted) !important;
+    background: transparent !important;
+    border-color: transparent !important;
+  }
 
   .site-page { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
 
@@ -461,15 +533,23 @@ watch(() => route.fullPath, async () => {
   }
 }
 
-@media (min-width: 380px) and (max-width: 768px) {
+@media (min-width: 340px) and (max-width: 768px) {
+  .site-mobile-links .mobile-link--about { display: grid; }
+}
+
+@media (min-width: 400px) and (max-width: 768px) {
+  .site-mobile-links .mobile-link--curriculum { display: grid; }
+}
+
+@media (min-width: 465px) and (max-width: 768px) {
   .site-mobile-links .mobile-link--artistic { display: grid; }
 }
 
-@media (min-width: 520px) and (max-width: 768px) {
+@media (min-width: 525px) and (max-width: 768px) {
   .site-mobile-links .mobile-link--ecommerce { display: grid; }
 }
 
-@media (min-width: 640px) and (max-width: 768px) {
+@media (min-width: 590px) and (max-width: 768px) {
   .site-mobile-links .mobile-link--partnerships { display: grid; }
 }
 
