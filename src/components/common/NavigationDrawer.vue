@@ -33,6 +33,7 @@
         aria-label="Menu principal"
         tabindex="-1"
         @keydown="handleDialogKeydown"
+        @click.self="closeFromBackdrop"
       >
         <div
           ref="mobileSheet"
@@ -83,6 +84,17 @@
         <footer class="editorial-menu__footer">
           <div class="editorial-menu__socials">
             <a
+              class="editorial-menu__conversation"
+              href="https://wa.me/5515991962479"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Vamos conversar pelo WhatsApp"
+              @click="close"
+            >
+              <span>Vamos conversar</span>
+              <i aria-hidden="true">→</i>
+            </a>
+            <a
               href="https://www.instagram.com/mihforastieri/"
               target="_blank"
               rel="noopener noreferrer"
@@ -117,6 +129,18 @@
               <span class="editorial-menu__social-label">E-mail</span>
             </a>
           </div>
+          <button
+            ref="mobileCloseButton"
+            class="editorial-menu__mobile-close"
+            type="button"
+            aria-label="Fechar menu"
+            @click="close"
+          >
+            <span class="editorial-menu__mobile-close-mark" aria-hidden="true">
+              <img src="/apple-touch-icon.png" alt="" />
+              <span class="editorial-menu__mobile-close-badge"><i></i><i></i></span>
+            </span>
+          </button>
           <div class="editorial-menu__preferences">
             <label>
               <span>Tema</span>
@@ -128,19 +152,6 @@
             </div>
           </div>
         </footer>
-
-        <button
-          ref="mobileCloseButton"
-          class="editorial-menu__mobile-close"
-          type="button"
-          aria-label="Fechar menu"
-          @click="close"
-        >
-          <span class="editorial-menu__mobile-close-mark" aria-hidden="true">
-            <img src="/apple-touch-icon.png" alt="" />
-            <span class="editorial-menu__mobile-close-badge"><i></i><i></i></span>
-          </span>
-        </button>
         </div>
       </div>
     </Transition>
@@ -237,6 +248,10 @@ const close = () => {
   isOpen.value = false
   setSheetPosition(0)
   nextTick(() => triggerButton.value?.focus())
+}
+
+const closeFromBackdrop = () => {
+  if (isMobileViewport()) close()
 }
 
 const settleSheet = (openSheet) => {
@@ -569,6 +584,7 @@ onBeforeUnmount(() => {
 }
 .editorial-menu__socials a:hover { color: var(--primary); }
 .editorial-menu__socials a:hover svg { transform: translateY(-4px); }
+.editorial-menu__socials a.editorial-menu__conversation { display: none; }
 .editorial-menu__social-label {
   position: absolute;
   width: 1px;
@@ -603,9 +619,10 @@ html.menu-is-open body { overflow: hidden; }
 
 @media (max-width: 768px) {
   .menu-trigger {
+    flex: 0 0 50px;
     width: 50px;
     height: 50px;
-    padding: 3px;
+    padding: 1px;
     overflow: visible;
     background: transparent;
     border: 0;
@@ -613,7 +630,7 @@ html.menu-is-open body { overflow: hidden; }
     box-shadow: none;
   }
   .menu-trigger:hover { box-shadow: none; }
-  .menu-trigger__mark { width: 44px; height: 44px; padding: 3px; background: var(--surface); border: 0; }
+  .menu-trigger__mark { width: 48px; height: 48px; padding: 2px; background: var(--surface); border: 0; }
   .menu-trigger__letter { display: none; }
   .menu-trigger__mark img { display: block; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
   .menu-trigger__badge {
@@ -622,8 +639,8 @@ html.menu-is-open body { overflow: hidden; }
     bottom: -2px;
     display: grid;
     gap: 2px;
-    width: 17px;
-    height: 17px;
+    width: 18px;
+    height: 18px;
     place-content: center;
     padding: 0;
     background: var(--primary);
@@ -719,20 +736,57 @@ html.menu-is-open body { overflow: hidden; }
   .editorial-menu__footer {
     display: grid;
     grid-template-columns: 58px minmax(0, 1fr);
-    align-items: end;
+    grid-template-rows: auto 60px;
+    align-items: center;
     padding-top: 0.75rem;
     padding-bottom: 0;
     column-gap: 0.75rem;
-    row-gap: 0.45rem;
+    row-gap: 0.65rem;
   }
-  .editorial-menu__socials { grid-column: 1 / -1; gap: 0.35rem; }
+  .editorial-menu__socials {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    gap: 0.35rem;
+  }
   .editorial-menu__socials a { width: 42px; height: 42px; }
   .editorial-menu__socials svg { width: 23px; height: 23px; }
+  .editorial-menu__socials a.editorial-menu__conversation {
+    --drawer-contact-pulse: rgb(111 47 24 / 0.13);
+    display: inline-flex;
+    width: auto;
+    height: 42px;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.45rem 0.55rem;
+    color: var(--muted);
+    background-color: var(--surface-muted);
+    background-image: linear-gradient(105deg, transparent 28%, var(--drawer-contact-pulse) 48%, transparent 68%);
+    background-position: 125% 0;
+    background-size: 280% 100%;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-family: system-ui, sans-serif;
+    font-size: 0.68rem;
+    font-weight: 650;
+    letter-spacing: 0.025em;
+    white-space: nowrap;
+  }
+  .editorial-menu__conversation i {
+    color: #6f2f18;
+    font-size: 0.92rem;
+    font-style: normal;
+    line-height: 1;
+  }
+  html[data-theme="dark"] .editorial-menu__conversation {
+    --drawer-contact-pulse: rgb(225 161 127 / 0.17);
+  }
+  html[data-theme="dark"] .editorial-menu__conversation i { color: #e1a17f; }
   .editorial-menu__preferences {
     grid-column: 2;
+    grid-row: 2;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-items: end;
+    align-items: center;
     width: 100%;
     gap: 0.5rem;
   }
@@ -764,9 +818,11 @@ html.menu-is-open body { overflow: hidden; }
     left: 0;
   }
   .editorial-menu__mobile-close {
-    position: absolute;
-    left: max(12px, env(safe-area-inset-left));
-    bottom: calc(max(7px, env(safe-area-inset-bottom)) + 2px);
+    position: static;
+    grid-column: 1;
+    grid-row: 2;
+    align-self: center;
+    justify-self: start;
     z-index: 2;
     display: grid;
     width: 58px;
@@ -841,6 +897,15 @@ html.menu-is-open body { overflow: hidden; }
   .editorial-menu--dragging.editorial-menu-enter-from .editorial-menu__sheet,
   .editorial-menu--dragging.editorial-menu-leave-to .editorial-menu__sheet {
     transform: translate3d(0, var(--mobile-sheet-offset), 0);
+  }
+}
+
+@media (max-width: 768px) and (prefers-reduced-motion: no-preference) {
+  .editorial-menu__conversation { animation: drawer-contact-pulse 2.2s linear infinite; }
+
+  @keyframes drawer-contact-pulse {
+    from { background-position: 125% 0; }
+    to { background-position: -35% 0; }
   }
 }
 

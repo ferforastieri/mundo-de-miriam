@@ -187,17 +187,18 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', handleOutsideC
   .styled-select--compact { width: 50px; min-width: 50px; }
   .styled-select--compact .styled-select__trigger {
     width: 50px;
-    height: 22px;
-    min-height: 22px;
+    height: 24px;
+    min-height: 24px;
     color: var(--muted);
     background: transparent;
     border: 0;
     border-radius: 0;
+    font-size: 0.75rem;
   }
   .styled-select--compact .styled-select__trigger span {
     display: grid;
     width: 100%;
-    height: 22px;
+    height: 24px;
     place-items: center;
     line-height: 1;
   }

@@ -407,7 +407,9 @@ watch(() => route.fullPath, async () => {
     bottom: 0;
     left: 0;
     width: 100%;
-    grid-template-columns: 50px minmax(0, 1fr) auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     gap: 0;
     height: calc(76px + env(safe-area-inset-bottom));
     padding: 7px max(12px, env(safe-area-inset-right)) max(7px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
@@ -418,22 +420,15 @@ watch(() => route.fullPath, async () => {
   }
 
   .site-dock__left {
-    grid-column: 1;
-    width: 50px;
-    height: 50px;
-    justify-content: flex-start;
+    display: contents;
   }
   .site-mobile-links {
-    grid-column: 2;
-    display: flex;
-    height: 50px;
-    align-items: center;
-    justify-content: center;
-    gap: clamp(0.2rem, 1.5vw, 0.65rem);
+    display: contents;
   }
   .site-mobile-links a {
     display: grid;
-    grid-template-rows: 22px 10px;
+    grid-template-rows: 24px 10px;
+    flex: 0 0 50px;
     width: 50px;
     height: 50px;
     min-width: 50px;
@@ -442,29 +437,26 @@ watch(() => route.fullPath, async () => {
     gap: 0.15rem;
     color: var(--muted);
     font-family: system-ui, sans-serif;
-    font-size: 0.58rem;
+    font-size: 0.6rem;
     line-height: 10px;
     letter-spacing: 0.04em;
     text-decoration: none;
   }
-  .site-mobile-links svg { width: 22px; height: 22px; }
+  .site-mobile-links svg { width: 24px; height: 24px; }
   .site-mobile-links a.router-link-exact-active,
   .site-mobile-links a.router-link-active { color: var(--primary); }
   .site-mobile-links :is(.mobile-link--about, .mobile-link--curriculum, .mobile-link--artistic, .mobile-link--ecommerce, .mobile-link--partnerships) { display: none; }
   .site-desktop-links { display: none; }
   .site-desktop-socials { display: none; }
   .site-dock__right {
-    grid-column: 3;
-    height: 50px;
-    align-items: center;
-    gap: clamp(0.1rem, 0.8vw, 0.3rem);
+    display: contents;
   }
 
-  .site-dock__right > * { flex-basis: 50px; }
+  .site-dock__right > * { flex: 0 0 50px; }
 
   .header-icon-button {
     display: grid;
-    grid-template-rows: 22px auto;
+    grid-template-rows: 24px 10px;
     width: 50px;
     height: 50px;
     padding: 0;
@@ -485,11 +477,13 @@ watch(() => route.fullPath, async () => {
   .header-icon-button__label {
     display: block;
     font-family: system-ui, sans-serif;
-    font-size: 0.58rem;
+    font-size: 0.6rem;
     font-weight: 400;
     line-height: 10px;
     letter-spacing: 0.04em;
   }
+
+  .header-icon-button__icon { width: 24px; height: 24px; }
 
   :global(html[data-theme="dark"] #app .header-icon-button),
   :global(html[data-theme="dark"] #app .language-switcher--embedded .styled-select__trigger) {

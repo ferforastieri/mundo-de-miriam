@@ -72,7 +72,8 @@ const changeLanguage = (language) => {
 @media (max-width: 768px) {
   .language-switcher.language-switcher--embedded {
     display: grid;
-    grid-template-rows: 22px auto;
+    grid-template-rows: 24px 10px;
+    flex: 0 0 50px;
     width: 50px;
     height: 50px;
     place-items: center;
@@ -84,7 +85,7 @@ const changeLanguage = (language) => {
   .language-switcher__label {
     display: block;
     font-family: system-ui, sans-serif;
-    font-size: 0.58rem;
+    font-size: 0.6rem;
     line-height: 10px;
     letter-spacing: 0.04em;
   }
