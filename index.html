@@ -9,10 +9,8 @@
         try { savedTheme = localStorage.getItem('themePreference') } catch {}
         const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches
         const isDark = savedTheme ? savedTheme === 'dark' : prefersDark
-        const isStandalone = window.matchMedia?.('(display-mode: standalone)').matches || navigator.standalone === true
         document.documentElement.dataset.theme = isDark ? 'dark' : 'light'
         document.documentElement.style.colorScheme = isDark ? 'dark' : 'light'
-        if (isStandalone) document.documentElement.classList.add('pwa-standalone')
       })()
     </script>
     <style>
@@ -35,20 +33,6 @@
         clip-path: inset(50%) !important;
         white-space: nowrap !important;
         border: 0 !important;
-      }
-      #app-boot { display: none; }
-      html.pwa-standalone #app-boot {
-        position: fixed;
-        inset: 0;
-        z-index: 2147483647;
-        display: grid;
-        place-items: center;
-        background: #552200;
-      }
-      html.pwa-standalone #app-boot img {
-        display: block;
-        width: clamp(112px, 34vw, 152px);
-        height: auto;
       }
     </style>
     <noscript>
@@ -146,9 +130,6 @@
   </head>
   <body>
     <div id="app">
-      <div id="app-boot" aria-hidden="true">
-        <img src="/pwa-icon-maskable-192.png" alt="" />
-      </div>
       <main id="seo-fallback">
         <h1>Miriam Cléres Forastieri</h1>
         <p>Portfólio profissional de Miriam Cléres Forastieri, maquiadora artística e fotógrafa em Sorocaba. Conheça trabalhos de beleza, arte, e-commerce e parcerias.</p>
