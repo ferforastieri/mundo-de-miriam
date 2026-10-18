@@ -102,7 +102,7 @@ async function submit() {
 .admin-login__mark {
   --mark-size: 72px;
   display: grid;
-  margin-bottom: 1.1rem;
+  margin: 0 auto 1.1rem;
 }
 
 .admin-login__eyebrow {

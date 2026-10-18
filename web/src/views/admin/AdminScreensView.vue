@@ -9,11 +9,6 @@
         </p>
       </div>
 
-      <div class="admin-actions-row">
-        <button class="admin-btn" type="button" :disabled="isFetching" @click="refetch">
-          {{ isFetching ? 'Atualizando…' : 'Atualizar' }}
-        </button>
-      </div>
     </header>
 
     <div v-if="isPending" class="admin-card">
@@ -209,7 +204,6 @@ const {
   isPending,
   isError,
   error,
-  isFetching,
   refetch
 } = useQuery({
   queryKey: ['admin-screens'],

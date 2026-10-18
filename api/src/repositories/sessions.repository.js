@@ -41,6 +41,13 @@ export function createSessionsRepository(db) {
       await db.prepare('UPDATE sessions SET last_seen_at = ? WHERE id = ?').bind(at, id).run()
     },
 
+    async renew(id, { lastSeenAt, expiresAt }) {
+      await db
+        .prepare('UPDATE sessions SET last_seen_at = ?, expires_at = ? WHERE id = ?')
+        .bind(lastSeenAt, expiresAt, id)
+        .run()
+    },
+
     async deleteByTokenHash(tokenHash) {
       await db.prepare('DELETE FROM sessions WHERE token_hash = ?').bind(tokenHash).run()
     },

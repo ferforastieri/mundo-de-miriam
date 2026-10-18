@@ -9,6 +9,7 @@ import {
 import { login } from '../usecases/auth/login.js'
 import { logout } from '../usecases/auth/logout.js'
 import { changePassword } from '../usecases/auth/change-password.js'
+import { addSecondsIso, nowIso } from '../utils/dates.js'
 
 const loginSchema = {
   body: {
@@ -34,6 +35,17 @@ const changePasswordSchema = {
   }
 }
 
+function sessionCookieOptions(runtime) {
+  return {
+    path: '/',
+    httpOnly: true,
+    secure: runtime.secureCookie,
+    sameSite: 'lax',
+    maxAge: SESSION_TTL_SECONDS,
+    expires: new Date(Date.now() + SESSION_TTL_SECONDS * 1000)
+  }
+}
+
 export function registerAuthRoutes(app) {
   app.post('/api/admin/auth/login', { schema: loginSchema }, async (request, reply) => {
     assertSameOrigin(request)
@@ -48,13 +60,7 @@ export function registerAuthRoutes(app) {
 
     const runtime = getRuntimeConfig(container.env)
 
-    reply.setCookie(runtime.cookieName, result.token, {
-      path: '/',
-      httpOnly: true,
-      secure: runtime.secureCookie,
-      sameSite: 'strict',
-      maxAge: SESSION_TTL_SECONDS
-    })
+    reply.setCookie(runtime.cookieName, result.token, sessionCookieOptions(runtime))
 
     return {
       admin: result.admin,
@@ -71,15 +77,31 @@ export function registerAuthRoutes(app) {
       path: '/',
       httpOnly: true,
       secure: runtime.secureCookie,
-      sameSite: 'strict'
+      sameSite: 'lax'
     })
 
     return { ok: true }
   })
 
-  app.get('/api/admin/auth/me', { preHandler: requireAdmin }, async (request) => ({
-    admin: request.admin
-  }))
+  app.get('/api/admin/auth/me', { preHandler: requireAdmin }, async (request, reply) => {
+    const container = getContainer()
+    const runtime = getRuntimeConfig(container.env)
+    const now = nowIso()
+
+    // Renovação deslizante: quem entra com frequência permanece logado.
+    await container.sessions.renew(request.admin.sessionId, {
+      lastSeenAt: now,
+      expiresAt: addSecondsIso(SESSION_TTL_SECONDS)
+    })
+
+    reply.setCookie(
+      runtime.cookieName,
+      getRawSessionToken(request),
+      sessionCookieOptions(runtime)
+    )
+
+    return { admin: request.admin }
+  })
 
   app.post(
     '/api/admin/auth/password',

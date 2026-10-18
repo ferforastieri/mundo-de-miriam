@@ -13,12 +13,6 @@
         <RouterLink class="admin-btn admin-btn--small" :to="{ name: 'AdminPublish' }">
           Publicar no Instagram
         </RouterLink>
-        <button class="admin-btn" type="button" :disabled="refreshing || isFetching" @click="refreshNow">
-          {{ refreshing ? 'Coletando…' : 'Atualizar agora' }}
-        </button>
-        <button class="admin-btn" type="button" :disabled="isFetching" @click="refetch">
-          {{ isFetching ? 'Atualizando…' : 'Recarregar painel' }}
-        </button>
       </div>
     </header>
 
@@ -349,9 +343,7 @@ const {
   data,
   isPending,
   isError,
-  error,
-  isFetching,
-  refetch
+  error
 } = useQuery({
   queryKey: ['admin-instagram'],
   queryFn: () => adminService.getInstagram()
@@ -396,7 +388,6 @@ const tokenExpiringSoon = computed(() => {
 const tokenInput = ref('')
 const showToken = ref(false)
 const savingToken = ref(false)
-const refreshing = ref(false)
 const confirmRemoveToken = ref(false)
 
 async function invalidateData() {
@@ -430,26 +421,6 @@ async function saveToken() {
     toast.error(requestError.message || 'Não foi possível salvar o token.')
   } finally {
     savingToken.value = false
-  }
-}
-
-async function refreshNow() {
-  refreshing.value = true
-
-  try {
-    const result = await adminService.refreshInstagram()
-
-    if (result?.ok) {
-      toast.success('Dados do Instagram atualizados.')
-    } else {
-      toast.error(result?.message || 'A coleta do Instagram falhou.')
-    }
-
-    await invalidateData()
-  } catch (requestError) {
-    toast.error(requestError.message || 'Não foi possível atualizar o Instagram.')
-  } finally {
-    refreshing.value = false
   }
 }
 

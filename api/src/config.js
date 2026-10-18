@@ -1,7 +1,7 @@
 export const JSON_BODY_LIMIT = 1024 * 1024
 export const MAX_IMAGE_BYTES = 20 * 1024 * 1024
 
-export const SESSION_TTL_SECONDS = 30 * 24 * 60 * 60
+export const SESSION_TTL_SECONDS = 90 * 24 * 60 * 60
 export const SESSION_COOKIE_PRODUCTION = '__Host-mdm_session'
 export const SESSION_COOKIE_DEVELOPMENT = 'mdm_session'
 

@@ -14,9 +14,6 @@
           {{ localPhotos.length }} foto{{ localPhotos.length === 1 ? '' : 's' }}
           <template v-if="totalBytes"> · {{ formatBytes(totalBytes) }}</template>
         </span>
-        <button class="admin-btn" type="button" :disabled="photosFetching" @click="refreshAll">
-          {{ photosFetching ? 'Atualizando…' : 'Atualizar' }}
-        </button>
       </div>
     </header>
 
@@ -298,7 +295,6 @@ const {
   isPending: photosPending,
   isError: photosIsError,
   error: photosError,
-  isFetching: photosFetching,
   refetch: refetchPhotos
 } = useQuery({
   queryKey: ['admin-photos', selectedScreenId, selectedGroupId],
@@ -340,11 +336,6 @@ function selectScreen(screenId) {
 
 function selectGroup(groupId) {
   selectedGroupId.value = groupId
-}
-
-function refreshAll() {
-  refetchScreens()
-  refetchPhotos()
 }
 
 const uploading = ref(false)
