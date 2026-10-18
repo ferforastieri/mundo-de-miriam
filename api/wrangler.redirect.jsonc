@@ -4,6 +4,6 @@
   "main": "src/redirect.js",
   "compatibility_date": "2026-08-04",
   "routes": [
-    { "pattern": "mundodemiriam.com.br", "custom_domain": true }
+    { "pattern": "mundodemiriam.com.br/*", "zone_name": "mundodemiriam.com.br" }
   ]
 }

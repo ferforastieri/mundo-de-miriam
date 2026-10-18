@@ -4,7 +4,7 @@
   "main": "src/index.js",
   "compatibility_date": "2026-08-04",
   "routes": [
-    { "pattern": "www.mundodemiriam.com.br", "custom_domain": true }
+    { "pattern": "www.mundodemiriam.com.br/*", "zone_name": "mundodemiriam.com.br" }
   ],
   "assets": {
     "directory": "../web/dist",
