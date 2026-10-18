@@ -8,7 +8,7 @@ const isDark = ref(false)
 const showScrollCue = ref(false)
 const currentYear = new Date().getFullYear()
 const route = useRoute()
-const isAdminArea = computed(() => route.path.startsWith('/admin'))
+const isImmersive = computed(() => route.path.startsWith('/admin') || route.path.startsWith('/album'))
 
 const applyTheme = (dark) => {
   isDark.value = dark
@@ -83,7 +83,7 @@ watch(() => route.fullPath, async () => {
 
 <template>
   <div class="app">
-    <footer v-if="!isAdminArea" class="site-dock" aria-label="Navegação e preferências">
+    <footer v-if="!isImmersive" class="site-dock" aria-label="Navegação e preferências">
       <div class="site-dock__left">
         <NavigationDrawer
           :is-dark="isDark"
@@ -199,11 +199,11 @@ watch(() => route.fullPath, async () => {
         <LanguageSwitcher embedded />
       </div>
     </footer>
-    <main class="site-page" :class="{ 'site-page--admin': isAdminArea }">
+    <main class="site-page" :class="{ 'site-page--admin': isImmersive }">
       <router-view />
     </main>
     <button
-      v-show="showScrollCue && !isAdminArea"
+      v-show="showScrollCue && !isImmersive"
       class="global-scroll-cue"
       type="button"
       aria-label="Rolar para o próximo conteúdo"

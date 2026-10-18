@@ -41,12 +41,22 @@ export async function serveHtmlWithSeo(request, env) {
   }
 
   const isAdmin = url.pathname.startsWith('/admin')
+  const isAlbum = url.pathname.startsWith('/album')
+  const isUnlisted = isAdmin || isAlbum
   const seo = getSeoForPath(url.pathname)
-  const title = isAdmin ? ADMIN_TITLE : seo?.title || SITE_NAME
-  const description = isAdmin ? ADMIN_DESCRIPTION : seo?.description || ''
-  const robots = isAdmin ? ADMIN_ROBOTS : INDEXABLE_ROBOTS
+  const title = isAlbum
+    ? 'Álbum de fotos · Mundo de Miriam'
+    : isAdmin
+      ? ADMIN_TITLE
+      : seo?.title || SITE_NAME
+  const description = isAlbum
+    ? 'Álbum de fotos compartilhado por Miriam Cléres Forastieri.'
+    : isAdmin
+      ? ADMIN_DESCRIPTION
+      : seo?.description || ''
+  const robots = isUnlisted ? ADMIN_ROBOTS : INDEXABLE_ROBOTS
   const canonical = canonicalFor(url.pathname)
-  const fallback = !isAdmin && seo ? buildFallbackContent(seo) : null
+  const fallback = !isUnlisted && seo ? buildFallbackContent(seo) : null
 
   let rewriter = new HTMLRewriter()
     .on('title', {

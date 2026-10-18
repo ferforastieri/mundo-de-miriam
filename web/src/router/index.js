@@ -49,6 +49,12 @@ const routes = [
     component: EcommercePortfolio
   },
   {
+    path: '/album/:token',
+    name: 'Album',
+    component: () => import('../views/album/AlbumView.vue'),
+    meta: { noindex: true, title: 'Álbum de fotos' }
+  },
+  {
     path: '/admin/login',
     name: 'AdminLogin',
     component: AdminLoginView,
@@ -89,6 +95,12 @@ const routes = [
         name: 'AdminPublish',
         component: () => import('../views/admin/AdminPublishView.vue'),
         meta: { title: 'Publicar' }
+      },
+      {
+        path: 'branding',
+        name: 'AdminAlbums',
+        component: () => import('../views/admin/AdminAlbumsView.vue'),
+        meta: { title: 'Branding' }
       },
       {
         path: 'account',
@@ -136,9 +148,14 @@ router.beforeEach(async (to) => {
 router.afterEach(async (to) => {
   if (to.meta.noindex) {
     setRobotsMeta('noindex,nofollow')
-    document.title = to.meta.title
-      ? `${to.meta.title} · Painel Mundo de Miriam`
-      : 'Painel · Mundo de Miriam'
+
+    if (to.path.startsWith('/admin')) {
+      document.title = to.meta.title
+        ? `${to.meta.title} · Painel Mundo de Miriam`
+        : 'Painel · Mundo de Miriam'
+    } else {
+      document.title = to.meta.title || 'Mundo de Miriam'
+    }
   } else {
     setRobotsMeta('index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1')
     applySeo(to.path)

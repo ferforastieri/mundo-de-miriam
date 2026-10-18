@@ -5,6 +5,7 @@ import {
   MAX_IMAGE_BYTES
 } from './config.js'
 import { toHttpError } from './http/errors.js'
+import { registerAlbumsRoutes } from './controllers/albums.controller.js'
 import { registerAuthRoutes } from './controllers/auth.controller.js'
 import { registerDashboardRoutes } from './controllers/dashboard.controller.js'
 import { registerInstagramRoutes } from './controllers/instagram.controller.js'
@@ -46,6 +47,7 @@ export function buildServer() {
   })
 
   registerPublicRoutes(app)
+  registerAlbumsRoutes(app)
   registerAuthRoutes(app)
   registerDashboardRoutes(app)
   registerScreensRoutes(app)

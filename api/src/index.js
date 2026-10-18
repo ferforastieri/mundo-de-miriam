@@ -7,7 +7,7 @@ import { refreshInstagramStats } from './usecases/instagram/refresh-instagram-st
 import { serveHtmlWithSeo } from './seo/render.js'
 
 const PORT = 8787
-const MEDIA_KEY_PATTERN = /^photos\/[a-zA-Z0-9-]+\/[a-zA-Z0-9._-]+$/
+const MEDIA_KEY_PATTERN = /^(photos|albums)\/[a-zA-Z0-9-]+\/[a-zA-Z0-9._-]+$/
 
 const server = buildServer()
 await server.ready()
