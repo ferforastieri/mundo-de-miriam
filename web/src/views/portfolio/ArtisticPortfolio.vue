@@ -33,24 +33,15 @@ import { TranslatableText } from '@/components/common'
 import { PortfolioGallery } from '@/components/portfolio'
 import { useGalleryScreen } from '@/composables/usePublicGallery'
 
-const FALLBACK_IMAGES = Array.from({ length: 24 }, (_, index) => index + 1)
-  .filter((number) => number !== 11 && number !== 12)
-  .map((number) => ({
-    src: `/assets/artisticstyle/ArtisticStyle${number}.jpeg`,
-    alt: `Artistic Style ${number}`
-  }))
+const { photos, isPending } = useGalleryScreen('artistic')
 
-const { photos, isPending, isError } = useGalleryScreen('artistic')
-
-const images = computed(() => {
-  if (isError.value) return FALLBACK_IMAGES
-
-  return (photos.value || []).map((photo) => ({
+const images = computed(() =>
+  (photos.value || []).map((photo) => ({
     id: photo.id,
     src: photo.url,
     alt: photo.alt || ''
   }))
-})
+)
 </script>
 
 <style scoped>

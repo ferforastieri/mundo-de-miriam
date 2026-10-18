@@ -33,22 +33,15 @@ import { TranslatableText } from '@/components/common'
 import { PortfolioGallery } from '@/components/portfolio'
 import { useGalleryScreen } from '@/composables/usePublicGallery'
 
-const FALLBACK_IMAGES = Array.from({ length: 17 }, (_, index) => ({
-  src: `/assets/beautystyle/Beauty Style${index + 1}.jpeg`,
-  alt: `Beauty Style ${index + 1}`
-}))
+const { photos, isPending } = useGalleryScreen('beauty')
 
-const { photos, isPending, isError } = useGalleryScreen('beauty')
-
-const images = computed(() => {
-  if (isError.value) return FALLBACK_IMAGES
-
-  return (photos.value || []).map((photo) => ({
+const images = computed(() =>
+  (photos.value || []).map((photo) => ({
     id: photo.id,
     src: photo.url,
     alt: photo.alt || ''
   }))
-})
+)
 </script>
 
 <style scoped>

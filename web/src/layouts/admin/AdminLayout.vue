@@ -60,6 +60,7 @@ const navItems = [
   { to: '/admin/photos', label: 'Fotos' },
   { to: '/admin/screens', label: 'Telas' },
   { to: '/admin/instagram', label: 'Instagram' },
+  { to: '/admin/publish', label: 'Publicar' },
   { to: '/admin/account', label: 'Conta' }
 ]
 

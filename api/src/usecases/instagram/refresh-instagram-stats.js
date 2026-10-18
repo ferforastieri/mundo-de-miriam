@@ -4,6 +4,9 @@ import {
 } from '../../config.js'
 import { decryptSecret, encryptSecret } from '../../services/crypto.js'
 import {
+  fetchAccountInsights,
+  fetchDemographics,
+  fetchMediaInsights,
   fetchProfile,
   fetchRecentMedia,
   fetchRecentViews,
@@ -37,6 +40,74 @@ function shouldRefreshToken(state) {
 function sanitizeMessage(message, token) {
   const clean = String(message || 'Erro desconhecido na API do Instagram.')
   return token ? clean.replaceAll(token, '[token]') : clean
+}
+
+async function syncRecentMedia(container, token, mediaItems, capturedAt) {
+  for (const media of mediaItems) {
+    let insights = null
+
+    try {
+      insights = await fetchMediaInsights(token, media.id)
+    } catch (error) {
+      insights = null
+    }
+
+    try {
+      await container.instagram.upsertMedia({
+        id: media.id,
+        mediaType: media.media_type || null,
+        permalink: media.permalink || null,
+        caption: null,
+        publishedAt: media.timestamp || null,
+        likeCount: media.like_count ?? null,
+        commentsCount: media.comments_count ?? null,
+        views: insights?.views ?? null,
+        reach: insights?.reach ?? null,
+        shares: insights?.shares ?? null,
+        saves: insights?.saves ?? null,
+        totalInteractions: insights?.totalInteractions ?? null,
+        updatedAt: capturedAt
+      })
+    } catch (error) {
+      console.warn('Não foi possível salvar métricas da publicação:', error?.message || error)
+    }
+  }
+}
+
+async function syncDemographics(container, token, userId, capturedAt) {
+  const dimensions = [
+    { metric: 'follower_demographics', breakdown: 'city' },
+    { metric: 'follower_demographics', breakdown: 'country' },
+    { metric: 'follower_demographics', breakdown: 'age' },
+    { metric: 'follower_demographics', breakdown: 'gender' }
+  ]
+
+  const entries = []
+
+  for (const dimension of dimensions) {
+    try {
+      const results = await fetchDemographics(
+        token,
+        userId,
+        dimension.metric,
+        dimension.breakdown
+      )
+
+      if (results.length > 0) {
+        entries.push({ capturedAt, ...dimension, payload: results })
+      }
+    } catch (error) {
+      // Demografia exige 100+ seguidores e nem sempre está disponível.
+    }
+  }
+
+  if (entries.length > 0) {
+    try {
+      await container.instagram.replaceDemographics(entries)
+    } catch (error) {
+      console.warn('Não foi possível salvar a demografia:', error?.message || error)
+    }
+  }
 }
 
 export async function refreshInstagramStats(container, { source = 'manual' } = {}) {
@@ -94,12 +165,24 @@ export async function refreshInstagramStats(container, { source = 'manual' } = {
     )
     const recentViews = await fetchRecentViews(token, media)
 
+    const insights = await fetchAccountInsights(token, userId)
+
     const snapshot = {
       followers: profile.followers_count ?? null,
       posts: profile.media_count ?? null,
       recentViews,
       recentInteractions,
       recentItems: media.length,
+      reach: insights.reach ?? null,
+      profileViews: insights.profile_views ?? null,
+      accountsEngaged: insights.accounts_engaged ?? null,
+      totalInteractions: insights.total_interactions ?? null,
+      likes: insights.likes ?? null,
+      comments: insights.comments ?? null,
+      shares: insights.shares ?? null,
+      saves: insights.saves ?? null,
+      newFollowers: insights.follower_count ?? null,
+      websiteClicks: insights.website_clicks ?? null,
       capturedAt: now,
       source,
       success: true
@@ -107,6 +190,7 @@ export async function refreshInstagramStats(container, { source = 'manual' } = {
 
     await container.instagram.insertSnapshot(snapshot)
     await container.instagram.saveState({
+      ...mapState(state),
       encryptedToken,
       tokenIv,
       tokenExpiresAt,
@@ -117,6 +201,12 @@ export async function refreshInstagramStats(container, { source = 'manual' } = {
       lastSuccessAt: now,
       lastError: null
     })
+
+    await syncRecentMedia(container, token, media, now)
+
+    if (Number(profile.followers_count || 0) >= 100) {
+      await syncDemographics(container, token, userId, now)
+    }
 
     return { ok: true, snapshot }
   } catch (error) {

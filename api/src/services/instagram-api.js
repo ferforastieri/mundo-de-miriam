@@ -26,6 +26,30 @@ async function requestJson(url) {
     })
   }
 
+  return parseGraphResponse(response)
+}
+
+async function requestJsonPost(path, params = {}) {
+  const url = graphUrl(path, params)
+  let response
+
+  try {
+    response = await fetch(url, {
+      method: 'POST',
+      headers: { Accept: 'application/json' },
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)
+    })
+  } catch (error) {
+    throw new InstagramApiError('Não foi possível conectar à API do Instagram.', {
+      cause: error?.message || String(error)
+    })
+  }
+
+  return parseGraphResponse(response)
+}
+
+async function parseGraphResponse(response) {
+
   let payload = {}
 
   try {
@@ -120,4 +144,183 @@ export async function refreshLongLivedToken(token) {
     accessToken: payload.access_token,
     expiresInSeconds: Number(payload.expires_in || 0)
   }
+}
+
+// ---------------------------------------------------------------------------
+// Estatísticas extras (insights) e publicação de conteúdo
+// ---------------------------------------------------------------------------
+
+const ACCOUNT_METRICS_FULL = [
+  'reach',
+  'views',
+  'profile_views',
+  'accounts_engaged',
+  'total_interactions',
+  'likes',
+  'comments',
+  'shares',
+  'saves',
+  'follower_count',
+  'website_clicks'
+]
+
+const ACCOUNT_METRICS_CORE = [
+  'reach',
+  'views',
+  'profile_views',
+  'accounts_engaged',
+  'total_interactions',
+  'follower_count'
+]
+
+function insightsToMap(payload) {
+  const map = {}
+
+  for (const metric of payload?.data || []) {
+    const values = metric?.values || []
+    const last = values[values.length - 1]
+    const value = last?.value ?? metric?.total_value?.value
+    map[metric.name] = Number.isFinite(Number(value)) ? Number(value) : null
+  }
+
+  return map
+}
+
+export async function fetchAccountInsights(token, userId) {
+  const attempt = async (metrics) => {
+    const payload = await requestJson(
+      graphUrl(`${userId}/insights`, {
+        metric: metrics.join(','),
+        period: 'day',
+        access_token: token
+      })
+    )
+
+    return insightsToMap(payload)
+  }
+
+  try {
+    return await attempt(ACCOUNT_METRICS_FULL)
+  } catch {
+    try {
+      return await attempt(ACCOUNT_METRICS_CORE)
+    } catch {
+      return {}
+    }
+  }
+}
+
+export async function fetchMediaInsights(token, mediaId) {
+  const attempt = async (metrics) => {
+    const payload = await requestJson(
+      graphUrl(`${mediaId}/insights`, {
+        metric: metrics.join(','),
+        access_token: token
+      })
+    )
+
+    const map = insightsToMap(payload)
+    return {
+      views: map.views ?? null,
+      reach: map.reach ?? null,
+      shares: map.shares ?? null,
+      saves: map.saves ?? map.saved ?? null,
+      totalInteractions: map.total_interactions ?? null
+    }
+  }
+
+  try {
+    return await attempt(['views', 'reach', 'shares', 'saves', 'total_interactions'])
+  } catch {
+    try {
+      return await attempt(['views', 'reach'])
+    } catch {
+      return null
+    }
+  }
+}
+
+export async function fetchDemographics(token, userId, metric, breakdown) {
+  const payload = await requestJson(
+    graphUrl(`${userId}/insights`, {
+      metric,
+      period: 'lifetime',
+      breakdown,
+      access_token: token
+    })
+  )
+
+  const values = payload?.data?.[0]?.total_value?.breakdowns?.[0]?.results || []
+  return values.map((item) => ({
+    key: item.dimension_values?.[0] ?? item.dimension_values?.join(' / ') ?? '',
+    value: item.value
+  }))
+}
+
+export async function createImageContainer(token, userId, { imageUrl, caption }) {
+  const payload = await requestJsonPost(`${userId}/media`, {
+    image_url: imageUrl,
+    caption,
+    access_token: token
+  })
+
+  if (!payload.id) {
+    throw new InstagramApiError('O Instagram não retornou o identificador do conteúdo.')
+  }
+
+  return payload.id
+}
+
+export async function createCarouselItemContainer(token, userId, { imageUrl }) {
+  const payload = await requestJsonPost(`${userId}/media`, {
+    image_url: imageUrl,
+    is_carousel_item: 'true',
+    access_token: token
+  })
+
+  if (!payload.id) {
+    throw new InstagramApiError('O Instagram não retornou o identificador do item do carrossel.')
+  }
+
+  return payload.id
+}
+
+export async function createCarouselContainer(token, userId, { children, caption }) {
+  const payload = await requestJsonPost(`${userId}/media`, {
+    media_type: 'CAROUSEL',
+    children: children.join(','),
+    caption,
+    access_token: token
+  })
+
+  if (!payload.id) {
+    throw new InstagramApiError('O Instagram não retornou o identificador do carrossel.')
+  }
+
+  return payload.id
+}
+
+export async function fetchContainerStatus(token, containerId) {
+  return requestJson(
+    graphUrl(containerId, {
+      fields: 'status_code,status',
+      access_token: token
+    })
+  )
+}
+
+export async function publishContainer(token, userId, creationId) {
+  return requestJsonPost(`${userId}/media_publish`, {
+    creation_id: creationId,
+    access_token: token
+  })
+}
+
+export async function fetchMediaDetails(token, mediaId) {
+  return requestJson(
+    graphUrl(mediaId, {
+      fields: 'id,permalink,media_type,timestamp',
+      access_token: token
+    })
+  )
 }

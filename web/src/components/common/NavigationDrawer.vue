@@ -66,7 +66,7 @@
               @focus="activePath = item.to"
               @click="close"
             >
-              <img class="editorial-menu__link-image" :src="item.image" alt="" />
+              <img v-if="item.image" class="editorial-menu__link-image" :src="item.image" alt="" />
               <small>{{ item.category }}</small>
               <span>{{ item.label }}</span>
               <i aria-hidden="true">↗</i>
@@ -75,7 +75,7 @@
 
           <figure class="editorial-menu__preview" aria-hidden="true">
             <Transition name="preview-image" mode="out-in">
-              <img :key="activeItem.image" :src="activeItem.image" alt="" />
+              <img v-if="activeItem.image" :key="activeItem.image" :src="activeItem.image" alt="" />
             </Transition>
             <figcaption>{{ activeItem.label }}</figcaption>
           </figure>
@@ -163,6 +163,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import LanguageSwitcher from './LanguageSwitcher.vue'
 import StyledSelect from './StyledSelect.vue'
+import { usePublicGallery } from '@/composables/usePublicGallery'
 
 const props = defineProps({
   isDark: {
@@ -191,15 +192,35 @@ let dockElement = null
 const openGesture = { active: false, recognized: false, startX: 0, startY: 0, currentX: 0, currentY: 0, startTime: 0 }
 const closeGesture = { active: false, recognized: false, eligible: false, startX: 0, startY: 0, currentX: 0, currentY: 0, startTime: 0 }
 
-const links = [
-  { to: '/', label: 'Início', category: 'Boas-vindas', image: '/assets/profile/fotodalinda.jpg' },
-  { to: '/about', label: 'Sobre mim', category: 'História', image: '/assets/profile/fotodalinda.jpg' },
-  { to: '/curriculum', label: 'Currículo', category: 'Experiência', image: '/assets/profile/fundo-cursos.jpg' },
-  { to: '/beauty-portfolio', label: 'Beauty', category: 'Maquiagem', image: '/assets/beautystyle/Beauty%20Style1.jpeg' },
-  { to: '/artistic-portfolio', label: 'Artístico', category: 'Criação', image: '/assets/artisticstyle/ArtisticStyle1.jpeg' },
-  { to: '/ecommerce', label: 'E-commerce', category: 'Fotografia', image: '/assets/e-commerce/e-comerce1.jpeg' },
-  { to: '/partnerships', label: 'Parcerias', category: 'Colaborações', image: '/assets/partnership/chocolashes/chocolashes1.jpeg' }
+const MENU_LINKS = [
+  { to: '/', label: 'Início', category: 'Boas-vindas', screen: 'profile' },
+  { to: '/about', label: 'Sobre mim', category: 'História', screen: 'profile' },
+  { to: '/curriculum', label: 'Currículo', category: 'Experiência', screen: 'curriculum' },
+  { to: '/beauty-portfolio', label: 'Beauty', category: 'Maquiagem', screen: 'beauty' },
+  { to: '/artistic-portfolio', label: 'Artístico', category: 'Criação', screen: 'artistic' },
+  { to: '/ecommerce', label: 'E-commerce', category: 'Fotografia', screen: 'ecommerce' },
+  { to: '/partnerships', label: 'Parcerias', category: 'Colaborações', screen: 'partnerships' }
 ]
+
+const { data: galleryData } = usePublicGallery()
+
+function imageForScreen(screenId) {
+  const screen = galleryData.value?.screens?.find((item) => item.id === screenId)
+
+  if (!screen) return null
+
+  if (screen.groups?.length) {
+    const group = screen.groups.find((item) => item.photos?.length)
+    const cover = group?.photos?.find((photo) => photo.featured) || group?.photos?.[0]
+    return cover?.url || null
+  }
+
+  return screen.photos?.[0]?.url || null
+}
+
+const links = computed(() =>
+  MENU_LINKS.map((link) => ({ ...link, image: imageForScreen(link.screen) }))
+)
 
 const themeOptions = [
   { value: 'light', label: 'Claro' },
@@ -214,7 +235,7 @@ const selectedTheme = computed({
   }
 })
 
-const activeItem = computed(() => links.find((item) => item.to === activePath.value) || links[0])
+const activeItem = computed(() => links.value.find((item) => item.to === activePath.value) || links.value[0])
 const isMobileViewport = () => window.matchMedia('(max-width: 768px)').matches
 const getSheetHeight = () => Math.min(window.innerHeight * 0.92, 760)
 const mobileSheetStyle = computed(() => ({

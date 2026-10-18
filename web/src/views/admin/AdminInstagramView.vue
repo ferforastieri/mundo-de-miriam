@@ -10,6 +10,9 @@
       </div>
 
       <div class="admin-actions-row">
+        <RouterLink class="admin-btn admin-btn--small" :to="{ name: 'AdminPublish' }">
+          Publicar no Instagram
+        </RouterLink>
         <button class="admin-btn" type="button" :disabled="refreshing || isFetching" @click="refreshNow">
           {{ refreshing ? 'Coletando…' : 'Atualizar agora' }}
         </button>
@@ -136,8 +139,14 @@
         <div v-if="latest" class="admin-stats">
           <AdminStatCard label="Seguidores" :value="formatNumber(latest.followers)" />
           <AdminStatCard label="Publicações" :value="formatNumber(latest.posts)" />
-          <AdminStatCard label="Views recentes" :value="formatNumber(latest.recentViews)" />
-          <AdminStatCard label="Interações recentes" :value="formatNumber(latest.recentInteractions)" />
+          <AdminStatCard label="Alcance" :value="metric(latest.reach)" hint="último dia" />
+          <AdminStatCard label="Visitas ao perfil" :value="metric(latest.profileViews)" hint="último dia" />
+          <AdminStatCard label="Contas engajadas" :value="metric(latest.accountsEngaged)" hint="último dia" />
+          <AdminStatCard label="Novos seguidores" :value="metric(latest.newFollowers)" hint="último dia" />
+          <AdminStatCard label="Salvamentos" :value="metric(latest.saves)" hint="último dia" />
+          <AdminStatCard label="Compartilhamentos" :value="metric(latest.shares)" hint="último dia" />
+          <AdminStatCard label="Interações totais" :value="metric(latest.totalInteractions)" hint="último dia" />
+          <AdminStatCard label="Cliques no site" :value="metric(latest.websiteClicks)" hint="último dia" />
         </div>
 
         <p v-else class="admin-empty">
@@ -152,12 +161,122 @@
 
         <section class="admin-card">
           <AdminSparkline
+            label="Alcance por dia"
+            :values="history.map((point) => point.reach)"
+            color="#2f6f4f"
+          />
+        </section>
+
+        <section class="admin-card">
+          <AdminSparkline
+            label="Visitas ao perfil por dia"
+            :values="history.map((point) => point.profileViews)"
+            color="#3f5f9a"
+          />
+        </section>
+
+        <section class="admin-card">
+          <AdminSparkline
             label="Views recentes (90 dias)"
             :values="history.map((point) => point.recentViews)"
             color="#9a5b2f"
           />
         </section>
       </div>
+
+      <section v-if="hasDemographics" class="admin-card instagram-demographics">
+        <div class="admin-card__header">
+          <div>
+            <h2 class="admin-card__title">Público (seguidores)</h2>
+            <p class="admin-card__hint">Top cidades, países, idade e gênero — disponível para contas com 100+ seguidores</p>
+          </div>
+        </div>
+
+        <div class="instagram-demographics__grid">
+          <div>
+            <h3 class="instagram-demographics__title">Cidades</h3>
+            <ul class="instagram-demographics__list">
+              <li v-for="item in topDemographics('city')" :key="item.key">
+                <span>{{ item.key }}</span><strong>{{ metric(item.value) }}</strong>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="instagram-demographics__title">Países</h3>
+            <ul class="instagram-demographics__list">
+              <li v-for="item in topDemographics('country')" :key="item.key">
+                <span>{{ item.key }}</span><strong>{{ metric(item.value) }}</strong>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="instagram-demographics__title">Faixa etária</h3>
+            <ul class="instagram-demographics__list">
+              <li v-for="item in topDemographics('age', 6)" :key="item.key">
+                <span>{{ item.key }}</span><strong>{{ metric(item.value) }}</strong>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="instagram-demographics__title">Gênero</h3>
+            <ul class="instagram-demographics__list">
+              <li v-for="item in topDemographics('gender', 4)" :key="item.key">
+                <span>{{ item.key }}</span><strong>{{ metric(item.value) }}</strong>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="admin-card instagram-media">
+        <div class="admin-card__header">
+          <div>
+            <h2 class="admin-card__title">Desempenho por publicação</h2>
+            <p class="admin-card__hint">Últimas 12 publicações coletadas da API</p>
+          </div>
+        </div>
+
+        <p v-if="media.length === 0" class="admin-empty">
+          Nenhuma publicação coletada ainda. Isso aparece depois da primeira coleta com o token ativo.
+        </p>
+
+        <div v-else class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Publicado</th>
+                <th>Tipo</th>
+                <th>Curtidas</th>
+                <th>Comentários</th>
+                <th>Views</th>
+                <th>Alcance</th>
+                <th>Salvos</th>
+                <th>Shares</th>
+                <th>Link</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="item in media" :key="item.id">
+                <td>{{ formatDateTime(item.publishedAt) }}</td>
+                <td>{{ mediaTypeLabel(item.mediaType) }}</td>
+                <td>{{ metric(item.likeCount) }}</td>
+                <td>{{ metric(item.commentsCount) }}</td>
+                <td>{{ metric(item.views) }}</td>
+                <td>{{ metric(item.reach) }}</td>
+                <td>{{ metric(item.saves) }}</td>
+                <td>{{ metric(item.shares) }}</td>
+                <td>
+                  <a v-if="item.permalink" class="admin-link" :href="item.permalink" target="_blank" rel="noopener noreferrer">Abrir</a>
+                  <span v-else>—</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       <section class="admin-card instagram-history">
         <div class="admin-card__header">
@@ -243,6 +362,29 @@ const latest = computed(() => data.value?.latest || null)
 const history = computed(() => data.value?.history || [])
 const attempts = computed(() => data.value?.attempts || [])
 const refreshWindowDays = computed(() => data.value?.state?.refreshWindowDays || 7)
+const media = computed(() => data.value?.media || [])
+const demographics = computed(() => data.value?.demographics || {})
+const hasDemographics = computed(() => Object.keys(demographics.value).length > 0)
+
+const MEDIA_TYPE_LABELS = {
+  IMAGE: 'Foto',
+  CAROUSEL_ALBUM: 'Carrossel',
+  VIDEO: 'Vídeo',
+  REELS: 'Reels'
+}
+
+function mediaTypeLabel(type) {
+  return MEDIA_TYPE_LABELS[type] || type || '—'
+}
+
+function topDemographics(breakdown, limit = 5) {
+  return (demographics.value[breakdown] || []).slice(0, limit)
+}
+
+function metric(value) {
+  if (value === null || value === undefined) return '—'
+  return formatNumber(value)
+}
 
 const tokenExpiringSoon = computed(() => {
   if (!state.value.tokenExpiresAt) return false
@@ -354,6 +496,55 @@ async function removeToken() {
 }
 
 .instagram-metrics {
+  margin-top: 1rem;
+}
+
+.instagram-demographics {
+  margin-top: 1rem;
+}
+
+.instagram-demographics__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.instagram-demographics__title {
+  margin: 0 0 0.5rem;
+  color: var(--muted);
+  font-family: system-ui, sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.instagram-demographics__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: system-ui, sans-serif;
+  font-size: 0.82rem;
+}
+
+.instagram-demographics__list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.instagram-demographics__list li:last-child {
+  border-bottom: 0;
+}
+
+.instagram-demographics__list strong {
+  color: var(--primary);
+}
+
+.instagram-media {
   margin-top: 1rem;
 }
 

@@ -26,7 +26,7 @@ export default {
   },
   setup() {
     return {
-      profilePhoto: useSitePhoto('profile', '/assets/profile/fotodalinda.jpg')
+      profilePhoto: useSitePhoto('profile')
     }
   }
 }

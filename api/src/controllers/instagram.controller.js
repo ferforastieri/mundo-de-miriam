@@ -2,6 +2,7 @@ import { getContainer } from '../context.js'
 import { requireAdmin } from '../http/guards.js'
 import { clearInstagramToken } from '../usecases/instagram/clear-instagram-token.js'
 import { getInstagramPanel } from '../usecases/instagram/get-instagram-panel.js'
+import { publishPhotos } from '../usecases/instagram/publish-photos.js'
 import { refreshInstagramStats } from '../usecases/instagram/refresh-instagram-stats.js'
 import { setInstagramToken } from '../usecases/instagram/set-instagram-token.js'
 
@@ -12,6 +13,23 @@ const tokenSchema = {
     additionalProperties: false,
     properties: {
       token: { type: 'string', minLength: 20, maxLength: 2000 }
+    }
+  }
+}
+
+const publishSchema = {
+  body: {
+    type: 'object',
+    required: ['photoIds'],
+    additionalProperties: false,
+    properties: {
+      photoIds: {
+        type: 'array',
+        minItems: 1,
+        maxItems: 10,
+        items: { type: 'string', minLength: 1, maxLength: 80 }
+      },
+      caption: { type: 'string', maxLength: 2200 }
     }
   }
 }
@@ -36,4 +54,18 @@ export function registerInstagramRoutes(app) {
   app.delete('/api/admin/instagram/token', { preHandler: requireAdmin }, async () => {
     return clearInstagramToken(getContainer())
   })
+
+  app.post(
+    '/api/admin/instagram/publish',
+    { preHandler: requireAdmin, schema: publishSchema },
+    async (request) => {
+      const origin = `${request.protocol}://${request.headers.host}`
+
+      return publishPhotos(getContainer(), {
+        photoIds: request.body.photoIds,
+        caption: request.body.caption || '',
+        origin
+      })
+    }
+  )
 }

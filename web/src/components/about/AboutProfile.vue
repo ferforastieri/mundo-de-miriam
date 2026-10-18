@@ -107,7 +107,7 @@ export default {
     
     return {
       goToCurriculum,
-      profilePhoto: useSitePhoto('profile', '/assets/profile/fotodalinda.jpg')
+      profilePhoto: useSitePhoto('profile')
     }
   }
 }

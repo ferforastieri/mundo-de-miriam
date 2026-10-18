@@ -64,7 +64,7 @@ export default {
   },
   setup() {
     return {
-      contactPhoto: useSitePhoto('curriculum', '/assets/profile/fundo-cursos.jpg')
+      contactPhoto: useSitePhoto('curriculum')
     }
   },
   methods: {

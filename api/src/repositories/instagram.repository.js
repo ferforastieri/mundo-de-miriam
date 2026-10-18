@@ -41,8 +41,10 @@ export function createInstagramRepository(db) {
         .prepare(
           `INSERT INTO instagram_snapshots
             (followers, posts, recent_views, recent_interactions, recent_items,
-             captured_at, source, success, error)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+             captured_at, source, success, error,
+             reach, profile_views, accounts_engaged, total_interactions,
+             likes, comments, shares, saves, new_followers, website_clicks)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
         )
         .bind(
           snapshot.followers ?? null,
@@ -53,7 +55,17 @@ export function createInstagramRepository(db) {
           snapshot.capturedAt,
           snapshot.source,
           snapshot.success ? 1 : 0,
-          snapshot.error ?? null
+          snapshot.error ?? null,
+          snapshot.reach ?? null,
+          snapshot.profileViews ?? null,
+          snapshot.accountsEngaged ?? null,
+          snapshot.totalInteractions ?? null,
+          snapshot.likes ?? null,
+          snapshot.comments ?? null,
+          snapshot.shares ?? null,
+          snapshot.saves ?? null,
+          snapshot.newFollowers ?? null,
+          snapshot.websiteClicks ?? null
         )
         .run()
     },
@@ -97,6 +109,131 @@ export function createInstagramRepository(db) {
         .prepare('DELETE FROM instagram_snapshots WHERE captured_at < ?')
         .bind(cutoff)
         .run()
+    },
+
+    async upsertMedia(media) {
+      await db
+        .prepare(
+          `INSERT INTO instagram_media
+            (id, media_type, permalink, caption, published_at,
+             like_count, comments_count, views, reach, shares, saves,
+             total_interactions, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+           ON CONFLICT(id) DO UPDATE SET
+             media_type = excluded.media_type,
+             permalink = excluded.permalink,
+             caption = excluded.caption,
+             published_at = excluded.published_at,
+             like_count = excluded.like_count,
+             comments_count = excluded.comments_count,
+             views = excluded.views,
+             reach = excluded.reach,
+             shares = excluded.shares,
+             saves = excluded.saves,
+             total_interactions = excluded.total_interactions,
+             updated_at = excluded.updated_at`
+        )
+        .bind(
+          media.id,
+          media.mediaType ?? null,
+          media.permalink ?? null,
+          media.caption ?? null,
+          media.publishedAt ?? null,
+          media.likeCount ?? null,
+          media.commentsCount ?? null,
+          media.views ?? null,
+          media.reach ?? null,
+          media.shares ?? null,
+          media.saves ?? null,
+          media.totalInteractions ?? null,
+          media.updatedAt
+        )
+        .run()
+    },
+
+    async listMedia(limit = 12) {
+      const result = await db
+        .prepare(
+          `SELECT * FROM instagram_media
+           ORDER BY published_at DESC
+           LIMIT ?`
+        )
+        .bind(limit)
+        .all()
+
+      return result.results || []
+    },
+
+    async replaceDemographics(entries) {
+      const statements = [db.prepare('DELETE FROM instagram_demographics')]
+
+      for (const entry of entries) {
+        statements.push(
+          db
+            .prepare(
+              `INSERT INTO instagram_demographics (id, captured_at, metric, breakdown, payload)
+               VALUES (?, ?, ?, ?, ?)`
+            )
+            .bind(
+              crypto.randomUUID(),
+              entry.capturedAt,
+              entry.metric,
+              entry.breakdown,
+              JSON.stringify(entry.payload)
+            )
+        )
+      }
+
+      await db.batch(statements)
+    },
+
+    async listDemographics() {
+      const result = await db
+        .prepare('SELECT * FROM instagram_demographics ORDER BY breakdown ASC')
+        .all()
+
+      return result.results || []
+    },
+
+    async insertPublication(publication) {
+      await db
+        .prepare(
+          `INSERT INTO instagram_publications
+            (id, created_at, published_at, status, caption, ig_media_id, permalink, photo_ids, error)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        )
+        .bind(
+          publication.id,
+          publication.createdAt,
+          publication.publishedAt ?? null,
+          publication.status,
+          publication.caption ?? null,
+          publication.igMediaId ?? null,
+          publication.permalink ?? null,
+          JSON.stringify(publication.photoIds || []),
+          publication.error ?? null
+        )
+        .run()
+    },
+
+    async listPublications(limit = 20) {
+      const result = await db
+        .prepare('SELECT * FROM instagram_publications ORDER BY created_at DESC LIMIT ?')
+        .bind(limit)
+        .all()
+
+      return result.results || []
+    },
+
+    async countPublicationsSince(since) {
+      const row = await db
+        .prepare(
+          "SELECT COUNT(*) AS total FROM instagram_publications WHERE status = 'published' AND created_at >= ?"
+        )
+        .bind(since)
+        .first()
+
+      return Number(row?.total || 0)
     }
   }
 }

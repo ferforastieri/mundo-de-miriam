@@ -27,7 +27,7 @@
 <script setup>
 import { useSitePhoto } from '@/composables/usePublicGallery'
 
-const mimelieSymbol = useSitePhoto('mimelie', '/assets/mimelie/mimelie-symbol.png')
+const mimelieSymbol = useSitePhoto('mimelie')
 </script>
 
 <style scoped>

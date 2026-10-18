@@ -331,7 +331,7 @@ export default {
     const curriculumContent = ref(null)
     const downloadBtn = ref(null)
     const downloadTraditionalBtn = ref(null)
-    const profilePhoto = useSitePhoto('profile', '/assets/profile/fotodalinda.jpg')
+    const profilePhoto = useSitePhoto('profile')
     
     const downloadPDF = async () => {
       try {

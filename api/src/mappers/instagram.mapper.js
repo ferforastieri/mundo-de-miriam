@@ -32,7 +32,74 @@ export function toInstagramHistoryPoint(row) {
     posts: row.posts,
     recentViews: row.recent_views,
     recentInteractions: row.recent_interactions,
-    recentItems: row.recent_items
+    recentItems: row.recent_items,
+    reach: row.reach,
+    profileViews: row.profile_views,
+    accountsEngaged: row.accounts_engaged,
+    totalInteractions: row.total_interactions,
+    likes: row.likes,
+    comments: row.comments,
+    shares: row.shares,
+    saves: row.saves,
+    newFollowers: row.new_followers,
+    websiteClicks: row.website_clicks
+  }
+}
+
+export function toInstagramMedia(row) {
+  return {
+    id: row.id,
+    mediaType: row.media_type,
+    permalink: row.permalink,
+    publishedAt: row.published_at,
+    likeCount: row.like_count,
+    commentsCount: row.comments_count,
+    views: row.views,
+    reach: row.reach,
+    shares: row.shares,
+    saves: row.saves,
+    totalInteractions: row.total_interactions,
+    updatedAt: row.updated_at
+  }
+}
+
+export function toInstagramDemographics(rows) {
+  const result = {}
+
+  for (const row of rows) {
+    let parsed = []
+
+    try {
+      parsed = JSON.parse(row.payload)
+    } catch {
+      parsed = []
+    }
+
+    result[row.breakdown] = parsed
+  }
+
+  return result
+}
+
+export function toInstagramPublication(row) {
+  let photoIds = []
+
+  try {
+    photoIds = JSON.parse(row.photo_ids || '[]')
+  } catch {
+    photoIds = []
+  }
+
+  return {
+    id: row.id,
+    createdAt: row.created_at,
+    publishedAt: row.published_at,
+    status: row.status,
+    caption: row.caption,
+    permalink: row.permalink,
+    mediaId: row.ig_media_id,
+    photoIds,
+    error: row.error
   }
 }
 

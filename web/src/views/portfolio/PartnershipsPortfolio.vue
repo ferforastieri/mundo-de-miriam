@@ -37,46 +37,10 @@ import { TranslatableText } from '@/components/common'
 import { PartnershipsGallery } from '@/components/portfolio'
 import { usePublicGallery } from '@/composables/usePublicGallery'
 
-const FALLBACK_PARTNERSHIPS = [
-  { name: 'Chocolashes', folder: 'chocolashes', count: 2 },
-  { name: 'Fresh Lady', folder: 'freshlady', count: 7 },
-  { name: 'Gliben', folder: 'gliben', count: 2 },
-  { name: 'Icoice', folder: 'icoice', count: 4 },
-  { name: 'TTD Eye', folder: 'ttdeye', count: 12 },
-  { name: 'Unibling', folder: 'unibling', count: 4 }
-]
-
-function buildFallback() {
-  return FALLBACK_PARTNERSHIPS.map((partnership) => {
-    const images = Array.from({ length: partnership.count }, (_, index) => {
-      const fileName = partnership.folder === 'freshlady'
-        ? `freashlady${index + 1}`
-        : `${partnership.folder}${index + 1}`
-
-      return {
-        src: `/assets/partnership/${partnership.folder}/${fileName}.jpeg`,
-        alt: `${partnership.name} ${index + 1}`
-      }
-    })
-
-    return {
-      name: partnership.name,
-      images,
-      mainImage: images[0]?.src,
-      isExpanded: false
-    }
-  })
-}
-
-const { data, isPending, isError } = usePublicGallery()
+const { data, isPending } = usePublicGallery()
 const partnerships = ref([])
 
-watch([data, isError], () => {
-  if (isError.value) {
-    partnerships.value = buildFallback()
-    return
-  }
-
+watch(data, () => {
   const screen = data.value?.screens?.find((item) => item.id === 'partnerships')
 
   if (!screen) {

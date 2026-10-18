@@ -1,0 +1,421 @@
+<template>
+  <div>
+    <header class="admin-page-header">
+      <div>
+        <h1 class="admin-title">Publicar no Instagram</h1>
+        <p class="admin-subtitle">
+          Escolha fotos da galeria, escreva a legenda e publique direto no feed. Uma foto vira post simples;
+          duas ou mais viram carrossel.
+        </p>
+      </div>
+
+      <div class="admin-actions-row">
+        <RouterLink class="admin-btn admin-btn--small" :to="{ name: 'AdminInstagram' }">
+          Ver estatísticas
+        </RouterLink>
+      </div>
+    </header>
+
+    <div v-if="!instagramConfigured" class="admin-alert admin-alert--error publish-block">
+      Configure o token do Instagram antes de publicar.
+      <RouterLink class="admin-link" :to="{ name: 'AdminInstagram' }">Ir para a tela do Instagram</RouterLink>
+    </div>
+
+    <div class="admin-grid-2">
+      <section class="admin-card">
+        <div class="admin-card__header">
+          <div>
+            <h2 class="admin-card__title">1. Escolha as fotos</h2>
+            <p class="admin-card__hint">
+              {{ selectedIds.length }} de {{ MAX_ITEMS }} selecionadas · a ordem de seleção é a ordem do carrossel
+            </p>
+          </div>
+
+          <button
+            v-if="selectedIds.length > 0"
+            class="admin-btn admin-btn--small"
+            type="button"
+            @click="selectedIds = []"
+          >
+            Limpar seleção
+          </button>
+        </div>
+
+        <nav class="admin-tabs publish-tabs" aria-label="Telas">
+          <button
+            v-for="screen in screens"
+            :key="screen.id"
+            class="admin-tab"
+            :class="{ 'admin-tab--active': screen.id === selectedScreenId }"
+            type="button"
+            @click="selectedScreenId = screen.id"
+          >
+            {{ screen.name }}
+          </button>
+        </nav>
+
+        <p v-if="photosPending" class="admin-empty">Carregando fotos…</p>
+        <p v-else-if="photosIsError" class="admin-alert admin-alert--error">{{ photosError?.message }}</p>
+        <p v-else-if="photos.length === 0" class="admin-empty">Nenhuma foto nesta tela.</p>
+
+        <div v-else class="publish-grid">
+          <button
+            v-for="photo in photos"
+            :key="photo.id"
+            class="publish-thumb"
+            :class="{
+              'publish-thumb--selected': isSelected(photo.id),
+              'publish-thumb--disabled': !isJpeg(photo)
+            }"
+            type="button"
+            :disabled="!isJpeg(photo) || (!isSelected(photo.id) && selectedIds.length >= MAX_ITEMS)"
+            @click="toggle(photo)"
+          >
+            <img :src="photo.url" :alt="photo.alt || ''" loading="lazy" />
+            <span v-if="isSelected(photo.id)" class="publish-thumb__order">
+              {{ selectedIds.indexOf(photo.id) + 1 }}
+            </span>
+            <span v-if="!isJpeg(photo)" class="publish-thumb__tag">não é JPEG</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="admin-card">
+        <div class="admin-card__header">
+          <div>
+            <h2 class="admin-card__title">2. Legenda e publicação</h2>
+            <p class="admin-card__hint">
+              {{ selectedIds.length === 1 ? 'Post simples' : selectedIds.length > 1 ? `Carrossel com ${selectedIds.length} fotos` : 'Selecione as fotos ao lado' }}
+            </p>
+          </div>
+        </div>
+
+        <div v-if="selectedPhotos.length > 0" class="publish-preview">
+          <img v-for="photo in selectedPhotos" :key="photo.id" :src="photo.url" :alt="photo.alt || ''" />
+        </div>
+
+        <label class="admin-field publish-caption">
+          <span class="admin-label">Legenda</span>
+          <textarea
+            v-model="caption"
+            class="admin-textarea"
+            maxlength="2200"
+            rows="6"
+            placeholder="Escreva a legenda do post…"
+          />
+          <span class="admin-muted">{{ caption.length }}/2200</span>
+        </label>
+
+        <div class="admin-actions-row">
+          <button
+            class="admin-btn admin-btn--primary"
+            type="button"
+            :disabled="!canPublish"
+            @click="publish"
+          >
+            {{ publishing ? 'Publicando…' : 'Publicar no Instagram' }}
+          </button>
+          <span v-if="publishing" class="admin-muted">
+            Aguarde — o Instagram leva alguns segundos para processar.
+          </span>
+        </div>
+
+        <p v-if="lastResult?.permalink" class="admin-alert admin-alert--success publish-result">
+          Publicado!
+          <a class="admin-link" :href="lastResult.permalink" target="_blank" rel="noopener noreferrer">
+            Ver no Instagram ↗
+          </a>
+        </p>
+      </section>
+    </div>
+
+    <section class="admin-card publish-history">
+      <div class="admin-card__header">
+        <div>
+          <h2 class="admin-card__title">Histórico de publicações</h2>
+          <p class="admin-card__hint">{{ publishedLast24h }} publicada(s) nas últimas 24h (limite de 25)</p>
+        </div>
+      </div>
+
+      <p v-if="publications.length === 0" class="admin-empty">Nenhuma publicação feita pelo painel ainda.</p>
+
+      <div v-else class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Quando</th>
+              <th>Fotos</th>
+              <th>Status</th>
+              <th>Legenda</th>
+              <th>Link</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="publication in publications" :key="publication.id">
+              <td>{{ formatDateTime(publication.createdAt) }}</td>
+              <td>{{ publication.photoIds.length }}</td>
+              <td>
+                <span class="admin-tag" :class="publication.status === 'published' ? 'admin-tag--success' : 'admin-tag--danger'">
+                  {{ publication.status === 'published' ? 'OK' : 'Falha' }}
+                </span>
+              </td>
+              <td class="publish-history__caption">{{ publication.caption || publication.error || '—' }}</td>
+              <td>
+                <a v-if="publication.permalink" class="admin-link" :href="publication.permalink" target="_blank" rel="noopener noreferrer">Abrir</a>
+                <span v-else>—</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</template>
+
+<script setup>
+import { computed, ref, watch } from 'vue'
+import { useQuery, useQueryClient } from '@tanstack/vue-query'
+import adminService from '@/api/admin/AdminService.js'
+import { useAdminToast } from '@/composables/useAdminToast'
+import { formatDateTime } from '@/utils/format.js'
+
+const MAX_ITEMS = 10
+const toast = useAdminToast()
+const queryClient = useQueryClient()
+
+const {
+  data: screensData,
+  isPending: screensPending,
+  refetch: refetchScreens
+} = useQuery({
+  queryKey: ['admin-screens'],
+  queryFn: () => adminService.getScreens()
+})
+
+const {
+  data: instagramData,
+  refetch: refetchInstagram
+} = useQuery({
+  queryKey: ['admin-instagram'],
+  queryFn: () => adminService.getInstagram()
+})
+
+const screens = computed(() => screensData.value?.screens || [])
+const instagramConfigured = computed(() => Boolean(instagramData.value?.state?.configured))
+const publications = computed(() => instagramData.value?.publications || [])
+const publishedLast24h = computed(() => instagramData.value?.publishedLast24h || 0)
+
+const selectedScreenId = ref('')
+watch(
+  screens,
+  (list) => {
+    if (list.length > 0 && !list.some((screen) => screen.id === selectedScreenId.value)) {
+      selectedScreenId.value = (list.find((screen) => screen.id === 'beauty') || list[0]).id
+    }
+  },
+  { immediate: true }
+)
+
+const {
+  data: photosData,
+  isPending: photosPending,
+  isError: photosIsError,
+  error: photosError
+} = useQuery({
+  queryKey: ['admin-photos', selectedScreenId],
+  queryFn: () => adminService.getPhotos(selectedScreenId.value),
+  enabled: computed(() => Boolean(selectedScreenId.value))
+})
+
+const photos = computed(() => photosData.value?.photos || [])
+const selectedIds = ref([])
+const caption = ref('')
+const publishing = ref(false)
+const lastResult = ref(null)
+
+const selectedPhotos = computed(() =>
+  selectedIds.value
+    .map((id) => photos.value.find((photo) => photo.id === id))
+    .filter(Boolean)
+)
+
+const canPublish = computed(() =>
+  instagramConfigured.value && selectedIds.value.length > 0 && !publishing.value
+)
+
+function isJpeg(photo) {
+  return photo.contentType === 'image/jpeg'
+}
+
+function isSelected(photoId) {
+  return selectedIds.value.includes(photoId)
+}
+
+function toggle(photo) {
+  if (!isJpeg(photo)) return
+
+  if (isSelected(photo.id)) {
+    selectedIds.value = selectedIds.value.filter((id) => id !== photo.id)
+    return
+  }
+
+  if (selectedIds.value.length >= MAX_ITEMS) {
+    toast.error(`Máximo de ${MAX_ITEMS} fotos por carrossel.`)
+    return
+  }
+
+  selectedIds.value = [...selectedIds.value, photo.id]
+}
+
+watch(selectedScreenId, () => {
+  selectedIds.value = selectedIds.value.filter((id) =>
+    photos.value.some((photo) => photo.id === id)
+  )
+})
+
+async function publish() {
+  if (!canPublish.value) return
+
+  publishing.value = true
+  lastResult.value = null
+
+  try {
+    const result = await adminService.publishToInstagram(
+      selectedIds.value,
+      caption.value.trim()
+    )
+
+    lastResult.value = result
+    toast.success(
+      result.count === 1 ? 'Post publicado no Instagram!' : `Carrossel com ${result.count} fotos publicado!`
+    )
+    selectedIds.value = []
+    caption.value = ''
+
+    await Promise.all([
+      refetchInstagram(),
+      refetchScreens(),
+      queryClient.invalidateQueries({ queryKey: ['admin-dashboard'] })
+    ])
+  } catch (error) {
+    toast.error(error.message || 'Não foi possível publicar.')
+  } finally {
+    publishing.value = false
+  }
+}
+</script>
+
+<style scoped>
+.publish-block {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.publish-tabs {
+  margin-bottom: 0.85rem;
+}
+
+.publish-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 0.5rem;
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.publish-thumb {
+  position: relative;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  background: var(--surface-muted);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.publish-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.publish-thumb--selected {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 35%, transparent);
+}
+
+.publish-thumb--disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.publish-thumb__order {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--on-primary);
+  font-family: system-ui, sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.publish-thumb__tag {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  padding: 0.1rem 0.35rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  font-family: system-ui, sans-serif;
+  font-size: 0.6rem;
+}
+
+.publish-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.9rem;
+}
+
+.publish-preview img {
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.publish-caption .admin-muted {
+  justify-self: end;
+}
+
+.publish-result {
+  margin: 0.9rem 0 0;
+}
+
+.publish-history {
+  margin-top: 1rem;
+}
+
+.publish-history__caption {
+  max-width: 320px;
+  word-break: break-word;
+  color: var(--muted);
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+}
+</style>

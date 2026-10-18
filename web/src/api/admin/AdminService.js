@@ -108,6 +108,10 @@ class AdminService {
   deleteInstagramToken() {
     return http.delete('/api/admin/instagram/token')
   }
+
+  publishToInstagram(photoIds, caption) {
+    return http.post('/api/admin/instagram/publish', { photoIds, caption })
+  }
 }
 
 export default new AdminService()

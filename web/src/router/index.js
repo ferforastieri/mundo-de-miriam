@@ -85,6 +85,12 @@ const routes = [
         meta: { title: 'Instagram' }
       },
       {
+        path: 'publish',
+        name: 'AdminPublish',
+        component: () => import('../views/admin/AdminPublishView.vue'),
+        meta: { title: 'Publicar' }
+      },
+      {
         path: 'account',
         name: 'AdminAccount',
         component: () => import('../views/admin/AdminAccountView.vue'),
