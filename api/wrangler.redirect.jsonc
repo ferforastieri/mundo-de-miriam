@@ -1,0 +1,6 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "mundo-de-miriam-redirect",
+  "main": "src/redirect.js",
+  "compatibility_date": "2026-08-04"
+}

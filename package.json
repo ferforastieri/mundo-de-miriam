@@ -1,36 +1,22 @@
 {
-  "name": "portfolio-miriam",
+  "name": "mundo-de-miriam",
   "private": true,
   "version": "1.0.0",
-  "type": "module",
+  "description": "Portfólio da Miriam Cléres Forastieri — web (Vue) + api (Fastify no Cloudflare Workers)",
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": [
+    "api",
+    "web"
+  ],
   "scripts": {
-    "dev": "vite --host",
-    "dev:api": "wrangler dev",
-    "build": "vite build",
-    "postbuild": "node scripts/generate-seo-pages.mjs",
-    "preview": "vite preview",
-    "deploy": "npm run build && wrangler deploy",
-    "deploy:redirect": "wrangler deploy --config wrangler.redirect.jsonc",
-    "db:migrate": "wrangler d1 migrations apply mundo-de-miriam --remote",
-    "db:migrate:local": "wrangler d1 migrations apply mundo-de-miriam --local",
-    "db:seed:admin": "node scripts/seed-admin.mjs",
-    "db:seed:media": "node scripts/seed-media.mjs",
-    "cf:types": "wrangler types"
-  },
-  "dependencies": {
-    "@fastify/cookie": "^11.0.2",
-    "@tanstack/vue-query": "^5.101.4",
-    "axios": "^1.12.2",
-    "fastify": "^5.6.2",
-    "html2canvas": "^1.4.1",
-    "html2pdf.js": "^0.12.1",
-    "vue": "^3.5.13",
-    "vue-i18n": "^9.14.5",
-    "vue-router": "^4.5.0"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-vue": "^5.2.3",
-    "vite": "^6.2.0",
-    "wrangler": "^4.151.1"
+    "dev:web": "npm run dev --workspace web",
+    "dev:api": "npm run dev --workspace api",
+    "build": "npm run build --workspace web",
+    "db:migrate": "npm run db:migrate --workspace api",
+    "db:migrate:local": "npm run db:migrate:local --workspace api",
+    "db:seed:admin": "npm run db:seed:admin --workspace api",
+    "db:seed:media": "npm run db:seed:media --workspace api"
   }
 }

@@ -1,171 +1,169 @@
 # Mundo de Miriam - Portfólio Profissional
 
-Portfólio profissional de Miriam Cléres Forastieri, com frontend Vue 3 e backend próprio
-(Fastify) rodando 100% na Cloudflare (Workers, D1 e R2).
+Portfólio profissional de Miriam Cléres Forastieri, com duas pastas na raiz:
 
-## ✨ Visão geral
+- **`/web`** — frontend Vue 3 (SPA, i18n, galerias e painel administrativo).
+- **`/api`** — backend Fastify rodando em Cloudflare Workers, com D1 (banco), R2 (imagens)
+  e cron (atualização do Instagram).
 
-- **Frontend**: Vue 3 + Vue Router + Vue I18n + Vue Query (SPA servida pelo Worker).
-- **Backend**: API em Fastify, com arquitetura simples de *controller → usecase → repositório*
-  e *mappers* para converter as linhas do banco nos objetos da API.
-- **Banco de dados**: Cloudflare D1 (SQLite) para fotos, telas, sessões e histórico do Instagram.
-- **Imagens**: Cloudflare R2, servidas pelo Worker em `/media/...` com cache longo.
-- **Painel administrativo**: `/admin` com login por e-mail/senha, upload, ordem, telas,
-  histórico do Instagram e estatísticas.
-- **Instagram**: coleta horária via cron, histórico persistido em D1 e exibição no site
-  sempre a partir do último snapshot bem-sucedido (mesmo quando a API do Instagram falha).
+O deploy é feito **exclusivamente pelo GitHub**, via Cloudflare Workers Builds
+(veja a seção *Deploy* abaixo). Não existe script de deploy manual no repositório.
 
-## 🚀 Tecnologias Utilizadas
-
-- **Vue.js 3** - Framework JavaScript progressivo
-- **Vue Router** - Roteamento oficial do Vue.js
-- **Vue I18n** - Sistema de internacionalização (i18n)
-- **Vue Query** - Cache e estado de dados remotos
-- **Fastify** - Framework HTTP do backend (rodando no runtime dos Workers)
-- **Cloudflare Workers** - Hospedagem da API e do site
-- **Cloudflare D1** - Banco de dados SQLite gerenciado
-- **Cloudflare R2** - Armazenamento das fotos
-- **HTML2PDF.js / HTML2Canvas** - Geração de PDF do currículo
-- **Vite** - Build tool e servidor de desenvolvimento
-
-## 🌍 Idiomas Suportados
-
-- 🇧🇷 Português (pt)
-- 🇺🇸 Inglês (en)
-- 🇪🇸 Espanhol (es)
-- 🇫🇷 Francês (fr)
-- 🇯🇵 Japonês (ja)
-- 🇨🇳 Chinês (zh)
-
-## 📁 Estrutura do projeto
+## 🧱 Arquitetura do backend (`/api`)
 
 ```
-mundo-de-miriam/
-├── migrations/                  # Migrations do D1 (schema + telas iniciais)
-├── public/                      # Arquivos estáticos servidos junto do SPA
-│   └── assets/                  # Fotos originais (fonte do seed e fallback estático)
+api/
+├── migrations/              # Schema do D1 (controlado por migrations)
 ├── scripts/
-│   ├── generate-seo-pages.mjs   # Gera as páginas estáticas de SEO no build
-│   ├── seed-admin.mjs           # Cria/atualiza o usuário admin no D1
-│   └── seed-media.mjs           # Envia as fotos atuais para o R2 via API
+│   ├── seed-admin.mjs       # Cria/atualiza o usuário admin
+│   └── seed-media.mjs       # Envia as fotos do /web para o R2
 ├── src/
-│   ├── api/                     # Clientes HTTP (público e admin)
-│   ├── components/              # Componentes Vue (público e admin)
-│   ├── composables/             # usePublicGallery, useAdminAuth, useAdminToast
-│   ├── layouts/                 # Layouts das páginas e do painel
-│   ├── locales/                 # Traduções
-│   ├── router/                  # Rotas + guarda de autenticação do painel
-│   ├── style/                   # Estilos globais do painel
-│   ├── utils/                   # Formatação de números/datas
-│   └── views/                   # Páginas públicas e do painel
-├── worker/                      # Backend (Cloudflare Worker + Fastify)
-│   ├── controllers/             # Rotas HTTP
-│   ├── usecases/                # Regras de negócio
-│   ├── repositories/            # Acesso ao D1 e ao R2
-│   ├── mappers/                 # Conversão banco → API
-│   ├── services/                # Instagram, criptografia, senhas, imagens
-│   ├── http/                    # Erros e guardas (auth, CSRF, rate limit)
-│   └── index.js                 # Entry point (fetch + cron)
-├── wrangler.jsonc               # Configuração do Worker (D1, R2, assets, cron)
+│   ├── controllers/         # Rotas HTTP (Fastify)
+│   ├── usecases/            # Regras de negócio
+│   ├── repositories/        # Acesso ao D1 e ao R2
+│   ├── mappers/             # Conversão banco → API
+│   ├── services/            # Instagram, criptografia, senha, imagens
+│   ├── http/                # Erros, autenticação e CSRF
+│   ├── utils/
+│   ├── app.js               # Montagem do Fastify
+│   ├── config.js
+│   ├── context.js
+│   ├── index.js             # Entry point (fetch + cron)
+│   └── redirect.js          # Worker que redireciona o domínio raiz para www
+├── wrangler.jsonc           # Config do Worker principal (D1, R2, assets, cron)
+└── wrangler.redirect.jsonc  # Config do Worker de redirecionamento
+```
+
+Fluxo: `controller → usecase → repository → D1/R2`, com `mappers` na volta.
+As fotos ficam no R2 e são servidas pelo Worker em `/media/...`.
+
+## 🖥️ Arquitetura do frontend (`/web`)
+
+```
+web/
+├── public/                  # Estáticos (fotos originais, ícones, manifest)
+├── scripts/                 # Geração das páginas estáticas de SEO
+├── src/
+│   ├── api/                 # Clientes HTTP (público e admin)
+│   ├── components/          # Componentes (público + admin)
+│   ├── composables/         # usePublicGallery, useAdminAuth, useAdminToast
+│   ├── layouts/             # Layouts das páginas e do painel
+│   ├── locales/             # Traduções (pt, en, es, fr, ja, zh)
+│   ├── router/              # Rotas + guarda de autenticação do /admin
+│   ├── style/               # Estilos do painel
+│   ├── utils/
+│   └── views/               # Páginas públicas e do painel
+├── index.html
 └── vite.config.js
 ```
 
-## 🔐 Segurança do painel
+## ✨ Recursos
 
-- Login com senha em **PBKDF2-SHA256** (hash + salt por usuário, comparação em tempo constante).
-- Sessão em cookie **httpOnly + Secure + SameSite=Strict** (`__Host-mdm_session` em produção),
-  com token aleatório de 32 bytes e apenas o hash SHA-256 salvo no D1; expira em 30 dias.
-- Validação de **origem (CSRF)** em todas as rotas do painel, além do `SameSite=Strict`.
-- **Rate limit** de tentativas de login por IP (5 falhas a cada 15 minutos).
-- **CSP** sem `unsafe-eval`, com headers de segurança (`nosniff`, `frame-ancestors: none`, etc.).
-- Token do Instagram **criptografado (AES-256-GCM)** no banco, usando um segredo do Worker.
-- Uploads validados por **magic bytes** (somente JPEG/PNG/WebP/GIF/AVIF, até 20 MB).
+- Galerias (Beauty, Artístico, E-commerce e Parcerias) gerenciáveis pelo painel.
+- Upload em lote, reordenação por arrastar, capa por marca, ocultar/excluir/substituir.
+- Fotos de perfil, currículo e símbolo Mimelie também gerenciáveis.
+- **Instagram**: coleta horária via cron, histórico no D1, token criptografado
+  (AES-256-GCM) e renovação automática. O site exibe sempre o último snapshot salvo,
+  mesmo quando a API do Instagram falha.
+- Painel com estatísticas, histórico e auditoria das coletas.
+- SEO: páginas estáticas por rota + sitemap gerados no build.
+- Segurança: cookie `__Host-mdm_session` (httpOnly + Secure + SameSite=Strict),
+  PBKDF2-SHA256, rate limit de login, validação de origem (CSRF), CSP sem `unsafe-eval`,
+  uploads validados por magic bytes.
 
 ## 🛠️ Desenvolvimento local
 
 Pré-requisitos: Node.js 22+.
 
 ```bash
-npm install
+npm install                 # instala as duas pastas (workspaces)
 
-# Gere uma chave local para criptografar o token do Instagram
-cp .dev.vars.example .dev.vars
+# 1) Configure os segredos locais da API
+cp api/.dev.vars.example api/.dev.vars
 node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
-# copie o valor para TOKEN_ENCRYPTION_KEY no .dev.vars
+# cole o valor em TOKEN_ENCRYPTION_KEY dentro de api/.dev.vars
 
-# Aplique as migrations no D1 local e crie o admin
+# 2) Banco local + usuário admin
 npm run db:migrate:local
-node scripts/seed-admin.mjs --email seu@email.com --password 'sua-senha-forte' --local
+npm run db:seed:admin -- --email seu@email.com --password 'sua-senha-forte' --local
 
-# Rode a API (Worker) e o frontend em terminais separados
-npm run dev:api   # http://127.0.0.1:8787
-npm run dev       # http://localhost:5173 (proxy para a API)
+# 3) Build do frontend (necessário para a API servir os assets)
+npm run build
+
+# 4) Rode a API e o frontend (terminais separados)
+npm run dev:api             # http://127.0.0.1:8787
+npm run dev:web             # http://localhost:5173 (proxy /api e /media)
 ```
 
 O painel fica em `http://localhost:5173/admin`.
 
-## 🚢 Deploy (Cloudflare)
+### Enviar as fotos atuais para o R2 (local ou produção)
 
 ```bash
-# Uma única vez: migrations e usuário admin no ambiente remoto
-npm run db:migrate
-ADMIN_EMAIL='seu@email.com' ADMIN_PASSWORD='sua-senha-forte' npm run db:seed:admin
-
-# Segredo usado para criptografar o token do Instagram
-node -e "console.log(require('crypto').randomBytes(32).toString('base64'))" \
-  | npx wrangler secret put TOKEN_ENCRYPTION_KEY
-
-# Publica o site + API
-npm run deploy
+npm run db:seed:media -- --url http://127.0.0.1:8787 --email seu@email.com --password 'sua-senha'
 ```
 
-Depois do primeiro deploy, envie as fotos atuais para o R2 (uma única vez):
+## 🚀 Deploy (GitHub → Cloudflare Workers Builds)
 
-```bash
-node scripts/seed-media.mjs --url https://SEU-WORKER.workers.dev \
-  --email seu@email.com --password 'sua-senha-forte'
-```
+O deploy é automático: **todo push na `main` é buildado e publicado pela Cloudflare**.
+Não há `npm run deploy` nem qualquer deploy manual no repositório.
+
+Configuração (uma única vez, no painel da Cloudflare):
+
+1. **Workers & Pages → `mundo-de-miriam` → Settings → Builds**.
+2. Conecte o repositório do GitHub e selecione a branch `main`.
+3. Preencha:
+
+| Campo | Valor |
+| --- | --- |
+| Build command | `npm ci && npm run build` |
+| Deploy command | `npx wrangler d1 migrations apply mundo-de-miriam --remote --yes --config api/wrangler.jsonc && npx wrangler deploy --config api/wrangler.jsonc && npx wrangler deploy --config api/wrangler.redirect.jsonc` |
+
+O primeiro comando aplica as migrations do D1 (é idempotente) e os outros dois publicam
+o Worker principal e o de redirecionamento do domínio.
+
+Os segredos do Worker (`TOKEN_ENCRYPTION_KEY`) ficam guardados na Cloudflare e são
+mantidos a cada deploy — não precisam ir para o GitHub.
+
+> Alternativa: crie um segundo Build para o Worker `mundo-de-miriam-redirect` usando
+> `npx wrangler deploy --config api/wrangler.redirect.jsonc` como deploy command.
 
 ### Token do Instagram
 
-1. Abra `https://SEU-DOMINIO/admin/instagram` e faça login.
+1. Abra `/admin/instagram` e faça login.
 2. Cole o token de longa duração da API do Instagram (Instagram Login) e salve.
-3. O Worker valida o token, faz a primeira coleta, guarda o histórico no D1 e renova o token
+3. O Worker valida, faz a primeira coleta, guarda o histórico no D1 e renova o token
    automaticamente nos últimos dias de validade (cron horário).
-
-Se a API do Instagram falhar, o site continua exibindo o último snapshot salvo.
 
 ### Domínio próprio
 
-1. No painel da Cloudflare, adicione a zona `mundodemiriam.com.br` (plano Free) e troque os
-   nameservers no Registro.br.
+1. No painel da Cloudflare, adicione a zona `mundodemiriam.com.br` (plano Free) e troque
+   os nameservers no Registro.br.
 2. Com a zona ativa, aponte os domínios personalizados:
 
 ```jsonc
-// wrangler.jsonc (site + API)
+// api/wrangler.jsonc (site + API)
 "routes": [{ "pattern": "www.mundodemiriam.com.br", "custom_domain": true }]
 ```
 
 ```jsonc
-// wrangler.redirect.jsonc (redireciona o domínio raiz para o www)
+// api/wrangler.redirect.jsonc (raiz → www)
 "routes": [{ "pattern": "mundodemiriam.com.br", "custom_domain": true }]
 ```
 
-3. Faça o deploy: `npm run deploy && npm run deploy:redirect`.
+3. Commit na `main`: o Workers Builds publica os dois Workers com os domínios.
 
-
-## 📦 Scripts úteis
+## 📦 Scripts da raiz
 
 | Comando | Descrição |
 | --- | --- |
-| `npm run dev` | Frontend em modo desenvolvimento (proxy para o Worker) |
-| `npm run dev:api` | Worker (API + assets) em modo desenvolvimento |
+| `npm run dev:web` | Frontend em desenvolvimento (proxy para a API) |
+| `npm run dev:api` | API + assets em desenvolvimento (`wrangler dev`) |
 | `npm run build` | Build do frontend + páginas de SEO |
-| `npm run deploy` | Build e deploy para a Cloudflare |
 | `npm run db:migrate` | Aplica as migrations no D1 remoto |
 | `npm run db:migrate:local` | Aplica as migrations no D1 local |
-| `npm run db:seed:admin` | Cria/atualiza o admin no D1 (`ADMIN_EMAIL`/`ADMIN_PASSWORD`) |
-| `npm run db:seed:media` | Envia as fotos de `public/assets` para o R2 via API do painel |
+| `npm run db:seed:admin` | Cria/atualiza o admin (`ADMIN_EMAIL` / `ADMIN_PASSWORD`) |
+| `npm run db:seed:media` | Envia as fotos de `web/public/assets` para o R2 |
 
 ## 📝 Licença
 

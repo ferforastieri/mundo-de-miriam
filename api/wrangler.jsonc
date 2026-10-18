@@ -1,10 +1,10 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
+  "$schema": "../node_modules/wrangler/config-schema.json",
   "name": "mundo-de-miriam",
-  "main": "worker/index.js",
+  "main": "src/index.js",
   "compatibility_date": "2026-08-04",
   "assets": {
-    "directory": "./dist",
+    "directory": "../web/dist",
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
     "run_worker_first": ["/api/*", "/media/*"]

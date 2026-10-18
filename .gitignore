@@ -7,12 +7,23 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependências e builds
 node_modules
+web/dist
 dist
 dist-ssr
-*.local
 
-# Editor directories and files
+# Estado local do Cloudflare / arquivos gerados
+.wrangler
+api/.wrangler
+api/.tmp
+.tmp
+
+# Variáveis locais
+.dev.vars
+.dev.vars.*
+
+# Editor
 .vscode/*
 !.vscode/extensions.json
 .idea
@@ -22,13 +33,3 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-
-.env
-.env.local
-.dev.vars
-.dev.vars.*
-
-# Cloudflare / build artifacts
-.wrangler
-.tmp
-

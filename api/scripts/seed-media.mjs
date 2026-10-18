@@ -1,5 +1,8 @@
 import { readFile, readdir } from 'node:fs/promises'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..')
 
 const CONTENT_TYPES = {
   '.jpg': 'image/jpeg',
@@ -13,37 +16,37 @@ const CONTENT_TYPES = {
 const SCREEN_FILES = [
   {
     screenId: 'artistic',
-    directory: 'public/assets/artisticstyle',
+    directory: 'web/public/assets/artisticstyle',
     prefix: /^ArtisticStyle(\d+)\.jpeg$/i,
     alt: (_, index) => `Artistic Style ${index + 1}`
   },
   {
     screenId: 'beauty',
-    directory: 'public/assets/beautystyle',
+    directory: 'web/public/assets/beautystyle',
     prefix: /^Beauty Style(\d+)\.jpeg$/i,
     alt: (_, index) => `Beauty Style ${index + 1}`
   },
   {
     screenId: 'ecommerce',
-    directory: 'public/assets/e-commerce',
+    directory: 'web/public/assets/e-commerce',
     prefix: /^e-comerce(\d+)\.jpeg$/i,
     alt: (_, index) => `E-commerce ${index + 1}`
   },
   {
     screenId: 'profile',
-    directory: 'public/assets/profile',
+    directory: 'web/public/assets/profile',
     files: ['fotodalinda.jpg'],
     alt: () => 'Miriam Cléres Forastieri'
   },
   {
     screenId: 'curriculum',
-    directory: 'public/assets/profile',
+    directory: 'web/public/assets/profile',
     files: ['fundo-cursos.jpg'],
     alt: () => 'Miriam Cléres Forastieri'
   },
   {
     screenId: 'mimelie',
-    directory: 'public/assets/mimelie',
+    directory: 'web/public/assets/mimelie',
     files: ['mimelie-symbol.png'],
     alt: () => 'Símbolo da Mimelie'
   },
@@ -52,37 +55,37 @@ const SCREEN_FILES = [
     groups: [
       {
         groupId: 'chocolashes',
-        directory: 'public/assets/partnership/chocolashes',
+        directory: 'web/public/assets/partnership/chocolashes',
         prefix: /^chocolashes(\d+)\.jpeg$/i,
         alt: (name, index) => `${name} ${index + 1}`
       },
       {
         groupId: 'freshlady',
-        directory: 'public/assets/partnership/freshlady',
+        directory: 'web/public/assets/partnership/freshlady',
         prefix: /^freashlady(\d+)\.jpeg$/i,
         alt: (name, index) => `${name} ${index + 1}`
       },
       {
         groupId: 'gliben',
-        directory: 'public/assets/partnership/gliben',
+        directory: 'web/public/assets/partnership/gliben',
         prefix: /^gliben(\d+)\.jpeg$/i,
         alt: (name, index) => `${name} ${index + 1}`
       },
       {
         groupId: 'icoice',
-        directory: 'public/assets/partnership/icoice',
+        directory: 'web/public/assets/partnership/icoice',
         prefix: /^icoice(\d+)\.jpeg$/i,
         alt: (name, index) => `${name} ${index + 1}`
       },
       {
         groupId: 'ttdeye',
-        directory: 'public/assets/partnership/ttdeye',
+        directory: 'web/public/assets/partnership/ttdeye',
         prefix: /^ttdeye(\d+)\.jpeg$/i,
         alt: (name, index) => `${name} ${index + 1}`
       },
       {
         groupId: 'unibling',
-        directory: 'public/assets/partnership/unibling',
+        directory: 'web/public/assets/partnership/unibling',
         prefix: /^unibling(\d+)\.jpeg$/i,
         alt: (name, index) => `${name} ${index + 1}`
       }
@@ -117,7 +120,7 @@ function extensionOf(fileName) {
 }
 
 async function listScreenFiles(config) {
-  const directory = path.join(process.cwd(), config.directory)
+  const directory = path.join(repoRoot, config.directory)
   const entries = await readdir(directory)
   const files = config.files
     ? entries.filter((entry) => config.files.includes(entry))
@@ -232,7 +235,7 @@ async function main() {
       }
 
       for (const [index, fileName] of files.entries()) {
-        const absolutePath = path.join(process.cwd(), target.directory, fileName)
+        const absolutePath = path.join(repoRoot, target.directory, fileName)
         const extension = extensionOf(fileName)
         const contentType = CONTENT_TYPES[extension]
 

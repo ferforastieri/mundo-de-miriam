@@ -2,9 +2,10 @@ import { pbkdf2Sync, randomBytes, randomUUID } from 'node:crypto'
 import { spawnSync } from 'node:child_process'
 import { mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 const ITERATIONS = 100_000
-const projectRoot = process.cwd()
+const apiRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 
 function parseArgs(argv) {
   const args = {}
@@ -64,7 +65,7 @@ DELETE FROM sessions
 WHERE admin_user_id = (SELECT id FROM admin_users WHERE email = '${escapeSql(email)}');
 `
 
-const tmpDirectory = path.join(projectRoot, '.tmp')
+const tmpDirectory = path.join(apiRoot, '.tmp')
 const sqlFile = path.join(tmpDirectory, 'seed-admin.sql')
 
 await mkdir(tmpDirectory, { recursive: true })
@@ -74,7 +75,7 @@ const mode = args.local ? '--local' : '--remote'
 const result = spawnSync(
   'npx',
   ['wrangler', 'd1', 'execute', 'mundo-de-miriam', mode, `--file=${sqlFile}`, '--yes'],
-  { stdio: 'inherit', cwd: projectRoot, shell: false }
+  { stdio: 'inherit', cwd: apiRoot, shell: false }
 )
 
 if (result.status !== 0) {
