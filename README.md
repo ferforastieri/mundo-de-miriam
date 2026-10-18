@@ -130,16 +130,16 @@ Configuração (uma única vez, no painel da Cloudflare):
 | Build command | `npm ci && npm run build` |
 | Deploy command | `npx wrangler d1 migrations apply mundo-de-miriam --remote --config api/wrangler.jsonc && npx wrangler deploy --config api/wrangler.jsonc` |
 
-O primeiro comando aplica as migrations do D1 (é idempotente) e os outros dois publicam
-o Worker principal e o de redirecionamento do domínio.
+O primeiro comando aplica as migrations do D1 (é idempotente) e o segundo publica o
+Worker principal (`mundo-de-miriam`, com o site, a API e a rota do `www`).
 
 > **Importante:** cada Build publica **apenas o Worker ao qual está conectado** — o
 > Workers Builds força o nome do Worker do build (`WRANGLER_CI_OVERRIDE_NAME`), então
 > **não** inclua o deploy do redirect no mesmo comando (isso sobrescreveria o site).
 >
-> O Worker de redirecionamento (`mundo-de-miriam-redirect`, raiz → www) precisa de um
-> **Build próprio**: crie um Worker com esse nome, conecte o mesmo repositório/branch e use
-> `npx wrangler deploy --config api/wrangler.redirect.jsonc` como deploy command.
+> O Worker de redirecionamento (`mundo-de-miriam-redirect`, raiz → www) é publicado
+> manualmente com `npx wrangler deploy --config api/wrangler.redirect.jsonc`. Ele só muda
+> se você rodar esse comando.
 
 ### Álbuns de branding
 
@@ -163,21 +163,35 @@ Em `/admin/branding` é possível criar álbuns com link próprio (`/album/<toke
 
 ### Domínio próprio
 
-1. No painel da Cloudflare, adicione a zona `mundodemiriam.com.br` (plano Free) e troque
-   os nameservers no Registro.br.
-2. Com a zona ativa, aponte os domínios personalizados:
+Estado atual (2026-10-18): a zona `mundodemiriam.com.br` está **ativa** na Cloudflare
+(nameservers `anderson`/`ashley` no Registro.br) e os domínios já respondem:
+
+- `https://www.mundodemiriam.com.br` → Worker `mundo-de-miriam` (site + API);
+- `https://mundodemiriam.com.br/*` → Worker `mundo-de-miriam-redirect` (301 para o `www`).
+
+O apontamento é feito por **rotas de zona** (`zone_name`), e não por domínios
+personalizados, porque a zona ainda contém os registros importados do Vercel (`www` CNAME
+e a raiz A, ambos proxied). As rotas de zona interceptam esse tráfego e não precisam
+trocar os registros:
 
 ```jsonc
-// api/wrangler.jsonc (site + API)
-"routes": [{ "pattern": "www.mundodemiriam.com.br", "custom_domain": true }]
+// api/wrangler.jsonc (site + API) — publicado pelo Workers Builds
+"routes": [{ "pattern": "www.mundodemiriam.com.br/*", "zone_name": "mundodemiriam.com.br" }]
 ```
 
 ```jsonc
-// api/wrangler.redirect.jsonc (raiz → www)
-"routes": [{ "pattern": "mundodemiriam.com.br", "custom_domain": true }]
+// api/wrangler.redirect.jsonc (raiz → www) — publicado manualmente (não entra no build)
+"routes": [{ "pattern": "mundodemiriam.com.br/*", "zone_name": "mundodemiriam.com.br" }]
 ```
 
-3. Commit na `main`: o Workers Builds publica os dois Workers com os domínios.
+Para migrar futuramente para domínios personalizados (`custom_domain: true`), apague
+antes os registros do Vercel na aba DNS da zona e então troque as rotas; nesse formato a
+Cloudflare cria e gerencia os registros sozinha.
+
+Observação: o Web Analytics (RUM) da Cloudflare injeta `beacon.min.js` nas páginas, mas a
+CSP do site não permite esse script. Se quiser silenciar os erros no console, desative o
+Web Analytics no painel (Speed → Web Analytics) ou libere `static.cloudflareinsights.com`
+na CSP.
 
 ## 📦 Scripts da raiz
 
