@@ -113,12 +113,17 @@ Configuração (uma única vez, no painel da Cloudflare):
 | Campo | Valor |
 | --- | --- |
 | Build command | `npm ci && npm run build` |
-| Deploy command | `npx wrangler d1 migrations apply mundo-de-miriam --remote --config api/wrangler.jsonc && npx wrangler deploy --config api/wrangler.jsonc && npx wrangler deploy --config api/wrangler.redirect.jsonc` |
+| Deploy command | `npx wrangler d1 migrations apply mundo-de-miriam --remote --config api/wrangler.jsonc && npx wrangler deploy --config api/wrangler.jsonc` |
 
 O primeiro comando aplica as migrations do D1 (é idempotente) e os outros dois publicam
 o Worker principal e o de redirecionamento do domínio.
 
-> Alternativa: crie um segundo Build para o Worker `mundo-de-miriam-redirect` usando
+> **Importante:** cada Build publica **apenas o Worker ao qual está conectado** — o
+> Workers Builds força o nome do Worker do build (`WRANGLER_CI_OVERRIDE_NAME`), então
+> **não** inclua o deploy do redirect no mesmo comando (isso sobrescreveria o site).
+>
+> O Worker de redirecionamento (`mundo-de-miriam-redirect`, raiz → www) precisa de um
+> **Build próprio**: crie um Worker com esse nome, conecte o mesmo repositório/branch e use
 > `npx wrangler deploy --config api/wrangler.redirect.jsonc` como deploy command.
 
 ### Token do Instagram
