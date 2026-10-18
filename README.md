@@ -38,8 +38,7 @@ As fotos ficam no **R2** e são servidas pelo Worker em `/media/...`.
 
 ```
 web/
-├── public/                  # Ícones, manifest e a imagem de compartilhamento (OG)
-├── scripts/                 # Geração das páginas estáticas de SEO (usado no build)
+├── public/                  # Ícones, manifest, sitemap e imagem de compartilhamento (OG)
 ├── src/
 │   ├── api/                 # Clientes HTTP (público e admin)
 │   ├── components/          # Componentes (público + admin)
@@ -70,10 +69,23 @@ web/
   compartilhamentos, novos seguidores, desempenho por publicação e demografia.
 - **Publicação pelo painel**: post simples ou carrossel (até 10 fotos) direto no
   Instagram, com histórico e limite de 25 publicações por dia.
-- SEO: páginas estáticas por rota + sitemap gerados no build.
+- SEO: tags por rota injetadas na borda (Cloudflare `HTMLRewriter`) + sitemap estático,
+  sem script de build.
 - Segurança: cookie `__Host-mdm_session` (httpOnly + Secure + SameSite=Strict),
   PBKDF2-SHA256, rate limit de login, validação de origem (CSRF), CSP sem `unsafe-eval`,
   uploads validados por magic bytes.
+
+## 🔎 Como o SEO funciona (sem script)
+
+O site é um SPA Vue, mas cada rota entrega HTML já com as tags corretas:
+o Worker intercepta as páginas (`run_worker_first` no `api/wrangler.jsonc`) e usa
+`HTMLRewriter` para injetar `<title>`, description, canonical, Open Graph/Twitter e um
+conteúdo de fallback (`#seo-fallback`) para crawlers que não executam JavaScript.
+Nada disso roda no build — os dados ficam em `api/src/seo/pages.js` e o frontend
+mantém a mesma lista em `web/src/seo.js` para a navegação interna.
+
+O `sitemap.xml` é estático (`web/public/sitemap.xml`) e o `robots.txt` bloqueia `/admin`.
+O preview em `workers.dev` envia `x-robots-tag: noindex` e canonicaliza para o domínio oficial.
 
 ## 🛠️ Desenvolvimento local
 

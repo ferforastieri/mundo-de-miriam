@@ -4,6 +4,7 @@ import { runWithContext } from './context.js'
 import { createContainer } from './repositories/index.js'
 import { isoDaysAgo, nowIso } from './utils/dates.js'
 import { refreshInstagramStats } from './usecases/instagram/refresh-instagram-stats.js'
+import { serveHtmlWithSeo } from './seo/render.js'
 
 const PORT = 8787
 const MEDIA_KEY_PATTERN = /^photos\/[a-zA-Z0-9-]+\/[a-zA-Z0-9._-]+$/
@@ -70,6 +71,10 @@ export default {
 
     if (url.pathname.startsWith('/media/')) {
       return serveMedia(request, env)
+    }
+
+    if (!url.pathname.startsWith('/api/')) {
+      return serveHtmlWithSeo(request, env)
     }
 
     const container = createContainer(env)
