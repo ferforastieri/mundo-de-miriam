@@ -57,6 +57,8 @@ export async function getInstagramPanel(container) {
 /**
  * O cron roda de hora em hora; para os gráficos, mantemos apenas o último
  * registro de cada dia (evitando linhas repetidas com o mesmo valor).
+ * Enquanto houver menos de dois dias coletados, mostramos as próprias coletas
+ * (as 24 últimas) para que os gráficos apareçam desde o começo.
  */
 function buildDailyHistory(rows) {
   const byDay = new Map()
@@ -66,5 +68,9 @@ function buildDailyHistory(rows) {
     byDay.set(day, row)
   }
 
-  return [...byDay.values()].map(toInstagramHistoryPoint)
+  const daily = [...byDay.values()].map(toInstagramHistoryPoint)
+
+  if (daily.length >= 2) return daily
+
+  return rows.slice(-24).map(toInstagramHistoryPoint)
 }

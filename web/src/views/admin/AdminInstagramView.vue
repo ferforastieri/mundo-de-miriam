@@ -66,12 +66,12 @@
 
       <div v-if="history.length >= 2" class="admin-grid-2 instagram-charts">
         <section class="admin-card">
-          <AdminSparkline label="Seguidores (90 dias)" :values="history.map((point) => point.followers)" />
+          <AdminSparkline label="Seguidores" :values="history.map((point) => point.followers)" />
         </section>
 
         <section class="admin-card">
           <AdminSparkline
-            label="Alcance por dia"
+            label="Alcance"
             :values="history.map((point) => point.reach)"
             color="#2f6f4f"
           />
@@ -79,7 +79,7 @@
 
         <section class="admin-card">
           <AdminSparkline
-            label="Visitas ao perfil por dia"
+            label="Visitas ao perfil"
             :values="history.map((point) => point.profileViews)"
             color="#3f5f9a"
           />
@@ -87,7 +87,7 @@
 
         <section class="admin-card">
           <AdminSparkline
-            label="Views recentes (90 dias)"
+            label="Views recentes"
             :values="history.map((point) => point.recentViews)"
             color="#9a5b2f"
           />
