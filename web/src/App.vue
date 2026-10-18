@@ -3,20 +3,13 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue"
 import { useRoute } from 'vue-router'
 import LanguageSwitcher from './components/common/LanguageSwitcher.vue'
 import NavigationDrawer from './components/common/NavigationDrawer.vue'
+import { useTheme } from './composables/useTheme'
 
-const isDark = ref(false)
+const { isDark, initTheme, toggleTheme } = useTheme()
 const showScrollCue = ref(false)
 const currentYear = new Date().getFullYear()
 const route = useRoute()
 const isImmersive = computed(() => route.path.startsWith('/admin') || route.path.startsWith('/album'))
-
-const applyTheme = (dark) => {
-  isDark.value = dark
-  document.documentElement.dataset.theme = dark ? "dark" : "light"
-  localStorage.setItem("themePreference", dark ? "dark" : "light")
-}
-
-const toggleTheme = () => applyTheme(!isDark.value)
 
 const getScrollTarget = () => (
   document.querySelector('.portfolio-layout, .partnerships-layout') || document.scrollingElement
@@ -58,9 +51,7 @@ const scrollForward = () => {
 }
 
 onMounted(() => {
-  const savedTheme = localStorage.getItem('themePreference')
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-  applyTheme(savedTheme ? savedTheme === 'dark' : prefersDark)
+  initTheme()
 
   window.addEventListener('scroll', updateScrollCue, true)
   window.addEventListener('resize', updateScrollCue)

@@ -3,8 +3,11 @@
     <header class="admin-header">
       <div class="admin-header__inner">
         <RouterLink class="admin-brand" to="/admin/dashboard">
-          <span class="admin-brand__eyebrow">Mundo de Miriam</span>
-          <span class="admin-brand__title">Painel administrativo</span>
+          <BrandMark class="admin-brand__mark" />
+          <span class="admin-brand__text">
+            <span class="admin-brand__eyebrow">Mundo de Miriam</span>
+            <span class="admin-brand__title">Painel administrativo</span>
+          </span>
         </RouterLink>
 
         <nav class="admin-nav" aria-label="Navegação do painel">
@@ -19,6 +22,21 @@
         </nav>
 
         <div class="admin-header__actions">
+          <button
+            class="admin-theme-toggle"
+            type="button"
+            :aria-label="isDark ? 'Ativar modo claro' : 'Ativar modo escuro'"
+            :title="isDark ? 'Ativar modo claro' : 'Ativar modo escuro'"
+            @click="toggleTheme"
+          >
+            <svg v-if="isDark" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="3.5" stroke="currentColor" stroke-width="1.7" />
+              <path d="M12 2.8v2M12 19.2v2M21.2 12h-2M4.8 12h-2M18.5 5.5l-1.4 1.4M6.9 17.1l-1.4 1.4M18.5 18.5l-1.4-1.4M6.9 6.9 5.5 5.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+            </svg>
+            <svg v-else viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M20.3 15.4A8.5 8.5 0 0 1 8.6 3.7 8.5 8.5 0 1 0 20.3 15.4Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
           <a class="admin-btn admin-btn--ghost admin-btn--small" href="/" target="_blank" rel="noopener noreferrer">
             Ver site ↗
           </a>
@@ -54,6 +72,8 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAdminAuth } from '@/composables/useAdminAuth'
 import { useAdminToast } from '@/composables/useAdminToast'
+import { useTheme } from '@/composables/useTheme'
+import BrandMark from '@/components/common/BrandMark.vue'
 
 const navItems = [
   { to: '/admin/dashboard', label: 'Visão geral' },
@@ -67,6 +87,7 @@ const navItems = [
 
 const router = useRouter()
 const { logout } = useAdminAuth()
+const { isDark, toggleTheme } = useTheme()
 const toast = useAdminToast()
 const loggingOut = ref(false)
 

@@ -12,9 +12,6 @@
         <span v-if="data?.generatedAt" class="admin-muted">
           Atualizado {{ formatRelative(data.generatedAt) }}
         </span>
-        <button class="admin-btn" type="button" :disabled="isFetching" @click="refetch">
-          {{ isFetching ? 'Atualizando…' : 'Atualizar dados' }}
-        </button>
       </div>
     </header>
 
@@ -153,7 +150,7 @@ import AdminStatCard from '@/components/admin/AdminStatCard.vue'
 import AdminSparkline from '@/components/admin/AdminSparkline.vue'
 import { formatBytes, formatNumber, formatRelative } from '@/utils/format.js'
 
-const { data, isPending, isError, error, refetch, isFetching } = useQuery({
+const { data, isPending, isError, error, refetch } = useQuery({
   queryKey: ['admin-dashboard'],
   queryFn: () => adminService.getDashboard(),
   refetchInterval: 60_000

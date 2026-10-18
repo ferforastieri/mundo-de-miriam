@@ -1,6 +1,7 @@
 <template>
   <div class="admin-login">
     <div class="admin-login__card">
+      <BrandMark class="admin-login__mark" />
       <span class="admin-login__eyebrow">Mundo de Miriam</span>
       <h1 class="admin-login__title">Painel administrativo</h1>
       <p class="admin-login__hint">
@@ -51,6 +52,7 @@
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAdminAuth } from '@/composables/useAdminAuth'
+import BrandMark from '@/components/common/BrandMark.vue'
 
 const email = ref('')
 const password = ref('')
@@ -95,6 +97,12 @@ async function submit() {
   border-radius: 20px;
   background: #fff;
   box-shadow: 0 30px 70px rgba(85, 34, 0, 0.12);
+}
+
+.admin-login__mark {
+  --mark-size: 72px;
+  display: grid;
+  margin-bottom: 1.1rem;
 }
 
 .admin-login__eyebrow {
