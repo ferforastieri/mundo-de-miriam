@@ -150,7 +150,7 @@ export async function refreshLongLivedToken(token) {
 // Estatísticas extras (insights) e publicação de conteúdo
 // ---------------------------------------------------------------------------
 
-const ACCOUNT_METRICS_FULL = [
+const ACCOUNT_METRICS = [
   'reach',
   'views',
   'profile_views',
@@ -160,17 +160,7 @@ const ACCOUNT_METRICS_FULL = [
   'comments',
   'shares',
   'saves',
-  'follower_count',
   'website_clicks'
-]
-
-const ACCOUNT_METRICS_CORE = [
-  'reach',
-  'views',
-  'profile_views',
-  'accounts_engaged',
-  'total_interactions',
-  'follower_count'
 ]
 
 function insightsToMap(payload) {
@@ -187,11 +177,12 @@ function insightsToMap(payload) {
 }
 
 export async function fetchAccountInsights(token, userId) {
-  const attempt = async (metrics) => {
+  const attempt = async (metrics, extra = {}) => {
     const payload = await requestJson(
       graphUrl(`${userId}/insights`, {
         metric: metrics.join(','),
         period: 'day',
+        ...extra,
         access_token: token
       })
     )
@@ -199,15 +190,33 @@ export async function fetchAccountInsights(token, userId) {
     return insightsToMap(payload)
   }
 
+  // As métricas de engajamento só retornam dados com metric_type=total_value.
+  let map = {}
+
   try {
-    return await attempt(ACCOUNT_METRICS_FULL)
+    map = await attempt(ACCOUNT_METRICS, { metric_type: 'total_value' })
   } catch {
-    try {
-      return await attempt(ACCOUNT_METRICS_CORE)
-    } catch {
-      return {}
+    const results = await Promise.allSettled(
+      ACCOUNT_METRICS.map((metric) => attempt([metric], { metric_type: 'total_value' }))
+    )
+
+    for (const result of results) {
+      if (result.status === 'fulfilled') Object.assign(map, result.value)
     }
   }
+
+  // follower_count (novos seguidores) não aceita total_value.
+  try {
+    const followers = await attempt(['follower_count'])
+
+    if (map.follower_count === undefined) {
+      map.follower_count = followers.follower_count ?? null
+    }
+  } catch {
+    // sem dados de novos seguidores
+  }
+
+  return map
 }
 
 export async function fetchMediaInsights(token, mediaId) {
@@ -224,13 +233,13 @@ export async function fetchMediaInsights(token, mediaId) {
       views: map.views ?? null,
       reach: map.reach ?? null,
       shares: map.shares ?? null,
-      saves: map.saves ?? map.saved ?? null,
+      saves: map.saved ?? map.saves ?? null,
       totalInteractions: map.total_interactions ?? null
     }
   }
 
   try {
-    return await attempt(['views', 'reach', 'shares', 'saves', 'total_interactions'])
+    return await attempt(['views', 'reach', 'shares', 'saved', 'total_interactions'])
   } catch {
     try {
       return await attempt(['views', 'reach'])
@@ -246,6 +255,7 @@ export async function fetchDemographics(token, userId, metric, breakdown) {
       metric,
       period: 'lifetime',
       breakdown,
+      metric_type: 'total_value',
       access_token: token
     })
   )
