@@ -10,9 +10,9 @@ import { addSecondsIso, isoDaysAgo, isoMinutesAgo, nowIso } from '../../utils/da
 
 // Hash fixo usado para equalizar o tempo de resposta quando o e-mail não existe.
 const DUMMY_USER = {
-  password_hash: 'oCzbKaw/Pmry6UERRHnDJgHhmsg3FufEYv2IkJDGH6c=',
+  password_hash: 'DfbWEQ5EYZPVSA+RWla/qHFpoXUUY4fh/Xt9hwlEHvk=',
   password_salt: '8rJX0n0v9m3sT5cB2hQ1xw==',
-  password_iterations: 210_000
+  password_iterations: 100_000
 }
 
 export async function login(container, { email, password, ip, userAgent }) {

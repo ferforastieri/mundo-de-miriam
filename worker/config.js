@@ -5,7 +5,7 @@ export const SESSION_TTL_SECONDS = 30 * 24 * 60 * 60
 export const SESSION_COOKIE_PRODUCTION = '__Host-mdm_session'
 export const SESSION_COOKIE_DEVELOPMENT = 'mdm_session'
 
-export const PBKDF2_ITERATIONS = 210_000
+export const PBKDF2_ITERATIONS = 100_000
 
 export const LOGIN_MAX_FAILURES = 5
 export const LOGIN_WINDOW_MINUTES = 15

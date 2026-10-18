@@ -3,7 +3,7 @@ import { spawnSync } from 'node:child_process'
 import { mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
-const ITERATIONS = 210_000
+const ITERATIONS = 100_000
 const projectRoot = process.cwd()
 
 function parseArgs(argv) {

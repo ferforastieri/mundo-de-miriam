@@ -139,8 +139,20 @@ Se a API do Instagram falhar, o site continua exibindo o último snapshot salvo.
 
 1. No painel da Cloudflare, adicione a zona `mundodemiriam.com.br` (plano Free) e troque os
    nameservers no Registro.br.
-2. Com a zona ativa, adicione os domínios personalizados `www.mundodemiriam.com.br` e
-   `mundodemiriam.com.br` ao Worker (via `wrangler.jsonc` em `routes` ou pelo painel).
+2. Com a zona ativa, aponte os domínios personalizados:
+
+```jsonc
+// wrangler.jsonc (site + API)
+"routes": [{ "pattern": "www.mundodemiriam.com.br", "custom_domain": true }]
+```
+
+```jsonc
+// wrangler.redirect.jsonc (redireciona o domínio raiz para o www)
+"routes": [{ "pattern": "mundodemiriam.com.br", "custom_domain": true }]
+```
+
+3. Faça o deploy: `npm run deploy && npm run deploy:redirect`.
+
 
 ## 📦 Scripts úteis
 
