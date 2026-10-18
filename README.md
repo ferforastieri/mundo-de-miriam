@@ -69,6 +69,9 @@ web/
   compartilhamentos, novos seguidores, desempenho por publicação e demografia.
 - **Publicação pelo painel**: post simples ou carrossel (até 10 fotos) direto no
   Instagram, com histórico e limite de 25 publicações por dia.
+- **Álbuns de branding**: crie um álbum com link próprio para compartilhar com clientes,
+  envie fotos, escolha a ordem e defina validade (temporário ou para sempre). A página é
+  não indexada e fica fora das galerias do site.
 - SEO: tags por rota injetadas na borda (Cloudflare `HTMLRewriter`) + sitemap estático,
   sem script de build.
 - Segurança: cookie `__Host-mdm_session` (httpOnly + Secure + SameSite=Strict),
@@ -137,6 +140,16 @@ o Worker principal e o de redirecionamento do domínio.
 > O Worker de redirecionamento (`mundo-de-miriam-redirect`, raiz → www) precisa de um
 > **Build próprio**: crie um Worker com esse nome, conecte o mesmo repositório/branch e use
 > `npx wrangler deploy --config api/wrangler.redirect.jsonc` como deploy command.
+
+### Álbuns de branding
+
+Em `/admin/branding` é possível criar álbuns com link próprio (`/album/<token>`):
+
+- validade opcional (7/30/60/90/180/365 dias) ou **para sempre**; expirado mostra uma
+  mensagem amigável;
+- upload em lote, reordenação por arrastar e remoção de fotos;
+- link copiável para enviar ao cliente, que vê apenas as fotos daquele álbum (sem o menu
+  do site e com `noindex`).
 
 ### Token do Instagram
 
