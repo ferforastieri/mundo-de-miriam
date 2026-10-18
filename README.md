@@ -113,7 +113,7 @@ Configuração (uma única vez, no painel da Cloudflare):
 | Campo | Valor |
 | --- | --- |
 | Build command | `npm ci && npm run build` |
-| Deploy command | `npx wrangler d1 migrations apply mundo-de-miriam --remote --yes --config api/wrangler.jsonc && npx wrangler deploy --config api/wrangler.jsonc && npx wrangler deploy --config api/wrangler.redirect.jsonc` |
+| Deploy command | `npx wrangler d1 migrations apply mundo-de-miriam --remote --config api/wrangler.jsonc && npx wrangler deploy --config api/wrangler.jsonc && npx wrangler deploy --config api/wrangler.redirect.jsonc` |
 
 O primeiro comando aplica as migrations do D1 (é idempotente) e os outros dois publicam
 o Worker principal e o de redirecionamento do domínio.
