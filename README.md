@@ -14,9 +14,6 @@ O deploy é feito **exclusivamente pelo GitHub**, via Cloudflare Workers Builds
 ```
 api/
 ├── migrations/              # Schema do D1 (controlado por migrations)
-├── scripts/
-│   ├── seed-admin.mjs       # Cria/atualiza o usuário admin
-│   └── seed-media.mjs       # Envia as fotos do /web para o R2
 ├── src/
 │   ├── controllers/         # Rotas HTTP (Fastify)
 │   ├── usecases/            # Regras de negócio
@@ -35,14 +32,14 @@ api/
 ```
 
 Fluxo: `controller → usecase → repository → D1/R2`, com `mappers` na volta.
-As fotos ficam no R2 e são servidas pelo Worker em `/media/...`.
+As fotos ficam no **R2** e são servidas pelo Worker em `/media/...`.
 
 ## 🖥️ Arquitetura do frontend (`/web`)
 
 ```
 web/
-├── public/                  # Estáticos (fotos originais, ícones, manifest)
-├── scripts/                 # Geração das páginas estáticas de SEO
+├── public/                  # Ícones, manifest e a imagem de compartilhamento (OG)
+├── scripts/                 # Geração das páginas estáticas de SEO (usado no build)
 ├── src/
 │   ├── api/                 # Clientes HTTP (público e admin)
 │   ├── components/          # Componentes (público + admin)
@@ -57,6 +54,10 @@ web/
 └── vite.config.js
 ```
 
+> As fotos da galeria **não ficam mais no repositório**: elas vivem no R2 e são
+> gerenciadas pelo painel. No repositório ficam apenas a imagem de compartilhamento
+> (OG), ícones do PWA/favicons e o manifest.
+
 ## ✨ Recursos
 
 - Galerias (Beauty, Artístico, E-commerce e Parcerias) gerenciáveis pelo painel.
@@ -65,7 +66,10 @@ web/
 - **Instagram**: coleta horária via cron, histórico no D1, token criptografado
   (AES-256-GCM) e renovação automática. O site exibe sempre o último snapshot salvo,
   mesmo quando a API do Instagram falha.
-- Painel com estatísticas, histórico e auditoria das coletas.
+- Estatísticas ampliadas: alcance, visitas ao perfil, contas engajadas, salvamentos,
+  compartilhamentos, novos seguidores, desempenho por publicação e demografia.
+- **Publicação pelo painel**: post simples ou carrossel (até 10 fotos) direto no
+  Instagram, com histórico e limite de 25 publicações por dia.
 - SEO: páginas estáticas por rota + sitemap gerados no build.
 - Segurança: cookie `__Host-mdm_session` (httpOnly + Secure + SameSite=Strict),
   PBKDF2-SHA256, rate limit de login, validação de origem (CSRF), CSP sem `unsafe-eval`,
@@ -78,35 +82,27 @@ Pré-requisitos: Node.js 22+.
 ```bash
 npm install                 # instala as duas pastas (workspaces)
 
-# 1) Configure os segredos locais da API
+# Segredos locais da API (criptografia do token do Instagram)
 cp api/.dev.vars.example api/.dev.vars
 node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 # cole o valor em TOKEN_ENCRYPTION_KEY dentro de api/.dev.vars
 
-# 2) Banco local + usuário admin
+# Banco local (D1 em api/.wrangler) + build do frontend
 npm run db:migrate:local
-npm run db:seed:admin -- --email seu@email.com --password 'sua-senha-forte' --local
-
-# 3) Build do frontend (necessário para a API servir os assets)
 npm run build
 
-# 4) Rode a API e o frontend (terminais separados)
+# Rode a API e o frontend (terminais separados)
 npm run dev:api             # http://127.0.0.1:8787
 npm run dev:web             # http://localhost:5173 (proxy /api e /media)
 ```
 
-O painel fica em `http://localhost:5173/admin`.
-
-### Enviar as fotos atuais para o R2 (local ou produção)
-
-```bash
-npm run db:seed:media -- --url http://127.0.0.1:8787 --email seu@email.com --password 'sua-senha'
-```
+O painel fica em `http://localhost:5173/admin`. O banco local é separado do de
+produção; os dados reais (fotos e usuário) vivem no Cloudflare.
 
 ## 🚀 Deploy (GitHub → Cloudflare Workers Builds)
 
 O deploy é automático: **todo push na `main` é buildado e publicado pela Cloudflare**.
-Não há `npm run deploy` nem qualquer deploy manual no repositório.
+Não existe `npm run deploy` nem qualquer deploy manual no repositório.
 
 Configuração (uma única vez, no painel da Cloudflare):
 
@@ -122,16 +118,16 @@ Configuração (uma única vez, no painel da Cloudflare):
 O primeiro comando aplica as migrations do D1 (é idempotente) e os outros dois publicam
 o Worker principal e o de redirecionamento do domínio.
 
-Os segredos do Worker (`TOKEN_ENCRYPTION_KEY`) ficam guardados na Cloudflare e são
-mantidos a cada deploy — não precisam ir para o GitHub.
-
 > Alternativa: crie um segundo Build para o Worker `mundo-de-miriam-redirect` usando
 > `npx wrangler deploy --config api/wrangler.redirect.jsonc` como deploy command.
 
 ### Token do Instagram
 
 1. Abra `/admin/instagram` e faça login.
-2. Cole o token de longa duração da API do Instagram (Instagram Login) e salve.
+2. Cole o token de longa duração da API do Instagram (Instagram Login, permissões
+   `instagram_business_basic`, `instagram_business_manage_insights`,
+   `instagram_business_content_publish`, `instagram_business_manage_comments` e
+   `instagram_business_manage_messages`) e salve.
 3. O Worker valida, faz a primeira coleta, guarda o histórico no D1 e renova o token
    automaticamente nos últimos dias de validade (cron horário).
 
@@ -162,8 +158,6 @@ mantidos a cada deploy — não precisam ir para o GitHub.
 | `npm run build` | Build do frontend + páginas de SEO |
 | `npm run db:migrate` | Aplica as migrations no D1 remoto |
 | `npm run db:migrate:local` | Aplica as migrations no D1 local |
-| `npm run db:seed:admin` | Cria/atualiza o admin (`ADMIN_EMAIL` / `ADMIN_PASSWORD`) |
-| `npm run db:seed:media` | Envia as fotos de `web/public/assets` para o R2 |
 
 ## 📝 Licença
 
