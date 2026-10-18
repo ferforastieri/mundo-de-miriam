@@ -1,5 +1,5 @@
 <script setup>
-import { nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue"
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue"
 import { useRoute } from 'vue-router'
 import LanguageSwitcher from './components/common/LanguageSwitcher.vue'
 import NavigationDrawer from './components/common/NavigationDrawer.vue'
@@ -8,6 +8,7 @@ const isDark = ref(false)
 const showScrollCue = ref(false)
 const currentYear = new Date().getFullYear()
 const route = useRoute()
+const isAdminArea = computed(() => route.path.startsWith('/admin'))
 
 const applyTheme = (dark) => {
   isDark.value = dark
@@ -82,7 +83,7 @@ watch(() => route.fullPath, async () => {
 
 <template>
   <div class="app">
-    <footer class="site-dock" aria-label="Navegação e preferências">
+    <footer v-if="!isAdminArea" class="site-dock" aria-label="Navegação e preferências">
       <div class="site-dock__left">
         <NavigationDrawer
           :is-dark="isDark"
@@ -198,11 +199,11 @@ watch(() => route.fullPath, async () => {
         <LanguageSwitcher embedded />
       </div>
     </footer>
-    <main class="site-page">
+    <main class="site-page" :class="{ 'site-page--admin': isAdminArea }">
       <router-view />
     </main>
     <button
-      v-show="showScrollCue"
+      v-show="showScrollCue && !isAdminArea"
       class="global-scroll-cue"
       type="button"
       aria-label="Rolar para o próximo conteúdo"
@@ -399,6 +400,10 @@ watch(() => route.fullPath, async () => {
   padding-bottom: calc(68px + env(safe-area-inset-bottom));
 }
 
+.site-page--admin {
+  padding-bottom: 0;
+}
+
 .global-scroll-cue { display: none; }
 
 @media (max-width: 768px) {
@@ -570,4 +575,6 @@ watch(() => route.fullPath, async () => {
 @media (min-width: 1720px) {
   .site-desktop-copyright { display: grid; }
 }
+
+.site-page--admin { padding-bottom: 0 !important; }
 </style>

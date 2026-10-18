@@ -14,58 +14,41 @@
       </div>
 
       <!-- Portfolio Gallery -->
-      <div v-if="ecommerceImages.length === 0" class="loading">
+      <div v-if="isPending && images.length === 0" class="loading">
         <TranslatableText text="Carregando fotos..." />
       </div>
-      <PortfolioGallery v-else :images="ecommerceImages" />
-      
-      <!-- Debug -->
-      <div v-if="ecommerceImages.length > 0" class="debug-info">
-        {{ ecommerceImages.length }} <TranslatableText text="fotos carregadas" />
-      </div>
+      <PortfolioGallery v-else-if="images.length > 0" :images="images" />
+
+      <p v-else class="empty-state">
+        <TranslatableText text="Nenhuma foto publicada ainda." />
+      </p>
     </div>
   </PortfolioLayout>
 </template>
 
-<script>
+<script setup>
+import { computed } from 'vue'
 import PortfolioLayout from '@/layouts/portfolio/PortfolioLayout.vue'
 import { TranslatableText } from '@/components/common'
 import { PortfolioGallery } from '@/components/portfolio'
+import { useGalleryScreen } from '@/composables/usePublicGallery'
 
-export default {
-  name: 'EcommercePortfolio',
-  components: {
-    PortfolioLayout,
-    TranslatableText,
-    PortfolioGallery
-  },
-  data() {
-    return {
-      ecommerceImages: []
-    }
-  },
-  mounted() {
-    this.loadEcommerceImages()
-  },
-  methods: {
-    async loadEcommerceImages() {
-      const imageCount = 10
-      const images = []
-      
-      try {
-        for (let i = 1; i <= imageCount; i++) {
-          images.push({
-            src: `/assets/e-commerce/e-comerce${i}.jpeg`,
-            alt: `E-commerce ${i}`
-          })
-        }
-        
-        this.ecommerceImages = images
-      } catch (error) {
-      }
-    }
-  }
-}
+const FALLBACK_IMAGES = Array.from({ length: 10 }, (_, index) => ({
+  src: `/assets/e-commerce/e-comerce${index + 1}.jpeg`,
+  alt: `E-commerce ${index + 1}`
+}))
+
+const { photos, isPending, isError } = useGalleryScreen('ecommerce')
+
+const images = computed(() => {
+  if (isError.value) return FALLBACK_IMAGES
+
+  return (photos.value || []).map((photo) => ({
+    id: photo.id,
+    src: photo.url,
+    alt: photo.alt || ''
+  }))
+})
 </script>
 
 <style scoped>
@@ -139,6 +122,14 @@ export default {
   font-family: 'Gilda Display', serif;
   color: #666;
   font-size: 1.2rem;
+}
+
+.empty-state {
+  padding: 2rem;
+  font-family: 'Gilda Display', serif;
+  color: var(--muted);
+  font-size: 1rem;
+  text-align: center;
 }
 
 .debug-info {

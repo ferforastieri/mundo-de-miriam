@@ -46,7 +46,7 @@
         
       </div>
       <div class="image-content">
-        <img src="/assets/profile/fundo-cursos.jpg" alt="Miriam Cléres - Fale Comigo" />
+        <img :src="contactPhoto" alt="Miriam Cléres - Fale Comigo" />
       </div>
     </div>
   </div>
@@ -54,12 +54,18 @@
 
 <script>
 import { TranslatableText, CustomButton } from '../common'
+import { useSitePhoto } from '@/composables/usePublicGallery'
 
 export default {
   name: 'ServicesSection',
   components: {
     TranslatableText,
     CustomButton
+  },
+  setup() {
+    return {
+      contactPhoto: useSitePhoto('curriculum', '/assets/profile/fundo-cursos.jpg')
+    }
   },
   methods: {
     openWhatsApp() {

@@ -52,9 +52,9 @@
           </p>
           <p class="location">Sorocaba, São Paulo</p>
         </div>
-        <div class="profile-image">
-          <img src="/assets/profile/fotodalinda.jpg" alt="Miriam - Maquiadora" />
-        </div>
+          <div class="profile-image">
+            <img :src="profilePhoto" alt="Miriam - Maquiadora" />
+          </div>
       </div>
 
       <!-- About Section -->
@@ -318,6 +318,7 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { TranslatableText } from '../common'
+import { useSitePhoto } from '@/composables/usePublicGallery'
 import html2pdf from 'html2pdf.js'
 
 export default {
@@ -330,6 +331,7 @@ export default {
     const curriculumContent = ref(null)
     const downloadBtn = ref(null)
     const downloadTraditionalBtn = ref(null)
+    const profilePhoto = useSitePhoto('profile', '/assets/profile/fotodalinda.jpg')
     
     const downloadPDF = async () => {
       try {
@@ -590,7 +592,8 @@ export default {
       downloadTraditionalPDF,
       curriculumContent,
       downloadBtn,
-      downloadTraditionalBtn
+      downloadTraditionalBtn,
+      profilePhoto
     }
   }
 }

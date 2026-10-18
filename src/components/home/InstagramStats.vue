@@ -1,5 +1,5 @@
 <template>
-  <section class="instagram-stats" aria-labelledby="instagram-stats-title">
+  <section v-if="stats" class="instagram-stats" aria-labelledby="instagram-stats-title">
     <header class="stats-header">
       <div class="instagram-brand">
         <span class="instagram-icon" aria-hidden="true">
@@ -43,30 +43,59 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import { TranslatableText } from '../common'
+import galleryService from '@/api/gallery/GalleryService.js'
 
 const CACHE_TIME = 15 * 60 * 1000
+const CACHE_KEY = 'instagramStatsCache'
 
-const { data: stats } = useQuery({
+function readCachedStats() {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY)
+    if (!raw) return null
+
+    const parsed = JSON.parse(raw)
+    return parsed?.available ? parsed : null
+  } catch {
+    return null
+  }
+}
+
+const cachedStats = ref(readCachedStats())
+
+const { data } = useQuery({
   queryKey: ['instagram-stats'],
-  queryFn: async () => {
-    const response = await fetch('/api/instagram-stats', {
-      headers: { Accept: 'application/json' }
-    })
-
-    if (!response.ok) {
-      throw new Error('Não foi possível atualizar o Instagram')
-    }
-
-    return response.json()
-  },
+  queryFn: () => galleryService.getInstagramStats(),
   staleTime: CACHE_TIME,
   gcTime: CACHE_TIME * 2,
   refetchInterval: CACHE_TIME,
-  retry: 1
+  retry: 2,
+  initialData: cachedStats.value || undefined,
+  initialDataUpdatedAt: 0
 })
+
+const stats = computed(() => {
+  if (data.value?.available) return data.value
+  return cachedStats.value
+})
+
+watch(
+  () => data.value,
+  (current) => {
+    if (!current?.available) return
+
+    cachedStats.value = current
+
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify(current))
+    } catch {
+      // Sem localStorage, os dados continuam vindo da API.
+    }
+  },
+  { immediate: true }
+)
 
 const metrics = computed(() => [
   { label: 'Seguidores', value: stats.value?.followers },

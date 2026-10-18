@@ -14,116 +14,105 @@
       </div>
 
       <!-- Partnerships Gallery -->
-      <div v-if="partnerships.length === 0" class="loading">
+      <div v-if="isPending && partnerships.length === 0" class="loading">
         <TranslatableText text="Carregando parcerias..." />
       </div>
-      <PartnershipsGallery 
-        v-else 
-        :partnerships="partnerships" 
+      <PartnershipsGallery
+        v-else-if="partnerships.length > 0"
+        :partnerships="partnerships"
         @toggle-partnership="togglePartnership"
       />
+
+      <p v-else class="empty-state">
+        <TranslatableText text="Nenhuma foto publicada ainda." />
+      </p>
     </div>
   </PartnershipsLayout>
 </template>
 
-<script>
+<script setup>
+import { ref, watch } from 'vue'
 import PartnershipsLayout from '@/layouts/portfolio/PartnershipsLayout.vue'
 import { TranslatableText } from '@/components/common'
 import { PartnershipsGallery } from '@/components/portfolio'
+import { usePublicGallery } from '@/composables/usePublicGallery'
 
-export default {
-  name: 'PartnershipsPortfolio',
-  components: {
-    PartnershipsLayout,
-    TranslatableText,
-    PartnershipsGallery
-  },
-  data() {
-    return {
-      partnerships: []
-    }
-  },
-  mounted() {
-    this.loadPartnerships()
-  },
-  methods: {
-    async loadPartnerships() {
-      const partnershipsData = [
-        {
-          name: 'Chocolashes',
-          folder: 'chocolashes',
-          count: 2
-        },
-        {
-          name: 'Fresh Lady',
-          folder: 'freshlady',
-          count: 7
-        },
-        {
-          name: 'Gliben',
-          folder: 'gliben',
-          count: 2
-        },
-        {
-          name: 'Icoice',
-          folder: 'icoice',
-          count: 4
-        },
-        {
-          name: 'TTD Eye',
-          folder: 'ttdeye',
-          count: 12
-        },
-        {
-          name: 'Unibling',
-          folder: 'unibling',
-          count: 4
-        }
-      ]
+const FALLBACK_PARTNERSHIPS = [
+  { name: 'Chocolashes', folder: 'chocolashes', count: 2 },
+  { name: 'Fresh Lady', folder: 'freshlady', count: 7 },
+  { name: 'Gliben', folder: 'gliben', count: 2 },
+  { name: 'Icoice', folder: 'icoice', count: 4 },
+  { name: 'TTD Eye', folder: 'ttdeye', count: 12 },
+  { name: 'Unibling', folder: 'unibling', count: 4 }
+]
 
-      try {
-        const partnerships = []
+function buildFallback() {
+  return FALLBACK_PARTNERSHIPS.map((partnership) => {
+    const images = Array.from({ length: partnership.count }, (_, index) => {
+      const fileName = partnership.folder === 'freshlady'
+        ? `freashlady${index + 1}`
+        : `${partnership.folder}${index + 1}`
 
-        for (const partnership of partnershipsData) {
-          const images = []
-          
-          for (let i = 1; i <= partnership.count; i++) {
-            let fileName = `${partnership.folder}${i}`
-            
-            if (partnership.folder === 'freshlady') {
-              fileName = `freashlady${i}`
-            }
-            
-            images.push({
-              src: `/assets/partnership/${partnership.folder}/${fileName}.jpeg`,
-              alt: `${partnership.name} ${i}`
-            })
-          }
-          
-          if (images.length > 0) {
-            partnerships.push({
-              name: partnership.name,
-              images: images,
-              mainImage: images[0].src,
-              isExpanded: false
-            })
-          }
-        }
-        
-        this.partnerships = partnerships
-      } catch (error) {
+      return {
+        src: `/assets/partnership/${partnership.folder}/${fileName}.jpeg`,
+        alt: `${partnership.name} ${index + 1}`
       }
-    },
-    togglePartnership(index) {
-      this.partnerships.forEach((partnership, i) => {
-        if (i !== index) {
-          partnership.isExpanded = false
-        }
-      })
-      
-      this.partnerships[index].isExpanded = !this.partnerships[index].isExpanded
+    })
+
+    return {
+      name: partnership.name,
+      images,
+      mainImage: images[0]?.src,
+      isExpanded: false
     }
+  })
+}
+
+const { data, isPending, isError } = usePublicGallery()
+const partnerships = ref([])
+
+watch([data, isError], () => {
+  if (isError.value) {
+    partnerships.value = buildFallback()
+    return
   }
+
+  const screen = data.value?.screens?.find((item) => item.id === 'partnerships')
+
+  if (!screen) {
+    partnerships.value = []
+    return
+  }
+
+  const expandedByName = new Map(partnerships.value.map((item) => [item.name, item.isExpanded]))
+
+  partnerships.value = (screen.groups || [])
+    .filter((group) => group.photos?.length)
+    .map((group) => {
+      const cover = group.photos.find((photo) => photo.featured) || group.photos[0]
+
+      return {
+        id: group.id,
+        name: group.name,
+        images: group.photos.map((photo) => ({
+          id: photo.id,
+          src: photo.url,
+          alt: photo.alt || group.name
+        })),
+        mainImage: cover.url,
+        isExpanded: expandedByName.get(group.name) ?? false
+      }
+    })
+}, { immediate: true })
+
+function togglePartnership(index) {
+  partnerships.value.forEach((partnership, itemIndex) => {
+    if (itemIndex !== index) {
+      partnership.isExpanded = false
+    }
+  })
+
+  partnerships.value[index].isExpanded = !partnerships.value[index].isExpanded
 }
 </script>
 
@@ -198,6 +187,14 @@ export default {
   font-family: 'Gilda Display', serif;
   color: #666;
   font-size: 1.2rem;
+}
+
+.empty-state {
+  padding: 2rem;
+  font-family: 'Gilda Display', serif;
+  color: var(--muted);
+  font-size: 1rem;
+  text-align: center;
 }
 
 .partnerships-grid {

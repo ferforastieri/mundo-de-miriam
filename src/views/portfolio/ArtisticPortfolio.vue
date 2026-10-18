@@ -14,58 +14,43 @@
       </div>
 
       <!-- Portfolio Gallery -->
-      <div v-if="artisticImages.length === 0" class="loading">
+      <div v-if="isPending && images.length === 0" class="loading">
         <TranslatableText text="Carregando arte..." />
       </div>
-      <PortfolioGallery v-else :images="artisticImages" />
-      
-      <!-- Debug -->
-      <div v-if="artisticImages.length > 0" class="debug-info">
-        {{ artisticImages.length }} <TranslatableText text="obras carregadas" />
-      </div>
+      <PortfolioGallery v-else-if="images.length > 0" :images="images" />
+
+      <p v-else class="empty-state">
+        <TranslatableText text="Nenhuma foto publicada ainda." />
+      </p>
     </div>
   </PortfolioLayout>
 </template>
 
-<script>
+<script setup>
+import { computed } from 'vue'
 import PortfolioLayout from '@/layouts/portfolio/PortfolioLayout.vue'
 import { TranslatableText } from '@/components/common'
 import { PortfolioGallery } from '@/components/portfolio'
+import { useGalleryScreen } from '@/composables/usePublicGallery'
 
-export default {
-  name: 'ArtisticPortfolio',
-  components: {
-    PortfolioLayout,
-    TranslatableText,
-    PortfolioGallery
-  },
-  data() {
-    return {
-      artisticImages: []
-    }
-  },
-  mounted() {
-    this.loadArtisticImages()
-  },
-  methods: {
-    async loadArtisticImages() {
-      const imageCount = 24
-      const images = []
-      
-      try {
-        for (let i = 1; i <= imageCount; i++) {
-          images.push({
-            src: `/assets/artisticstyle/ArtisticStyle${i}.jpeg`,
-            alt: `Artistic Style ${i}`
-          })
-        }
-        
-        this.artisticImages = images
-      } catch (error) {
-      }
-    }
-  }
-}
+const FALLBACK_IMAGES = Array.from({ length: 24 }, (_, index) => index + 1)
+  .filter((number) => number !== 11 && number !== 12)
+  .map((number) => ({
+    src: `/assets/artisticstyle/ArtisticStyle${number}.jpeg`,
+    alt: `Artistic Style ${number}`
+  }))
+
+const { photos, isPending, isError } = useGalleryScreen('artistic')
+
+const images = computed(() => {
+  if (isError.value) return FALLBACK_IMAGES
+
+  return (photos.value || []).map((photo) => ({
+    id: photo.id,
+    src: photo.url,
+    alt: photo.alt || ''
+  }))
+})
 </script>
 
 <style scoped>
@@ -139,6 +124,14 @@ export default {
   font-family: 'Gilda Display', serif;
   color: #666;
   font-size: 1.2rem;
+}
+
+.empty-state {
+  padding: 2rem;
+  font-family: 'Gilda Display', serif;
+  color: var(--muted);
+  font-size: 1rem;
+  text-align: center;
 }
 
 .debug-info {

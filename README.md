@@ -1,29 +1,32 @@
 # Mundo de Miriam - Portfólio Profissional
 
-Um portfólio profissional elegante e moderno desenvolvido com Vue.js, apresentando trabalhos de maquiagem artística, beauty, fotografia e-commerce e parcerias.
+Portfólio profissional de Miriam Cléres Forastieri, com frontend Vue 3 e backend próprio
+(Fastify) rodando 100% na Cloudflare (Workers, D1 e R2).
+
+## ✨ Visão geral
+
+- **Frontend**: Vue 3 + Vue Router + Vue I18n + Vue Query (SPA servida pelo Worker).
+- **Backend**: API em Fastify, com arquitetura simples de *controller → usecase → repositório*
+  e *mappers* para converter as linhas do banco nos objetos da API.
+- **Banco de dados**: Cloudflare D1 (SQLite) para fotos, telas, sessões e histórico do Instagram.
+- **Imagens**: Cloudflare R2, servidas pelo Worker em `/media/...` com cache longo.
+- **Painel administrativo**: `/admin` com login por e-mail/senha, upload, ordem, telas,
+  histórico do Instagram e estatísticas.
+- **Instagram**: coleta horária via cron, histórico persistido em D1 e exibição no site
+  sempre a partir do último snapshot bem-sucedido (mesmo quando a API do Instagram falha).
 
 ## 🚀 Tecnologias Utilizadas
 
 - **Vue.js 3** - Framework JavaScript progressivo
 - **Vue Router** - Roteamento oficial do Vue.js
 - **Vue I18n** - Sistema de internacionalização (i18n)
-- **HTML2PDF.js** - Geração de PDF do currículo
-- **HTML2Canvas** - Captura de tela para PDF
-- **Google Fonts (Gilda Display)** - Tipografia elegante
-- **CSS Moderno** - Animações, Flexbox e Grid
+- **Vue Query** - Cache e estado de dados remotos
+- **Fastify** - Framework HTTP do backend (rodando no runtime dos Workers)
+- **Cloudflare Workers** - Hospedagem da API e do site
+- **Cloudflare D1** - Banco de dados SQLite gerenciado
+- **Cloudflare R2** - Armazenamento das fotos
+- **HTML2PDF.js / HTML2Canvas** - Geração de PDF do currículo
 - **Vite** - Build tool e servidor de desenvolvimento
-
-## ✨ Características
-
-- Design minimalista e elegante
-- Animações suaves e transições elegantes
-- Sistema de internacionalização completo
-- Suporte para 6 idiomas: Português, Inglês, Espanhol, Francês, Japonês e Chinês
-- Layout totalmente responsivo
-- Interface intuitiva e moderna
-- Geração de PDF do currículo profissional
-- Galerias de portfólio organizadas por categoria
-- Otimizado para performance
 
 ## 🌍 Idiomas Suportados
 
@@ -34,124 +37,128 @@ Um portfólio profissional elegante e moderno desenvolvido com Vue.js, apresenta
 - 🇯🇵 Japonês (ja)
 - 🇨🇳 Chinês (zh)
 
-## 📋 Pré-requisitos
-
-- Node.js (versão 14 ou superior)
-- NPM ou Yarn
-
-## 🛠️ Instalação
-
-1. Clone o repositório:
-```bash
-git clone https://github.com/ferforastieri/mundo-de-miriam.git
-```
-
-2. Entre no diretório do projeto:
-```bash
-cd mundo-de-miriam
-```
-
-3. Instale as dependências:
-```bash
-npm install
-# ou
-yarn install
-```
-
-## 🚀 Executando o Projeto
-
-Para desenvolvimento:
-```bash
-npm run dev
-# ou
-yarn dev
-```
-
-Para produção:
-```bash
-npm run build
-npm run preview
-# ou
-yarn build
-yarn preview
-```
-
-## 📱 Estrutura do Projeto
+## 📁 Estrutura do projeto
 
 ```
 mundo-de-miriam/
-├── public/
-│   ├── assets/
-│   │   ├── artisticstyle/    # Imagens do portfólio artístico
-│   │   ├── beautystyle/      # Imagens do portfólio beauty
-│   │   ├── e-commerce/       # Imagens de fotografia e-commerce
-│   │   ├── partnership/      # Imagens de parcerias
-│   │   └── profile/          # Imagens de perfil
-│   └── favicon.ico
+├── migrations/                  # Migrations do D1 (schema + telas iniciais)
+├── public/                      # Arquivos estáticos servidos junto do SPA
+│   └── assets/                  # Fotos originais (fonte do seed e fallback estático)
+├── scripts/
+│   ├── generate-seo-pages.mjs   # Gera as páginas estáticas de SEO no build
+│   ├── seed-admin.mjs           # Cria/atualiza o usuário admin no D1
+│   └── seed-media.mjs           # Envia as fotos atuais para o R2 via API
 ├── src/
-│   ├── api/
-│   │   ├── dashboard/        # Serviços de dashboard
-│   │   ├── storage/          # Serviços de armazenamento
-│   │   └── translation/     # Serviços de tradução
-│   ├── components/
-│   │   ├── about/           # Componentes da página sobre
-│   │   ├── common/          # Componentes comuns (TranslatableText, LanguageSwitcher, etc)
-│   │   ├── curriculum/     # Componentes do currículo
-│   │   ├── home/           # Componentes da home
-│   │   └── portfolio/      # Componentes dos portfólios
-│   ├── layouts/            # Layouts das páginas
-│   ├── locales/             # Arquivos de tradução (pt, en, es, fr, ja, zh)
-│   ├── router/             # Configuração de rotas
-│   ├── views/              # Views principais
-│   ├── App.vue
-│   ├── i18n.js             # Configuração do i18n
-│   ├── main.js
-│   └── style.css
-├── index.html
-├── package.json
-├── vite.config.js
-└── vercel.json
+│   ├── api/                     # Clientes HTTP (público e admin)
+│   ├── components/              # Componentes Vue (público e admin)
+│   ├── composables/             # usePublicGallery, useAdminAuth, useAdminToast
+│   ├── layouts/                 # Layouts das páginas e do painel
+│   ├── locales/                 # Traduções
+│   ├── router/                  # Rotas + guarda de autenticação do painel
+│   ├── style/                   # Estilos globais do painel
+│   ├── utils/                   # Formatação de números/datas
+│   └── views/                   # Páginas públicas e do painel
+├── worker/                      # Backend (Cloudflare Worker + Fastify)
+│   ├── controllers/             # Rotas HTTP
+│   ├── usecases/                # Regras de negócio
+│   ├── repositories/            # Acesso ao D1 e ao R2
+│   ├── mappers/                 # Conversão banco → API
+│   ├── services/                # Instagram, criptografia, senhas, imagens
+│   ├── http/                    # Erros e guardas (auth, CSRF, rate limit)
+│   └── index.js                 # Entry point (fetch + cron)
+├── wrangler.jsonc               # Configuração do Worker (D1, R2, assets, cron)
+└── vite.config.js
 ```
 
-## 📄 Páginas do Site
+## 🔐 Segurança do painel
 
-- **Home** - Página inicial com apresentação e navegação
-- **Sobre Mim** - História e paixão pela arte da maquiagem
-- **Currículo** - Experiência profissional completa com download em PDF
-- **Portfólio Artístico** - Galeria de trabalhos de maquiagem artística
-- **Portfólio Beauty** - Galeria de trabalhos de maquiagem beauty
-- **Fotografia E-commerce** - Galeria de fotografias para produtos
-- **Parcerias** - Trabalhos em parceria com marcas
+- Login com senha em **PBKDF2-SHA256** (hash + salt por usuário, comparação em tempo constante).
+- Sessão em cookie **httpOnly + Secure + SameSite=Strict** (`__Host-mdm_session` em produção),
+  com token aleatório de 32 bytes e apenas o hash SHA-256 salvo no D1; expira em 30 dias.
+- Validação de **origem (CSRF)** em todas as rotas do painel, além do `SameSite=Strict`.
+- **Rate limit** de tentativas de login por IP (5 falhas a cada 15 minutos).
+- **CSP** sem `unsafe-eval`, com headers de segurança (`nosniff`, `frame-ancestors: none`, etc.).
+- Token do Instagram **criptografado (AES-256-GCM)** no banco, usando um segredo do Worker.
+- Uploads validados por **magic bytes** (somente JPEG/PNG/WebP/GIF/AVIF, até 20 MB).
 
-## 🎨 Personalização
+## 🛠️ Desenvolvimento local
 
-O projeto utiliza a fonte Gilda Display do Google Fonts e um esquema de cores minimalista. Para modificar o estilo:
+Pré-requisitos: Node.js 22+.
 
-1. Edite `src/style.css` para alterações globais
-2. Modifique os componentes individuais para alterações específicas
-3. Ajuste as variáveis de cores e fontes conforme necessário
+```bash
+npm install
 
-## 🌐 Internacionalização
+# Gere uma chave local para criptografar o token do Instagram
+cp .dev.vars.example .dev.vars
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+# copie o valor para TOKEN_ENCRYPTION_KEY no .dev.vars
 
-O projeto utiliza `vue-i18n` para gerenciar traduções. Os arquivos de tradução estão localizados em `src/locales/`:
+# Aplique as migrations no D1 local e crie o admin
+npm run db:migrate:local
+node scripts/seed-admin.mjs --email seu@email.com --password 'sua-senha-forte' --local
 
-- `pt.json` - Português
-- `en.json` - Inglês
-- `es.json` - Espanhol
-- `fr.json` - Francês
-- `ja.json` - Japonês
-- `zh.json` - Chinês
+# Rode a API (Worker) e o frontend em terminais separados
+npm run dev:api   # http://127.0.0.1:8787
+npm run dev       # http://localhost:5173 (proxy para a API)
+```
 
-Para adicionar novas traduções, edite os arquivos JSON correspondentes e use o componente `TranslatableText` ou a função `t()` do `useI18n()`.
+O painel fica em `http://localhost:5173/admin`.
 
-## 📦 Deploy
+## 🚢 Deploy (Cloudflare)
 
-O projeto está configurado para deploy na Vercel. O arquivo `vercel.json` contém as configurações necessárias.
+```bash
+# Uma única vez: migrations e usuário admin no ambiente remoto
+npm run db:migrate
+ADMIN_EMAIL='seu@email.com' ADMIN_PASSWORD='sua-senha-forte' npm run db:seed:admin
+
+# Segredo usado para criptografar o token do Instagram
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))" \
+  | npx wrangler secret put TOKEN_ENCRYPTION_KEY
+
+# Publica o site + API
+npm run deploy
+```
+
+Depois do primeiro deploy, envie as fotos atuais para o R2 (uma única vez):
+
+```bash
+node scripts/seed-media.mjs --url https://SEU-WORKER.workers.dev \
+  --email seu@email.com --password 'sua-senha-forte'
+```
+
+### Token do Instagram
+
+1. Abra `https://SEU-DOMINIO/admin/instagram` e faça login.
+2. Cole o token de longa duração da API do Instagram (Instagram Login) e salve.
+3. O Worker valida o token, faz a primeira coleta, guarda o histórico no D1 e renova o token
+   automaticamente nos últimos dias de validade (cron horário).
+
+Se a API do Instagram falhar, o site continua exibindo o último snapshot salvo.
+
+### Domínio próprio
+
+1. No painel da Cloudflare, adicione a zona `mundodemiriam.com.br` (plano Free) e troque os
+   nameservers no Registro.br.
+2. Com a zona ativa, adicione os domínios personalizados `www.mundodemiriam.com.br` e
+   `mundodemiriam.com.br` ao Worker (via `wrangler.jsonc` em `routes` ou pelo painel).
+
+## 📦 Scripts úteis
+
+| Comando | Descrição |
+| --- | --- |
+| `npm run dev` | Frontend em modo desenvolvimento (proxy para o Worker) |
+| `npm run dev:api` | Worker (API + assets) em modo desenvolvimento |
+| `npm run build` | Build do frontend + páginas de SEO |
+| `npm run deploy` | Build e deploy para a Cloudflare |
+| `npm run db:migrate` | Aplica as migrations no D1 remoto |
+| `npm run db:migrate:local` | Aplica as migrations no D1 local |
+| `npm run db:seed:admin` | Cria/atualiza o admin no D1 (`ADMIN_EMAIL`/`ADMIN_PASSWORD`) |
+| `npm run db:seed:media` | Envia as fotos de `public/assets` para o R2 via API do painel |
 
 ## 📝 Licença
 
-Este projeto é privado e pertence a Miriam Cleres Forastieri.
+Este projeto é privado e pertence a Miriam Cléres Forastieri.
 
 ---
 
-Desenvolvido com ❤️ e Vue.js
+Desenvolvido com ❤️, Vue.js, Fastify e Cloudflare.

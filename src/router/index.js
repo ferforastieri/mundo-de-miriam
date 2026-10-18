@@ -7,6 +7,9 @@ import BeautyPortfolio from '../views/portfolio/BeautyPortfolio.vue'
 import ArtisticPortfolio from '../views/portfolio/ArtisticPortfolio.vue'
 import PartnershipsPortfolio from '../views/portfolio/PartnershipsPortfolio.vue'
 import EcommercePortfolio from '../views/portfolio/EcommercePortfolio.vue'
+import AdminLayout from '../layouts/admin/AdminLayout.vue'
+import AdminLoginView from '../views/admin/AdminLoginView.vue'
+import { useAdminAuth } from '../composables/useAdminAuth'
 import { applySeo } from '../seo'
 
 const routes = [
@@ -44,6 +47,50 @@ const routes = [
     path: '/ecommerce',
     name: 'EcommercePortfolio',
     component: EcommercePortfolio
+  },
+  {
+    path: '/admin/login',
+    name: 'AdminLogin',
+    component: AdminLoginView,
+    meta: { noindex: true, title: 'Entrar' }
+  },
+  {
+    path: '/admin',
+    component: AdminLayout,
+    redirect: { name: 'AdminDashboard' },
+    meta: { requiresAdmin: true, noindex: true },
+    children: [
+      {
+        path: 'dashboard',
+        name: 'AdminDashboard',
+        component: () => import('../views/admin/AdminDashboardView.vue'),
+        meta: { title: 'Visão geral' }
+      },
+      {
+        path: 'photos',
+        name: 'AdminPhotos',
+        component: () => import('../views/admin/AdminPhotosView.vue'),
+        meta: { title: 'Fotos' }
+      },
+      {
+        path: 'screens',
+        name: 'AdminScreens',
+        component: () => import('../views/admin/AdminScreensView.vue'),
+        meta: { title: 'Telas' }
+      },
+      {
+        path: 'instagram',
+        name: 'AdminInstagram',
+        component: () => import('../views/admin/AdminInstagramView.vue'),
+        meta: { title: 'Instagram' }
+      },
+      {
+        path: 'account',
+        name: 'AdminAccount',
+        component: () => import('../views/admin/AdminAccountView.vue'),
+        meta: { title: 'Conta' }
+      }
+    ]
   }
 ]
 
@@ -55,8 +102,41 @@ const router = createRouter({
   }
 })
 
+router.beforeEach(async (to) => {
+  const { loadMe } = useAdminAuth()
+
+  if (to.meta.requiresAdmin) {
+    const admin = await loadMe()
+
+    if (!admin) {
+      return {
+        name: 'AdminLogin',
+        query: { redirect: to.fullPath }
+      }
+    }
+  }
+
+  if (to.name === 'AdminLogin') {
+    const admin = await loadMe()
+
+    if (admin) {
+      return { name: 'AdminDashboard' }
+    }
+  }
+
+  return true
+})
+
 router.afterEach(async (to) => {
-  applySeo(to.path)
+  if (to.meta.noindex) {
+    setRobotsMeta('noindex,nofollow')
+    document.title = to.meta.title
+      ? `${to.meta.title} · Painel Mundo de Miriam`
+      : 'Painel · Mundo de Miriam'
+  } else {
+    setRobotsMeta('index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1')
+    applySeo(to.path)
+  }
 
   await nextTick()
   window.scrollTo({ left: 0, top: 0, behavior: 'auto' })
@@ -64,5 +144,17 @@ router.afterEach(async (to) => {
     .querySelectorAll('.portfolio-layout, .partnerships-layout')
     .forEach((element) => element.scrollTo({ left: 0, top: 0, behavior: 'auto' }))
 })
+
+function setRobotsMeta(content) {
+  let meta = document.head.querySelector('meta[name="robots"]')
+
+  if (!meta) {
+    meta = document.createElement('meta')
+    meta.setAttribute('name', 'robots')
+    document.head.appendChild(meta)
+  }
+
+  meta.setAttribute('content', content)
+}
 
 export default router

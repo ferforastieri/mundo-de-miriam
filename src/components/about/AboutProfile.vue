@@ -16,7 +16,7 @@
     <!-- Profile Section -->
     <div class="profile-section">
       <div class="profile-image">
-        <img src="/assets/profile/fotodalinda.jpg" alt="Miriam - Maquiadora" />
+        <img :src="profilePhoto" alt="Miriam - Maquiadora" />
       </div>
       
       <div class="profile-content">
@@ -90,6 +90,7 @@
 import { useRouter } from 'vue-router'
 import { TranslatableText } from '../common'
 import PageBackButton from '@/components/common/PageBackButton.vue'
+import { useSitePhoto } from '@/composables/usePublicGallery'
 
 export default {
   name: 'AboutProfile',
@@ -105,7 +106,8 @@ export default {
     }
     
     return {
-      goToCurriculum
+      goToCurriculum,
+      profilePhoto: useSitePhoto('profile', '/assets/profile/fotodalinda.jpg')
     }
   }
 }

@@ -1,7 +1,7 @@
 <template>
   <div class="profile-section">
     <div class="profile-image">
-      <img src="/assets/profile/fotodalinda.jpg" alt="Miriam Cléres Forastieri" />
+      <img :src="profilePhoto" alt="Miriam Cléres Forastieri" />
     </div>
     
     <div class="profile-info">
@@ -17,11 +17,17 @@
 
 <script>
 import { TranslatableText } from '../common'
+import { useSitePhoto } from '@/composables/usePublicGallery'
 
 export default {
   name: 'HomeProfile',
   components: {
     TranslatableText
+  },
+  setup() {
+    return {
+      profilePhoto: useSitePhoto('profile', '/assets/profile/fotodalinda.jpg')
+    }
   }
 }
 </script>

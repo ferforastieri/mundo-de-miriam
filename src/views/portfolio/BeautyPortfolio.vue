@@ -14,58 +14,41 @@
       </div>
 
       <!-- Portfolio Gallery -->
-      <div v-if="beautyImages.length === 0" class="loading">
+      <div v-if="isPending && images.length === 0" class="loading">
         <TranslatableText text="Carregando imagens..." />
       </div>
-      <PortfolioGallery v-else :images="beautyImages" />
-      
-      <!-- Debug -->
-      <div v-if="beautyImages.length > 0" class="debug-info">
-        {{ beautyImages.length }} <TranslatableText text="imagens carregadas" />
-      </div>
+      <PortfolioGallery v-else-if="images.length > 0" :images="images" />
+
+      <p v-else class="empty-state">
+        <TranslatableText text="Nenhuma foto publicada ainda." />
+      </p>
     </div>
   </PortfolioLayout>
 </template>
 
-<script>
+<script setup>
+import { computed } from 'vue'
 import PortfolioLayout from '@/layouts/portfolio/PortfolioLayout.vue'
 import { TranslatableText } from '@/components/common'
 import { PortfolioGallery } from '@/components/portfolio'
+import { useGalleryScreen } from '@/composables/usePublicGallery'
 
-export default {
-  name: 'BeautyPortfolio',
-  components: {
-    PortfolioLayout,
-    TranslatableText,
-    PortfolioGallery
-  },
-  data() {
-    return {
-      beautyImages: []
-    }
-  },
-  mounted() {
-    this.loadBeautyImages()
-  },
-  methods: {
-    async loadBeautyImages() {
-      const imageCount = 17
-      const images = []
-      
-      try {
-        for (let i = 1; i <= imageCount; i++) {
-          images.push({
-            src: `/assets/beautystyle/Beauty Style${i}.jpeg`,
-            alt: `Beauty Style ${i}`
-          })
-        }
-        
-        this.beautyImages = images
-      } catch (error) {
-      }
-    }
-  }
-}
+const FALLBACK_IMAGES = Array.from({ length: 17 }, (_, index) => ({
+  src: `/assets/beautystyle/Beauty Style${index + 1}.jpeg`,
+  alt: `Beauty Style ${index + 1}`
+}))
+
+const { photos, isPending, isError } = useGalleryScreen('beauty')
+
+const images = computed(() => {
+  if (isError.value) return FALLBACK_IMAGES
+
+  return (photos.value || []).map((photo) => ({
+    id: photo.id,
+    src: photo.url,
+    alt: photo.alt || ''
+  }))
+})
 </script>
 
 <style scoped>
@@ -139,6 +122,14 @@ export default {
   font-family: 'Gilda Display', serif;
   color: #666;
   font-size: 1.2rem;
+}
+
+.empty-state {
+  padding: 2rem;
+  font-family: 'Gilda Display', serif;
+  color: var(--muted);
+  font-size: 1rem;
+  text-align: center;
 }
 
 .debug-info {

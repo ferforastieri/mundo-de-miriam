@@ -2,7 +2,7 @@
   <div class="portfolio-gallery">
     <div 
       v-for="(image, index) in visibleImages"
-      :key="index"
+      :key="image.id || index"
       class="gallery-item"
       @click="openModal(index)"
     >
@@ -70,9 +70,7 @@ export default {
   },
   computed: {
     visibleImages() {
-      return this.images.filter((image) => (
-        !/\/artisticstyle\/ArtisticStyle(?:11|12)\.jpeg$/i.test(image.src)
-      ))
+      return this.images
     },
     currentImage() {
       return this.visibleImages[this.currentIndex] || {}
@@ -108,7 +106,7 @@ export default {
 <style scoped>
 .portfolio-gallery {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
@@ -266,7 +264,7 @@ export default {
 
 @media (max-width: 768px) {
   .portfolio-gallery {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 1rem;
   }
   

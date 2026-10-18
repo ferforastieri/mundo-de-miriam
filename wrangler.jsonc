@@ -1,0 +1,37 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "mundo-de-miriam",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-08-04",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*", "/media/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "mundo-de-miriam",
+      "database_id": "fd313730-a5eb-4adc-bbc7-878ab6c037fb"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      "bucket_name": "mundo-de-miriam-media"
+    }
+  ],
+  "triggers": {
+    "crons": ["17 * * * *"]
+  },
+  "vars": {
+    "ENVIRONMENT": "production",
+    "INSTAGRAM_USER_ID": "17841464226067946",
+    "INSTAGRAM_USERNAME": "mihforastieri",
+    "PUBLIC_SITE_URL": "https://www.mundodemiriam.com.br"
+  },
+  "observability": {
+    "enabled": true
+  }
+}

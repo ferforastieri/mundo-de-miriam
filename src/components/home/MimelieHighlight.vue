@@ -8,7 +8,7 @@
       aria-label="Visitar o site oficial da Mimelie"
     >
       <div class="mimelie-highlight__symbol">
-        <img src="/assets/mimelie/mimelie-symbol.png" alt="Símbolo da Mimelie" />
+        <img :src="mimelieSymbol" alt="Símbolo da Mimelie" />
       </div>
       <div class="mimelie-highlight__copy">
         <span>Marca autoral</span>
@@ -23,6 +23,12 @@
 
   </div>
 </template>
+
+<script setup>
+import { useSitePhoto } from '@/composables/usePublicGallery'
+
+const mimelieSymbol = useSitePhoto('mimelie', '/assets/mimelie/mimelie-symbol.png')
+</script>
 
 <style scoped>
 .mimelie-highlight-wrap { margin: 0 0 3rem; }

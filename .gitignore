@@ -25,5 +25,10 @@ dist-ssr
 
 .env
 .env.local
+.dev.vars
+.dev.vars.*
 
-.vercel
+# Cloudflare / build artifacts
+.wrangler
+.tmp
+
