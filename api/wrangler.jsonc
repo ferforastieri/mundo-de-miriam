@@ -18,7 +18,9 @@
       "/ecommerce*",
       "/partnerships*",
       "/admin*",
-      "/album*"
+      "/album*",
+      "/galeria*",
+      "/sitemap.xml"
     ]
   },
   "d1_databases": [

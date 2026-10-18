@@ -20,6 +20,26 @@ export function createScreensRepository(db) {
       return db.prepare('SELECT * FROM screens WHERE id = ?').bind(id).first()
     },
 
+    async create(screen) {
+      await db
+        .prepare(
+          `INSERT INTO screens
+            (id, name, description, kind, sort_order, is_visible, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+        )
+        .bind(
+          screen.id,
+          screen.name,
+          screen.description,
+          screen.kind,
+          screen.sortOrder,
+          screen.isVisible,
+          screen.createdAt,
+          screen.createdAt
+        )
+        .run()
+    },
+
     async update(id, { name, description, sortOrder, isVisible, updatedAt }) {
       await db
         .prepare(

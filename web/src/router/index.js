@@ -49,6 +49,11 @@ const routes = [
     component: EcommercePortfolio
   },
   {
+    path: '/galeria/:screenId',
+    name: 'Gallery',
+    component: () => import('../views/portfolio/GalleryView.vue')
+  },
+  {
     path: '/album/:token',
     name: 'Album',
     component: () => import('../views/album/AlbumView.vue'),

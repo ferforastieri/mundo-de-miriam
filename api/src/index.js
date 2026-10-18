@@ -5,6 +5,7 @@ import { createContainer } from './repositories/index.js'
 import { isoDaysAgo, nowIso } from './utils/dates.js'
 import { refreshInstagramStats } from './usecases/instagram/refresh-instagram-stats.js'
 import { serveHtmlWithSeo } from './seo/render.js'
+import { SEO_ROUTES, SITE_URL } from './seo/pages.js'
 
 const PORT = 8787
 const MEDIA_KEY_PATTERN = /^(photos|albums)\/[a-zA-Z0-9-]+\/[a-zA-Z0-9._-]+$/
@@ -55,6 +56,37 @@ async function serveMedia(request, env) {
   })
 }
 
+async function serveSitemap(request, env) {
+  try {
+    const result = await env.DB.prepare(
+      "SELECT id FROM screens WHERE is_visible = 1 AND kind IN ('gallery', 'partnerships') ORDER BY sort_order ASC"
+    ).all()
+
+    const fixed = new Set(['artistic', 'beauty', 'ecommerce', 'partnerships'])
+    const extras = (result.results || []).filter((row) => !fixed.has(row.id))
+    const urls = [
+      ...SEO_ROUTES.map((route) => `${SITE_URL}${route.path === '/' ? '/' : route.path}`),
+      ...extras.map((row) => `${SITE_URL}/galeria/${row.id}`)
+    ]
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls.map((url) => `  <url><loc>${url}</loc></url>`).join('\n')}
+</urlset>
+`
+
+    return new Response(xml, {
+      headers: {
+        'content-type': 'application/xml; charset=utf-8',
+        'cache-control': 'public, max-age=0, s-maxage=300'
+      }
+    })
+  } catch (error) {
+    console.warn('Falha ao gerar o sitemap dinâmico:', error?.message || error)
+    return env.ASSETS.fetch(request)
+  }
+}
+
 async function runMaintenance(container) {
   const now = nowIso()
 
@@ -71,6 +103,10 @@ export default {
 
     if (url.pathname.startsWith('/media/')) {
       return serveMedia(request, env)
+    }
+
+    if (url.pathname === '/sitemap.xml') {
+      return serveSitemap(request, env)
     }
 
     if (!url.pathname.startsWith('/api/')) {

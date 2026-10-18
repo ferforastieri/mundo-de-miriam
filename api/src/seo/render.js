@@ -10,6 +10,32 @@ import {
   isPagePath
 } from './pages.js'
 
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('"', '&quot;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+}
+
+async function getDynamicScreen(env, pathname) {
+  const match = pathname.match(/^\/galeria\/([a-z0-9-]+)\/?$/)
+
+  if (!match) return null
+
+  try {
+    const screen = await env.DB.prepare(
+      'SELECT id, name, description FROM screens WHERE id = ? AND is_visible = 1'
+    )
+      .bind(match[1])
+      .first()
+
+    return screen || false
+  } catch {
+    return false
+  }
+}
+
 const ADMIN_TITLE = 'Painel administrativo · Mundo de Miriam'
 const ADMIN_DESCRIPTION = 'Área restrita para gerenciar o site de Miriam Cléres Forastieri.'
 
@@ -42,21 +68,36 @@ export async function serveHtmlWithSeo(request, env) {
 
   const isAdmin = url.pathname.startsWith('/admin')
   const isAlbum = url.pathname.startsWith('/album')
+  const isGallery = url.pathname.startsWith('/galeria')
   const isUnlisted = isAdmin || isAlbum
   const seo = getSeoForPath(url.pathname)
+  const dynamicScreen = isGallery ? await getDynamicScreen(env, url.pathname) : null
+  const galleryMissing = isGallery && dynamicScreen === false
   const title = isAlbum
     ? 'Álbum de fotos · Mundo de Miriam'
     : isAdmin
       ? ADMIN_TITLE
-      : seo?.title || SITE_NAME
+      : galleryMissing
+        ? 'Galeria não encontrada · Mundo de Miriam'
+        : dynamicScreen
+          ? `${dynamicScreen.name} · Mundo de Miriam`
+          : seo?.title || SITE_NAME
   const description = isAlbum
     ? 'Álbum de fotos compartilhado por Miriam Cléres Forastieri.'
     : isAdmin
       ? ADMIN_DESCRIPTION
-      : seo?.description || ''
-  const robots = isUnlisted ? ADMIN_ROBOTS : INDEXABLE_ROBOTS
+      : dynamicScreen
+        ? dynamicScreen.description || 'Galeria de fotos por Miriam Cléres Forastieri.'
+        : galleryMissing
+          ? 'Galeria não encontrada.'
+          : seo?.description || ''
+  const robots = isUnlisted || galleryMissing ? ADMIN_ROBOTS : INDEXABLE_ROBOTS
   const canonical = canonicalFor(url.pathname)
-  const fallback = !isUnlisted && seo ? buildFallbackContent(seo) : null
+  const fallback = dynamicScreen
+    ? `<h1>${escapeHtml(dynamicScreen.name)}</h1><p>${escapeHtml(dynamicScreen.description || '')}</p><nav aria-label="Conteúdo principal"><a href="/">Mundo de Miriam</a></nav>`
+    : !isUnlisted && !galleryMissing && seo
+      ? buildFallbackContent(seo)
+      : null
 
   let rewriter = new HTMLRewriter()
     .on('title', {

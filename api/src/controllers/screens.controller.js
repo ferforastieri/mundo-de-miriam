@@ -1,6 +1,7 @@
 import { getContainer } from '../context.js'
 import { requireAdmin } from '../http/guards.js'
 import { createGroup } from '../usecases/screens/create-group.js'
+import { createScreen } from '../usecases/screens/create-screen.js'
 import { deleteGroup } from '../usecases/screens/delete-group.js'
 import { listScreens } from '../usecases/screens/list-screens.js'
 import { reorderGroups } from '../usecases/screens/reorder-groups.js'
@@ -25,6 +26,22 @@ const updateScreenSchema = {
       description: { type: 'string', maxLength: 240 },
       sortOrder: { type: 'integer', minimum: 0, maximum: 9999 },
       visible: { type: 'boolean' }
+    }
+  }
+}
+
+const createScreenSchema = {
+  body: {
+    type: 'object',
+    required: ['name'],
+    additionalProperties: false,
+    properties: {
+      name: { type: 'string', minLength: 1, maxLength: 80 },
+      id: { type: 'string', minLength: 2, maxLength: 60 },
+      description: { type: 'string', maxLength: 240 },
+      kind: { type: 'string', enum: ['gallery', 'partnerships', 'single'] },
+      visible: { type: 'boolean' },
+      sortOrder: { type: 'integer', minimum: 0, maximum: 9999 }
     }
   }
 }
@@ -79,6 +96,14 @@ export function registerScreensRoutes(app) {
   app.get('/api/admin/screens', { preHandler: requireAdmin }, async () => {
     return { screens: await listScreens(getContainer()) }
   })
+
+  app.post(
+    '/api/admin/screens',
+    { preHandler: requireAdmin, schema: createScreenSchema },
+    async (request) => {
+      return createScreen(getContainer(), request.body)
+    }
+  )
 
   app.patch(
     '/api/admin/screens/:id',

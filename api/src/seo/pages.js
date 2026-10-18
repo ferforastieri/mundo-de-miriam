@@ -84,6 +84,7 @@ export function getSeoForPath(pathname) {
 
 export function isPagePath(pathname) {
   if (pathname.startsWith('/admin') || pathname.startsWith('/album')) return true
+  if (pathname.startsWith('/galeria')) return true
   return SEO_PATHS.includes(normalizePath(pathname))
 }
 

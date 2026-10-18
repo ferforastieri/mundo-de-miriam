@@ -38,6 +38,10 @@ class AdminService {
     return http.get('/api/admin/screens')
   }
 
+  createScreen(payload) {
+    return http.post('/api/admin/screens', payload)
+  }
+
   updateScreen(screenId, patch) {
     return http.patch(`/api/admin/screens/${encodeURIComponent(screenId)}`, patch)
   }

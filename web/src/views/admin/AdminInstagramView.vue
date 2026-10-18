@@ -25,104 +25,20 @@
     </div>
 
     <template v-else>
-      <div class="admin-grid-2">
-        <section class="admin-card">
-          <div class="admin-card__header">
-            <div>
-              <h2 class="admin-card__title">Estado da integração</h2>
-              <p class="admin-card__hint">Token e última sincronização</p>
-            </div>
+      <div v-if="!state.configured" class="admin-alert instagram-setup-hint">
+        <span>Configure o token para começar a coleta automática das estatísticas.</span>
+        <a class="admin-link" href="#configuracoes">Ir para as configurações</a>
+      </div>
 
-            <span v-if="!state.configured" class="admin-tag admin-tag--warning">Não configurado</span>
-            <span v-else-if="state.lastError" class="admin-tag admin-tag--danger">Com erro</span>
-            <span v-else class="admin-tag admin-tag--success">Conectado</span>
-          </div>
-
-          <table class="admin-table">
-            <tbody>
-              <tr>
-                <th>Conta</th>
-                <td>{{ state.username ? `@${state.username}` : '—' }}</td>
-              </tr>
-              <tr>
-                <th>Último sucesso</th>
-                <td>{{ formatDateTime(state.lastSuccessAt) }}</td>
-              </tr>
-              <tr>
-                <th>Última tentativa</th>
-                <td>{{ formatDateTime(state.lastAttemptAt) }}</td>
-              </tr>
-              <tr>
-                <th>Expiração do token</th>
-                <td>
-                  {{ formatDateTime(state.tokenExpiresAt) }}
-                  <span v-if="tokenExpiringSoon" class="admin-tag admin-tag--warning">Renovação automática em breve</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-
-          <p v-if="state.lastError" class="admin-alert admin-alert--error instagram-error">
-            {{ state.lastError }}
-          </p>
-        </section>
-
-        <section class="admin-card">
-          <div class="admin-card__header">
-            <div>
-              <h2 class="admin-card__title">Token de acesso</h2>
-              <p class="admin-card__hint">
-                Cole o token de longa duração da API do Instagram. Ele é criptografado antes de ser salvo.
-              </p>
-            </div>
-          </div>
-
-          <form class="instagram-token-form" @submit.prevent="saveToken">
-            <label class="admin-field">
-              <span class="admin-label">Novo token</span>
-              <div class="instagram-token-form__input">
-                <input
-                  v-model="tokenInput"
-                  class="admin-input"
-                  :type="showToken ? 'text' : 'password'"
-                  autocomplete="off"
-                  spellcheck="false"
-                  placeholder="IGQVJ…"
-                />
-                <button class="admin-btn admin-btn--small" type="button" @click="showToken = !showToken">
-                  {{ showToken ? 'Ocultar' : 'Mostrar' }}
-                </button>
-              </div>
-            </label>
-
-            <div class="admin-actions-row">
-              <button class="admin-btn admin-btn--primary" type="submit" :disabled="savingToken || !tokenInput.trim()">
-                {{ savingToken ? 'Validando e salvando…' : 'Salvar token' }}
-              </button>
-              <button
-                v-if="state.configured"
-                class="admin-btn admin-btn--danger"
-                type="button"
-                :disabled="savingToken"
-                @click="confirmRemoveToken = true"
-              >
-                Remover token
-              </button>
-            </div>
-          </form>
-
-          <p class="admin-card__hint instagram-help">
-            A renovação usa o endpoint oficial do Instagram e acontece automaticamente nos últimos
-            {{ refreshWindowDays }} dias de validade. Se o token for revogado, o site continua exibindo o
-            último dado salvo.
-          </p>
-        </section>
+      <div class="instagram-section__head">
+        <h2 class="instagram-section__title">Desempenho</h2>
+        <p class="instagram-section__hint">Números do último dia e evolução ao longo do tempo</p>
       </div>
 
       <section class="admin-card instagram-metrics">
         <div class="admin-card__header">
           <div>
-            <h2 class="admin-card__title">Último snapshot</h2>
+            <h2 class="admin-card__title">Números do último snapshot</h2>
             <p class="admin-card__hint">
               {{ latest ? `Coletado em ${formatDateTime(latest.capturedAt)}` : 'Nenhuma coleta bem-sucedida ainda' }}
             </p>
@@ -144,7 +60,7 @@
         </div>
 
         <p v-else class="admin-empty">
-          Configure o token acima para iniciar o histórico do Instagram.
+          Configure o token nas configurações abaixo para iniciar o histórico do Instagram.
         </p>
       </section>
 
@@ -311,6 +227,105 @@
           </table>
         </div>
       </section>
+      <div id="configuracoes" class="instagram-section__head instagram-settings-head">
+        <h2 class="instagram-section__title">Configurações</h2>
+        <p class="instagram-section__hint">Token, status da integração e renovação automática</p>
+      </div>
+
+      <div class="admin-grid-2">
+        <section class="admin-card">
+          <div class="admin-card__header">
+            <div>
+              <h2 class="admin-card__title">Estado da integração</h2>
+              <p class="admin-card__hint">Token e última sincronização</p>
+            </div>
+
+            <span v-if="!state.configured" class="admin-tag admin-tag--warning">Não configurado</span>
+            <span v-else-if="state.lastError" class="admin-tag admin-tag--danger">Com erro</span>
+            <span v-else class="admin-tag admin-tag--success">Conectado</span>
+          </div>
+
+          <table class="admin-table">
+            <tbody>
+              <tr>
+                <th>Conta</th>
+                <td>{{ state.username ? `@${state.username}` : '—' }}</td>
+              </tr>
+              <tr>
+                <th>Último sucesso</th>
+                <td>{{ formatDateTime(state.lastSuccessAt) }}</td>
+              </tr>
+              <tr>
+                <th>Última tentativa</th>
+                <td>{{ formatDateTime(state.lastAttemptAt) }}</td>
+              </tr>
+              <tr>
+                <th>Expiração do token</th>
+                <td>
+                  {{ formatDateTime(state.tokenExpiresAt) }}
+                  <span v-if="tokenExpiringSoon" class="admin-tag admin-tag--warning">Renovação automática em breve</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p v-if="state.lastError" class="admin-alert admin-alert--error instagram-error">
+            {{ state.lastError }}
+          </p>
+        </section>
+
+        <section class="admin-card">
+          <div class="admin-card__header">
+            <div>
+              <h2 class="admin-card__title">Token de acesso</h2>
+              <p class="admin-card__hint">
+                Cole o token de longa duração da API do Instagram. Ele é criptografado antes de ser salvo.
+              </p>
+            </div>
+          </div>
+
+          <form class="instagram-token-form" @submit.prevent="saveToken">
+            <label class="admin-field">
+              <span class="admin-label">Novo token</span>
+              <div class="instagram-token-form__input">
+                <input
+                  v-model="tokenInput"
+                  class="admin-input"
+                  :type="showToken ? 'text' : 'password'"
+                  autocomplete="off"
+                  spellcheck="false"
+                  placeholder="IGQVJ…"
+                />
+                <button class="admin-btn admin-btn--small" type="button" @click="showToken = !showToken">
+                  {{ showToken ? 'Ocultar' : 'Mostrar' }}
+                </button>
+              </div>
+            </label>
+
+            <div class="admin-actions-row">
+              <button class="admin-btn admin-btn--primary" type="submit" :disabled="savingToken || !tokenInput.trim()">
+                {{ savingToken ? 'Validando e salvando…' : 'Salvar token' }}
+              </button>
+              <button
+                v-if="state.configured"
+                class="admin-btn admin-btn--danger"
+                type="button"
+                :disabled="savingToken"
+                @click="confirmRemoveToken = true"
+              >
+                Remover token
+              </button>
+            </div>
+          </form>
+
+          <p class="admin-card__hint instagram-help">
+            A renovação usa o endpoint oficial do Instagram e acontece automaticamente nos últimos
+            {{ refreshWindowDays }} dias de validade. Se o token for revogado, o site continua exibindo o
+            último dado salvo.
+          </p>
+        </section>
+      </div>
+
     </template>
 
     <ConfirmDialog
@@ -441,6 +456,44 @@ async function removeToken() {
 </script>
 
 <style scoped>
+.instagram-setup-hint {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.instagram-section__head {
+  margin: 1.5rem 0 0.75rem;
+}
+
+.instagram-section__head:first-of-type {
+  margin-top: 0;
+}
+
+.instagram-section__title {
+  margin: 0;
+  color: var(--primary);
+  font-family: 'Gilda Display', serif;
+  font-size: 1.4rem;
+  font-weight: normal;
+  letter-spacing: 0.02em;
+}
+
+.instagram-section__hint {
+  margin: 0.2rem 0 0;
+  color: var(--muted);
+  font-family: system-ui, sans-serif;
+  font-size: 0.8rem;
+}
+
+.instagram-settings-head {
+  margin-top: 2.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
 .instagram-error {
   margin: 0.8rem 0 0;
   word-break: break-word;

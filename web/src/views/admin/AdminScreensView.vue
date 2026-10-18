@@ -9,7 +9,60 @@
         </p>
       </div>
 
+      <div class="admin-actions-row">
+        <button class="admin-btn admin-btn--primary" type="button" @click="showCreate = !showCreate">
+          {{ showCreate ? 'Cancelar' : '+ Nova tela' }}
+        </button>
+      </div>
     </header>
+
+    <form v-if="showCreate" class="admin-card screen-create" @submit.prevent="submitCreate">
+      <div class="admin-card__header">
+        <div>
+          <h2 class="admin-card__title">Nova tela</h2>
+          <p class="admin-card__hint">
+            Ela aparece nas abas de Fotos e no menu do site em <code>/galeria/&lt;identificador&gt;</code>.
+          </p>
+        </div>
+      </div>
+
+      <div class="screen-create__grid">
+        <label class="admin-field">
+          <span class="admin-label">Nome</span>
+          <input v-model="createForm.name" class="admin-input" maxlength="80" required placeholder="Ex.: Noivas" />
+        </label>
+
+        <label class="admin-field">
+          <span class="admin-label">Identificador (opcional)</span>
+          <input v-model="createForm.id" class="admin-input" maxlength="60" placeholder="gerado do nome" />
+        </label>
+
+        <label class="admin-field">
+          <span class="admin-label">Tipo</span>
+          <select v-model="createForm.kind" class="admin-select">
+            <option value="gallery">Galeria de fotos</option>
+            <option value="partnerships">Parcerias (com marcas)</option>
+            <option value="single">Imagem única</option>
+          </select>
+        </label>
+      </div>
+
+      <label class="admin-field">
+        <span class="admin-label">Descrição (opcional)</span>
+        <input v-model="createForm.description" class="admin-input" maxlength="240" placeholder="Aparece no topo da página" />
+      </label>
+
+      <label class="admin-checkbox">
+        <input v-model="createForm.visible" type="checkbox" />
+        Publicar a tela no site
+      </label>
+
+      <div class="admin-actions-row">
+        <button class="admin-btn admin-btn--primary" type="submit" :disabled="creatingScreen">
+          {{ creatingScreen ? 'Criando…' : 'Criar tela' }}
+        </button>
+      </div>
+    </form>
 
     <div v-if="isPending" class="admin-card">
       <p class="admin-empty">Carregando telas…</p>
@@ -199,6 +252,44 @@ import ConfirmDialog from '@/components/admin/ConfirmDialog.vue'
 
 const toast = useAdminToast()
 
+const showCreate = ref(false)
+const creatingScreen = ref(false)
+const createForm = reactive({
+  name: '',
+  id: '',
+  description: '',
+  kind: 'gallery',
+  visible: true
+})
+
+async function submitCreate() {
+  if (!createForm.name.trim()) return
+
+  creatingScreen.value = true
+
+  try {
+    await adminService.createScreen({
+      name: createForm.name.trim(),
+      id: createForm.id.trim() || undefined,
+      description: createForm.description.trim(),
+      kind: createForm.kind,
+      visible: createForm.visible
+    })
+    toast.success('Tela criada.')
+    showCreate.value = false
+    createForm.name = ''
+    createForm.id = ''
+    createForm.description = ''
+    createForm.kind = 'gallery'
+    createForm.visible = true
+    await refetch()
+  } catch (error) {
+    toast.error(error.message || 'Não foi possível criar a tela.')
+  } finally {
+    creatingScreen.value = false
+  }
+}
+
 const {
   data,
   isPending,
@@ -360,6 +451,22 @@ async function confirmDeleteGroup() {
 </script>
 
 <style scoped>
+.screen-create {
+  margin-bottom: 1rem;
+}
+
+.screen-create__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr) minmax(0, 1.2fr);
+  gap: 0.75rem;
+}
+
+@media (max-width: 760px) {
+  .screen-create__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .screens-list {
   display: grid;
   gap: 1rem;

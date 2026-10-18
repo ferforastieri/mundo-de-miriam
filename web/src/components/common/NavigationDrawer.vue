@@ -218,9 +218,26 @@ function imageForScreen(screenId) {
   return screen.photos?.[0]?.url || null
 }
 
-const links = computed(() =>
-  MENU_LINKS.map((link) => ({ ...link, image: imageForScreen(link.screen) }))
-)
+const fixedScreens = new Set(MENU_LINKS.map((link) => link.screen))
+
+const links = computed(() => {
+  const fixed = MENU_LINKS.map((link) => ({
+    ...link,
+    image: imageForScreen(link.screen)
+  }))
+
+  const extra = (galleryData.value?.screens || [])
+    .filter((screen) => !fixedScreens.has(screen.id))
+    .filter((screen) => screen.kind === 'gallery' || screen.kind === 'partnerships')
+    .map((screen) => ({
+      to: `/galeria/${screen.id}`,
+      label: screen.name,
+      category: 'Galeria',
+      image: imageForScreen(screen.id)
+    }))
+
+  return [...fixed, ...extra]
+})
 
 const themeOptions = [
   { value: 'light', label: 'Claro' },
