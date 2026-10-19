@@ -43,6 +43,55 @@ async function request(path, options = {}) {
   return payload
 }
 
+function uploadWithProgress(path, file, method = 'POST', onProgress = null) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest()
+    xhr.open(method, path, true)
+    xhr.withCredentials = true
+    xhr.setRequestHeader('Accept', 'application/json')
+    xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream')
+
+    xhr.upload.addEventListener('progress', (event) => {
+      if (event.lengthComputable && typeof onProgress === 'function') {
+        onProgress(event.loaded / event.total)
+      }
+    })
+
+    xhr.addEventListener('load', () => {
+      let payload = null
+
+      try {
+        payload = xhr.responseText ? JSON.parse(xhr.responseText) : null
+      } catch {
+        payload = xhr.responseText
+      }
+
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve(payload)
+        return
+      }
+
+      reject(
+        new HttpError(payload?.error?.message, {
+          status: xhr.status,
+          code: payload?.error?.code,
+          details: payload?.error?.details
+        })
+      )
+    })
+
+    xhr.addEventListener('error', () => {
+      reject(new HttpError('Falha de rede ao enviar o arquivo.'))
+    })
+
+    xhr.addEventListener('abort', () => {
+      reject(new HttpError('Envio cancelado.'))
+    })
+
+    xhr.send(file)
+  })
+}
+
 class HttpClient {
   get(path) {
     return request(path)
@@ -76,12 +125,8 @@ class HttpClient {
     return request(path, { method: 'DELETE' })
   }
 
-  upload(path, file, method = 'POST') {
-    return request(path, {
-      method,
-      headers: { 'Content-Type': file.type || 'application/octet-stream' },
-      body: file
-    })
+  upload(path, file, method = 'POST', onProgress = null) {
+    return uploadWithProgress(path, file, method, onProgress)
   }
 }
 

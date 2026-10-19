@@ -18,7 +18,7 @@ import PageBackButton from '@/components/common/PageBackButton.vue'
   background: var(--page-bg);
   display: flex;
   justify-content: center;
-  padding: 20px 20px 88px;
+  padding: 20px 20px 120px;
   position: fixed;
   top: 0;
   left: 0;
@@ -60,7 +60,7 @@ import PageBackButton from '@/components/common/PageBackButton.vue'
 @media (max-width: 480px) {
   .portfolio-layout {
     left: 0;
-    padding: 10px 10px calc(86px + env(safe-area-inset-bottom));
+    padding: 10px 10px calc(120px + env(safe-area-inset-bottom));
   }
 
   .layout-back-button { top: 1rem; left: 1rem; }

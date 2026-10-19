@@ -52,10 +52,46 @@
         <UploadDropzone
           :busy="uploading"
           :disabled="!canUpload"
-          :uploading-names="uploadingNames"
           :hint="uploadHint"
           @files="handleFiles"
         />
+
+        <section v-if="uploads.length > 0" class="upload-queue">
+          <div class="upload-queue__head">
+            <strong>{{ uploadSummary.done }} de {{ uploadSummary.total }} arquivo(s) enviados</strong>
+            <button v-if="!uploading" class="admin-btn admin-btn--small" type="button" @click="uploads = []">
+              Fechar
+            </button>
+          </div>
+
+          <div
+            class="upload-queue__bar"
+            role="progressbar"
+            :aria-valuenow="uploadProgress"
+            aria-valuemin="0"
+            aria-valuemax="100"
+          >
+            <span :style="{ width: `${uploadProgress}%` }"></span>
+          </div>
+
+          <ul class="upload-queue__list">
+            <li
+              v-for="item in uploads"
+              :key="item.id"
+              class="upload-queue__item"
+              :class="`upload-queue__item--${item.status}`"
+            >
+              <span class="upload-queue__name">{{ item.name }}</span>
+              <span class="upload-queue__state">
+                <template v-if="item.status === 'queued'">na fila</template>
+                <template v-else-if="item.status === 'uploading'">{{ item.progress }}%</template>
+                <template v-else-if="item.status === 'done'">enviado</template>
+                <template v-else>falhou</template>
+              </span>
+              <span class="upload-queue__item-bar"><span :style="{ width: `${item.progress}%` }"></span></span>
+            </li>
+          </ul>
+        </section>
 
         <p v-if="isPartnerships && !selectedGroupId" class="admin-alert">
           Selecione ou crie uma marca acima para enviar e organizar as fotos desta parceria.
@@ -114,9 +150,6 @@
                 <button class="admin-btn admin-btn--small" type="button" @click="openEdit(photo)">
                   Editar
                 </button>
-                <button class="admin-btn admin-btn--small" type="button" @click="chooseReplacement(photo)">
-                  Substituir
-                </button>
                 <button class="admin-btn admin-btn--small" type="button" @click="toggleVisible(photo)">
                   {{ photo.visible ? 'Ocultar' : 'Mostrar' }}
                 </button>
@@ -163,13 +196,6 @@
       @cancel="photoToDelete = null"
     />
 
-    <input
-      ref="replaceInput"
-      class="admin-sr-only"
-      type="file"
-      accept="image/jpeg,image/png,image/webp,image/gif,image/avif,video/mp4,video/webm,video/quicktime"
-      @change="handleReplacement"
-    />
   </div>
 </template>
 
@@ -300,7 +326,7 @@ const {
 } = useQuery({
   queryKey: ['admin-photos', selectedScreenId, selectedGroupId, page],
   queryFn: () =>
-    adminService.getPhotos(selectedScreenId.value, selectedGroupId.value || null, page.value, 12),
+    adminService.getPhotos(selectedScreenId.value, selectedGroupId.value || null, page.value, 60),
   enabled: photosEnabled
 })
 
@@ -346,8 +372,21 @@ function selectGroup(groupId) {
   selectedGroupId.value = groupId
 }
 
-const uploading = ref(false)
-const uploadingNames = ref([])
+const uploads = ref([])
+const uploading = computed(() =>
+  uploads.value.some((item) => item.status === 'queued' || item.status === 'uploading')
+)
+
+const uploadSummary = computed(() => ({
+  done: uploads.value.filter((item) => item.status === 'done').length,
+  total: uploads.value.length
+}))
+
+const uploadProgress = computed(() => {
+  if (uploads.value.length === 0) return 0
+  const total = uploads.value.reduce((sum, item) => sum + Number(item.progress || 0), 0)
+  return Math.round(total / uploads.value.length)
+})
 
 async function handleFiles(files) {
   if (!selectedScreen.value || !canUpload.value) {
@@ -355,9 +394,7 @@ async function handleFiles(files) {
     return
   }
 
-  uploading.value = true
-  uploadingNames.value = files.map((file) => file.name)
-  let successCount = 0
+  const queue = []
 
   for (const file of files) {
     if (file.size > fileSizeLimit(file)) {
@@ -367,24 +404,68 @@ async function handleFiles(files) {
       continue
     }
 
-    try {
-      await adminService.uploadPhoto({
-        screenId: selectedScreenId.value,
-        groupId: selectedGroupId.value || null,
-        file
-      })
-      successCount += 1
-    } catch (error) {
-      toast.error(`${file.name}: ${error.message || 'falha no envio.'}`)
+    queue.push({
+      id: `${Date.now()}-${queue.length}-${Math.random().toString(36).slice(2, 8)}`,
+      name: file.name,
+      type: file.type,
+      file,
+      progress: 0,
+      status: 'queued',
+      error: null
+    })
+  }
+
+  if (queue.length === 0) return
+
+  uploads.value = queue
+  const targetScreenId = selectedScreenId.value
+  const targetGroupId = selectedGroupId.value || null
+  let successCount = 0
+  let cursor = 0
+
+  async function worker() {
+    while (cursor < queue.length) {
+      const item = queue[cursor]
+      cursor += 1
+      item.status = 'uploading'
+
+      try {
+        await adminService.uploadPhoto({
+          screenId: targetScreenId,
+          groupId: targetGroupId,
+          file: item.file,
+          onProgress: (fraction) => {
+            item.progress = Math.max(1, Math.min(99, Math.round(fraction * 100)))
+          }
+        })
+        item.progress = 100
+        item.status = 'done'
+        successCount += 1
+      } catch (error) {
+        item.progress = 100
+        item.status = 'error'
+        item.error = error.message || 'falha no envio'
+      }
     }
   }
 
-  uploading.value = false
-  uploadingNames.value = []
+  await Promise.all(
+    Array.from({ length: Math.min(2, queue.length) }, () => worker())
+  )
 
   if (successCount > 0) {
-    toast.success(`${successCount} foto${successCount === 1 ? '' : 's'} enviada${successCount === 1 ? '' : 's'}.`)
+    toast.success(
+      `${successCount} arquivo${successCount === 1 ? '' : 's'} enviado${successCount === 1 ? '' : 's'}.`
+    )
     await Promise.all([refetchPhotos(), refetchScreens()])
+  }
+
+  const failures = queue.filter((item) => item.status === 'error')
+
+  if (failures.length > 0) {
+    toast.error(
+      `${failures.length} arquivo${failures.length === 1 ? '' : 's'} não pôde${failures.length === 1 ? '' : 'ram'} ser enviado${failures.length === 1 ? '' : 's'}.`
+    )
   }
 }
 
@@ -492,38 +573,6 @@ async function confirmDelete() {
   }
 }
 
-const replaceInput = ref(null)
-const photoToReplace = ref(null)
-
-function chooseReplacement(photo) {
-  photoToReplace.value = photo
-  replaceInput.value?.click()
-}
-
-async function handleReplacement(event) {
-  const file = event.target.files?.[0]
-  event.target.value = ''
-
-  if (!file || !photoToReplace.value) return
-
-  if (file.size > fileSizeLimit(file)) {
-    toast.error(
-      String(file.type).startsWith('video/')
-        ? 'O vídeo deve ter no máximo 50 MB.'
-        : 'A imagem deve ter no máximo 20 MB.'
-    )
-    return
-  }
-
-  try {
-    await adminService.replacePhotoFile(photoToReplace.value.id, file)
-    toast.success('Arquivo substituído.')
-    photoToReplace.value = null
-    await refetchPhotos()
-  } catch (error) {
-    toast.error(error.message || 'Não foi possível substituir o arquivo.')
-  }
-}
 
 const showGroupForm = ref(false)
 const newGroupName = ref('')
@@ -585,6 +634,99 @@ async function createGroup() {
 .partnerships-bar__form .admin-input {
   flex: 1;
   min-width: 180px;
+}
+
+.upload-queue {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.upload-queue__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  color: var(--muted);
+  font-family: system-ui, sans-serif;
+  font-size: 0.82rem;
+}
+
+.upload-queue__bar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--surface-muted);
+  overflow: hidden;
+}
+
+.upload-queue__bar > span {
+  display: block;
+  height: 100%;
+  background: var(--primary);
+  transition: width 0.2s ease;
+}
+
+.upload-queue__list {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  max-height: 190px;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.upload-queue__item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.15rem 0.6rem;
+  font-family: system-ui, sans-serif;
+  font-size: 0.78rem;
+}
+
+.upload-queue__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text);
+}
+
+.upload-queue__state {
+  color: var(--muted);
+}
+
+.upload-queue__item--done .upload-queue__state {
+  color: #2f6f4f;
+}
+
+.upload-queue__item--error .upload-queue__state {
+  color: #b42318;
+}
+
+.upload-queue__item-bar {
+  grid-column: 1 / -1;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--surface-muted);
+  overflow: hidden;
+}
+
+.upload-queue__item-bar > span {
+  display: block;
+  height: 100%;
+  background: var(--primary);
+  transition: width 0.2s ease;
+}
+
+.upload-queue__item--done .upload-queue__item-bar > span {
+  background: #2f6f4f;
+}
+
+.upload-queue__item--error .upload-queue__item-bar > span {
+  background: #b42318;
 }
 
 .photos-workspace {

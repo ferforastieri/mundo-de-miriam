@@ -92,7 +92,7 @@ class AdminService {
     return http.get(`/api/admin/photos${queryString({ screenId, groupId, page, pageSize })}`)
   }
 
-  uploadPhoto({ screenId, groupId, file, alt = '', caption = '' }) {
+  uploadPhoto({ screenId, groupId, file, alt = '', caption = '', onProgress = null }) {
     return http.upload(
       `/api/admin/photos/upload${queryString({
         screenId,
@@ -101,7 +101,9 @@ class AdminService {
         alt,
         caption
       })}`,
-      file
+      file,
+      'POST',
+      onProgress
     )
   }
 
