@@ -13,7 +13,7 @@
   flex: 0 0 auto;
   padding: 2px;
   border: 1px solid var(--border);
-  border-radius: 50%;
+  border-radius: 8px;
   background: var(--surface);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 }
@@ -22,7 +22,7 @@
   display: block;
   width: 100%;
   height: 100%;
-  border-radius: 50%;
+  border-radius: 6px;
   object-fit: cover;
 }
 </style>

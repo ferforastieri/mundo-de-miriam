@@ -477,7 +477,7 @@ onBeforeUnmount(() => {
   place-items: center;
   color: var(--on-primary);
   background: var(--primary);
-  border-radius: 50%;
+  border-radius: 8px;
   font-family: 'Gilda Display', serif;
   font-size: 1.3rem;
 }
@@ -662,7 +662,7 @@ html.menu-is-open body { overflow: hidden; }
   .menu-trigger:hover { box-shadow: none; }
   .menu-trigger__mark { width: 48px; height: 48px; padding: 2px; background: var(--surface); border: 0; }
   .menu-trigger__letter { display: none; }
-  .menu-trigger__mark img { display: block; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+  .menu-trigger__mark img { display: block; width: 100%; height: 100%; border-radius: 6px; object-fit: cover; }
   .menu-trigger__badge {
     position: absolute;
     right: -3px;
@@ -872,9 +872,9 @@ html.menu-is-open body { overflow: hidden; }
     padding: 3px;
     place-items: center;
     background: var(--surface);
-    border-radius: 50%;
+    border-radius: 8px;
   }
-  .editorial-menu__mobile-close-mark img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+  .editorial-menu__mobile-close-mark img { width: 100%; height: 100%; border-radius: 6px; object-fit: cover; }
   .editorial-menu__mobile-close-badge {
     position: absolute;
     right: -3px;

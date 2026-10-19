@@ -23,17 +23,14 @@
           <div class="admin-card__header">
             <div>
               <h2 class="admin-card__title">Instagram</h2>
-              <p class="admin-card__hint">
-                <template v-if="instagram.state.username">@{{ instagram.state.username }} · </template>
-                último snapshot salvo no banco
+              <p v-if="instagram.state.username" class="admin-card__hint">
+                @{{ instagram.state.username }}
               </p>
             </div>
 
             <div class="admin-actions-row">
               <span v-if="!instagram.state.configured" class="admin-tag admin-tag--warning">Token não configurado</span>
               <span v-else-if="instagram.state.lastError" class="admin-tag admin-tag--danger">Última coleta falhou</span>
-              <span v-else-if="instagram.latest" class="admin-tag admin-tag--success">Dados disponíveis</span>
-              <span v-else class="admin-tag">Sem dados ainda</span>
             </div>
           </div>
 
@@ -59,9 +56,6 @@
             <RouterLink class="admin-btn admin-btn--small" :to="{ name: 'AdminInstagram' }">
               Gerenciar Instagram
             </RouterLink>
-            <span v-if="instagram.state.lastSuccessAt" class="admin-muted">
-              Última coleta: {{ formatDateTime(instagram.state.lastSuccessAt) }}
-            </span>
           </div>
 
           <p v-if="instagram.state.lastError" class="admin-alert admin-alert--error dashboard-error">
@@ -73,7 +67,6 @@
           <div class="admin-card__header">
             <div>
               <h2 class="admin-card__title">Acervo de fotos</h2>
-              <p class="admin-card__hint">Todas as imagens gerenciadas no Cloudflare R2</p>
             </div>
             <RouterLink class="admin-btn admin-btn--small" :to="{ name: 'AdminPhotos' }">
               Gerenciar fotos

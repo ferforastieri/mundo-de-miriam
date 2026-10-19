@@ -37,8 +37,24 @@
               <path d="M20.3 15.4A8.5 8.5 0 0 1 8.6 3.7 8.5 8.5 0 1 0 20.3 15.4Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </button>
-          <a class="admin-btn admin-btn--ghost admin-btn--small" href="/" target="_blank" rel="noopener noreferrer">
-            Ver site ↗
+          <a
+            class="admin-btn admin-btn--ghost admin-btn--small admin-visit"
+            href="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Ver site"
+            title="Ver site"
+          >
+            <svg class="admin-visit__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <span class="admin-visit__label">Ver site</span>
           </a>
           <button class="admin-btn admin-btn--small" type="button" :disabled="loggingOut" @click="handleLogout">
             {{ loggingOut ? 'Saindo…' : 'Sair' }}
