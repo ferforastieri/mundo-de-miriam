@@ -44,11 +44,7 @@
         <div class="photos-toolbar">
           <label class="admin-field photos-toolbar__field">
             <span class="admin-label">Tela</span>
-            <select v-model="selectedScreenId" class="admin-select">
-              <option v-for="screen in screens" :key="screen.id" :value="screen.id">
-                {{ screen.name }} ({{ screen.photoCount }})
-              </option>
-            </select>
+            <AdminSelect v-model="selectedScreenId" :options="screenOptions" aria-label="Tela" />
           </label>
         </div>
 
@@ -185,6 +181,7 @@ import adminService from '@/api/admin/AdminService.js'
 import { useAdminToast } from '@/composables/useAdminToast'
 import { formatDateTime } from '@/utils/format.js'
 import AdminSkeleton from '@/components/admin/AdminSkeleton.vue'
+import AdminSelect from '@/components/admin/AdminSelect.vue'
 import PaginationBar from '@/components/admin/PaginationBar.vue'
 import AdminIcon from '@/components/admin/AdminIcon.vue'
 
@@ -210,6 +207,13 @@ const {
 })
 
 const screens = computed(() => screensData.value?.screens || [])
+
+const screenOptions = computed(() =>
+  screens.value.map((screen) => ({
+    value: screen.id,
+    label: `${screen.name} (${screen.photoCount})`
+  }))
+)
 const instagramConfigured = computed(() => Boolean(instagramData.value?.state?.configured))
 const publishedLast24h = computed(() => instagramData.value?.publishedLast24h || 0)
 

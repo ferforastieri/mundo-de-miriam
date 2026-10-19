@@ -27,15 +27,12 @@
       <div class="photos-toolbar">
         <label class="admin-field photos-toolbar__field">
           <span class="admin-label">Tela</span>
-          <select
-            class="admin-select"
-            :value="selectedScreenId"
-            @change="selectScreen($event.target.value)"
-          >
-            <option v-for="screen in screens" :key="screen.id" :value="screen.id">
-              {{ screen.name }} ({{ screen.photoCount }})
-            </option>
-          </select>
+          <AdminSelect
+            :model-value="selectedScreenId"
+            :options="screenOptions"
+            aria-label="Tela"
+            @change="selectScreen"
+          />
         </label>
       </div>
 
@@ -43,16 +40,12 @@
         <div class="partnerships-bar__groups">
           <label class="admin-field partnerships-bar__field">
             <span class="admin-label">Marca / parceria</span>
-            <select
-              class="admin-select"
-              :value="selectedGroupId"
-              @change="selectGroup($event.target.value)"
-            >
-              <option v-if="groups.length === 0" value="">Nenhuma marca cadastrada</option>
-              <option v-for="group in groups" :key="group.id" :value="group.id">
-                {{ group.name }} ({{ group.photoCount }})
-              </option>
-            </select>
+            <AdminSelect
+              :model-value="selectedGroupId"
+              :options="groupOptions"
+              aria-label="Marca / parceria"
+              @change="selectGroup"
+            />
           </label>
         </div>
 
@@ -204,7 +197,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { useQuery } from '@tanstack/vue-query'
 import adminService from '@/api/admin/AdminService.js'
 import { useAdminToast } from '@/composables/useAdminToast'
-import UploadDropzone from '@/components/admin/UploadDropzone.vue'
+import { UploadDropzone } from '@/components/common'
+import AdminSelect from '@/components/admin/AdminSelect.vue'
 import AdminSkeleton from '@/components/admin/AdminSkeleton.vue'
 import PaginationBar from '@/components/admin/PaginationBar.vue'
 import PhotoEditModal from '@/components/admin/PhotoEditModal.vue'
@@ -230,6 +224,13 @@ const {
 
 const screens = computed(() => screensData.value?.screens || [])
 
+const screenOptions = computed(() =>
+  screens.value.map((screen) => ({
+    value: screen.id,
+    label: `${screen.name} (${screen.photoCount})`
+  }))
+)
+
 const page = ref(1)
 const selectedScreenId = ref(typeof route.query.screen === 'string' ? route.query.screen : '')
 const selectedGroupId = ref(typeof route.query.group === 'string' ? route.query.group : '')
@@ -238,6 +239,15 @@ const selectedScreen = computed(() =>
   screens.value.find((screen) => screen.id === selectedScreenId.value) || null
 )
 const groups = computed(() => selectedScreen.value?.groups || [])
+
+const groupOptions = computed(() =>
+  groups.value.length > 0
+    ? groups.value.map((group) => ({
+        value: group.id,
+        label: `${group.name} (${group.photoCount})`
+      }))
+    : [{ value: '', label: 'Nenhuma marca cadastrada' }]
+)
 const isPartnerships = computed(() => selectedScreen.value?.kind === 'partnerships')
 const canUpload = computed(() =>
   Boolean(selectedScreen.value) && (!isPartnerships.value || Boolean(selectedGroupId.value))

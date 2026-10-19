@@ -97,7 +97,10 @@
         <div v-if="navOpen" class="admin-drawer" @click.self="navOpen = false">
           <aside class="admin-drawer__panel" role="dialog" aria-modal="true" aria-label="Menu do painel">
             <header class="admin-drawer__head">
-              <span class="admin-drawer__brand">Mundo de Miriam</span>
+              <span class="admin-drawer__brand">
+                <BrandMark class="admin-drawer__mark" />
+                Mundo de Miriam
+              </span>
               <button class="admin-drawer__close" type="button" aria-label="Fechar menu" @click="navOpen = false">
                 <AdminIcon name="close" />
               </button>

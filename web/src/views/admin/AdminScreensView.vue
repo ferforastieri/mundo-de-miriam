@@ -37,24 +37,26 @@
           </div>
 
           <div class="admin-actions-row">
-            <button
-              class="admin-btn admin-btn--small"
-              type="button"
-              :disabled="index === 0"
-              title="Mover para cima"
-              @click="moveScreen(index, -1)"
-            >
-              ↑
-            </button>
-            <button
-              class="admin-btn admin-btn--small"
-              type="button"
-              :disabled="index === screens.length - 1"
-              title="Mover para baixo"
-              @click="moveScreen(index, 1)"
-            >
-              ↓
-            </button>
+            <div class="screen-card__movers">
+              <button
+                class="admin-btn admin-btn--small"
+                type="button"
+                :disabled="index === 0"
+                title="Mover para cima"
+                @click="moveScreen(index, -1)"
+              >
+                ↑
+              </button>
+              <button
+                class="admin-btn admin-btn--small"
+                type="button"
+                :disabled="index === screens.length - 1"
+                title="Mover para baixo"
+                @click="moveScreen(index, 1)"
+              >
+                ↓
+              </button>
+            </div>
             <span class="admin-tag" :class="screen.visible ? 'admin-tag--success' : ''">
               {{ screen.visible ? 'Publicada' : 'Oculta' }}
             </span>
@@ -92,11 +94,11 @@
 
             <label class="admin-field">
               <span class="admin-label">Ícone</span>
-              <select v-model="drafts[screen.id].icon" class="admin-select">
-                <option v-for="icon in SCREEN_ICONS" :key="icon.value" :value="icon.value">
-                  {{ icon.label }}
-                </option>
-              </select>
+              <AdminSelect
+                v-model="drafts[screen.id].icon"
+                :options="SCREEN_ICONS"
+                aria-label="Ícone"
+              />
             </label>
           </div>
 
@@ -151,16 +153,12 @@
             <div class="screen-share__row">
               <label class="admin-field">
                 <span class="admin-label">Nova validade</span>
-                <select
-                  class="admin-select"
-                  :value="shareExpiry[screen.id]"
-                  :disabled="sharingScreenId === screen.id"
-                  @change="updateShareExpiry(screen, $event.target.value)"
-                >
-                  <option v-for="option in SHARE_EXPIRY_OPTIONS" :key="option.value" :value="option.value">
-                    {{ option.label }}
-                  </option>
-                </select>
+                <AdminSelect
+                  :model-value="shareExpiry[screen.id]"
+                  :options="SHARE_EXPIRY_OPTIONS"
+                  aria-label="Nova validade"
+                  @change="updateShareExpiry(screen, $event)"
+                />
               </label>
 
               <button
@@ -306,11 +304,7 @@
 
         <label class="admin-field">
           <span class="admin-label">Tipo</span>
-          <select v-model="createForm.kind" class="admin-select">
-            <option value="gallery">Galeria de fotos</option>
-            <option value="partnerships">Parcerias (com marcas)</option>
-            <option value="single">Imagem única</option>
-          </select>
+          <AdminSelect v-model="createForm.kind" :options="KIND_OPTIONS" aria-label="Tipo" />
         </label>
       </div>
 
@@ -332,31 +326,23 @@
 
         <label class="admin-field">
           <span class="admin-label">Ícone</span>
-          <select v-model="createForm.icon" class="admin-select">
-            <option v-for="icon in SCREEN_ICONS" :key="icon.value" :value="icon.value">
-              {{ icon.label }}
-            </option>
-          </select>
+          <AdminSelect v-model="createForm.icon" :options="SCREEN_ICONS" aria-label="Ícone" />
         </label>
       </div>
 
       <div class="screen-create__grid screen-create__grid--pair">
         <label class="admin-field">
           <span class="admin-label">Publicação</span>
-          <select v-model="createForm.access" class="admin-select">
-            <option value="public">Publicada no site (aparece no menu)</option>
-            <option value="link">Link privado (só quem tem o link)</option>
-            <option value="draft">Rascunho (não publica)</option>
-          </select>
+          <AdminSelect v-model="createForm.access" :options="ACCESS_OPTIONS" aria-label="Publicação" />
         </label>
 
         <label v-if="createForm.access === 'link'" class="admin-field">
           <span class="admin-label">Validade do link</span>
-          <select v-model="createForm.expiresInDays" class="admin-select">
-            <option v-for="option in SHARE_EXPIRY_OPTIONS" :key="option.value" :value="option.value">
-              {{ option.label }}
-            </option>
-          </select>
+          <AdminSelect
+            v-model="createForm.expiresInDays"
+            :options="SHARE_EXPIRY_OPTIONS"
+            aria-label="Validade do link"
+          />
         </label>
       </div>
 
@@ -399,11 +385,24 @@ import adminService from '@/api/admin/AdminService.js'
 import { useAdminToast } from '@/composables/useAdminToast'
 import ConfirmDialog from '@/components/admin/ConfirmDialog.vue'
 import AdminSkeleton from '@/components/admin/AdminSkeleton.vue'
+import AdminSelect from '@/components/admin/AdminSelect.vue'
 import AdminModal from '@/components/admin/AdminModal.vue'
 import PaginationBar from '@/components/admin/PaginationBar.vue'
 import { formatDate } from '@/utils/format.js'
 
 const toast = useAdminToast()
+
+const KIND_OPTIONS = [
+  { value: 'gallery', label: 'Galeria de fotos' },
+  { value: 'partnerships', label: 'Parcerias (com marcas)' },
+  { value: 'single', label: 'Imagem única' }
+]
+
+const ACCESS_OPTIONS = [
+  { value: 'public', label: 'Publicada no site (aparece no menu)' },
+  { value: 'link', label: 'Link privado (só quem tem o link)' },
+  { value: 'draft', label: 'Rascunho (não publica)' }
+]
 
 const SCREEN_ICONS = [
   { value: 'image', label: 'Imagem / galeria' },

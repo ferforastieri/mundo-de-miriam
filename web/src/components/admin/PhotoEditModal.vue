@@ -30,21 +30,21 @@
           <div class="photo-edit__row">
             <label class="admin-field">
               <span class="admin-label">Tela</span>
-              <select v-model="form.screenId" class="admin-select" @change="handleScreenChange">
-                <option v-for="screen in screens" :key="screen.id" :value="screen.id">
-                  {{ screen.name }}
-                </option>
-              </select>
+              <AdminSelect
+                v-model="form.screenId"
+                :options="screenOptions"
+                aria-label="Tela"
+                @change="handleScreenChange"
+              />
             </label>
 
             <label v-if="targetScreen?.kind === 'partnerships'" class="admin-field">
               <span class="admin-label">Marca / parceria</span>
-              <select v-model="form.groupId" class="admin-select">
-                <option value="">Selecione…</option>
-                <option v-for="group in targetGroups" :key="group.id" :value="group.id">
-                  {{ group.name }}
-                </option>
-              </select>
+              <AdminSelect
+                v-model="form.groupId"
+                :options="groupOptions"
+                aria-label="Marca / parceria"
+              />
             </label>
           </div>
 
@@ -75,6 +75,7 @@
 <script setup>
 import { computed, reactive, watch } from 'vue'
 import { formatBytes } from '@/utils/format.js'
+import AdminSelect from '@/components/admin/AdminSelect.vue'
 
 const props = defineProps({
   open: { type: Boolean, default: false },
@@ -109,8 +110,17 @@ watch(
   { immediate: true }
 )
 
+const screenOptions = computed(() =>
+  props.screens.map((screen) => ({ value: screen.id, label: screen.name }))
+)
+
 const targetScreen = computed(() => props.screens.find((screen) => screen.id === form.screenId) || null)
 const targetGroups = computed(() => targetScreen.value?.groups || [])
+
+const groupOptions = computed(() => [
+  { value: '', label: 'Selecione…' },
+  ...targetGroups.value.map((group) => ({ value: group.id, label: group.name }))
+])
 
 function handleScreenChange() {
   form.groupId = ''

@@ -9,7 +9,7 @@
       </div>
     </header>
 
-    <div class="admin-grid-2">
+    <div class="admin-stack">
       <section class="admin-card">
         <div class="admin-card__header">
           <div>
@@ -18,42 +18,36 @@
           </div>
         </div>
 
-        <div class="account-avatar">
-          <img
-            v-if="admin?.avatarUrl"
-            class="account-avatar__image"
-            :src="admin.avatarUrl"
-            alt="Sua foto"
-          />
-          <span v-else class="account-avatar__initials">{{ initials }}</span>
-        </div>
-
-        <div class="admin-actions-row">
-          <label class="admin-btn admin-btn--primary admin-btn--small account-upload">
-            <AdminIcon name="upload" />
-            {{ uploading ? 'Enviando…' : 'Trocar foto' }}
-            <input
-              type="file"
-              accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
-              hidden
-              :disabled="uploading"
-              @change="handleAvatar"
+        <div class="account-avatar-row">
+          <div class="account-avatar">
+            <img
+              v-if="admin?.avatarUrl"
+              class="account-avatar__image"
+              :src="admin.avatarUrl"
+              alt="Sua foto"
             />
-          </label>
+            <span v-else class="account-avatar__initials">{{ initials }}</span>
+          </div>
 
-          <button
-            v-if="admin?.avatarUrl"
-            class="admin-btn admin-btn--small admin-btn--danger"
-            type="button"
-            :disabled="uploading"
-            @click="removeAvatar"
-          >
-            <AdminIcon name="trash" />
-            Remover
-          </button>
+          <div class="account-avatar-row__upload">
+            <UploadDropzone
+              :busy="uploading"
+              hint="JPG, PNG ou WebP · até 20 MB"
+              @files="handleAvatarFiles"
+            />
+
+            <button
+              v-if="admin?.avatarUrl"
+              class="admin-btn admin-btn--small admin-btn--danger"
+              type="button"
+              :disabled="uploading"
+              @click="removeAvatar"
+            >
+              <AdminIcon name="trash" />
+              Remover foto
+            </button>
+          </div>
         </div>
-
-        <p class="admin-card__hint">JPG, PNG ou WebP até 20 MB.</p>
 
         <hr class="admin-separator" />
 
@@ -125,6 +119,7 @@ import adminService from '@/api/admin/AdminService.js'
 import { useAdminAuth } from '@/composables/useAdminAuth'
 import { useAdminToast } from '@/composables/useAdminToast'
 import AdminIcon from '@/components/admin/AdminIcon.vue'
+import { UploadDropzone } from '@/components/common'
 
 const { state, loadMe } = useAdminAuth()
 const toast = useAdminToast()
@@ -138,9 +133,8 @@ const newPassword = ref('')
 const confirmPassword = ref('')
 const saving = ref(false)
 
-async function handleAvatar(event) {
-  const file = event.target.files?.[0]
-  event.target.value = ''
+async function handleAvatarFiles(files) {
+  const file = files?.[0]
 
   if (!file) return
 
@@ -199,12 +193,26 @@ async function submitPassword() {
 </script>
 
 <style scoped>
+.account-avatar-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.4rem;
+}
+
+.account-avatar-row__upload {
+  display: grid;
+  gap: 0.6rem;
+  flex: 1 1 280px;
+  min-width: 0;
+}
+
 .account-avatar {
   display: grid;
   place-items: center;
   width: 132px;
   height: 132px;
-  margin: 0.4rem 0 1rem;
   border: 1px solid var(--border);
   border-radius: 16px;
   background: var(--surface-muted);
