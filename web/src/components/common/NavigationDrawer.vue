@@ -163,7 +163,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import LanguageSwitcher from './LanguageSwitcher.vue'
 import StyledSelect from './StyledSelect.vue'
-import { usePublicGallery } from '@/composables/usePublicGallery'
+import { screenCover, screenPath, usePublicGallery } from '@/composables/usePublicGallery'
 
 const props = defineProps({
   isDark: {
@@ -175,7 +175,7 @@ const props = defineProps({
 const emit = defineEmits(['toggle-theme'])
 const route = useRoute()
 const isOpen = ref(false)
-const activePath = ref('/beauty-portfolio')
+const activePath = ref(route.path)
 const triggerButton = ref(null)
 const closeButton = ref(null)
 const mobileCloseButton = ref(null)
@@ -192,52 +192,37 @@ let dockElement = null
 const openGesture = { active: false, recognized: false, startX: 0, startY: 0, currentX: 0, currentY: 0, startTime: 0 }
 const closeGesture = { active: false, recognized: false, eligible: false, startX: 0, startY: 0, currentX: 0, currentY: 0, startTime: 0 }
 
-const MENU_LINKS = [
+// Páginas fixas do site (não são telas) + telas vindas do banco.
+const STATIC_LINKS = [
   { to: '/', label: 'Início', category: 'Boas-vindas', screen: 'profile' },
   { to: '/about', label: 'Sobre mim', category: 'História', screen: 'profile' },
-  { to: '/curriculum', label: 'Currículo', category: 'Experiência', screen: 'curriculum' },
-  { to: '/beauty-portfolio', label: 'Beauty', category: 'Maquiagem', screen: 'beauty' },
-  { to: '/artistic-portfolio', label: 'Artístico', category: 'Criação', screen: 'artistic' },
-  { to: '/ecommerce', label: 'E-commerce', category: 'Fotografia', screen: 'ecommerce' },
-  { to: '/partnerships', label: 'Parcerias', category: 'Colaborações', screen: 'partnerships' }
+  { to: '/curriculum', label: 'Currículo', category: 'Experiência', screen: 'curriculum' }
 ]
 
 const { data: galleryData } = usePublicGallery()
 
 function imageForScreen(screenId) {
-  const screen = galleryData.value?.screens?.find((item) => item.id === screenId)
-
-  if (!screen) return null
-
-  if (screen.groups?.length) {
-    const group = screen.groups.find((item) => item.photos?.length)
-    const cover = group?.photos?.find((photo) => photo.featured) || group?.photos?.[0]
-    return cover?.url || null
-  }
-
-  return screen.photos?.[0]?.url || null
+  return screenCover(galleryData.value?.screens?.find((item) => item.id === screenId))
 }
 
-const fixedScreens = new Set(MENU_LINKS.map((link) => link.screen))
-
-const links = computed(() => {
-  const fixed = MENU_LINKS.map((link) => ({
-    ...link,
-    image: imageForScreen(link.screen)
-  }))
-
-  const extra = (galleryData.value?.screens || [])
-    .filter((screen) => !fixedScreens.has(screen.id))
+const links = computed(() => [
+  ...STATIC_LINKS.map((link) => ({ ...link, image: imageForScreen(link.screen) })),
+  ...(galleryData.value?.screens || [])
     .filter((screen) => screen.kind === 'gallery' || screen.kind === 'partnerships')
     .map((screen) => ({
-      to: `/galeria/${screen.id}`,
-      label: screen.name,
-      category: 'Galeria',
-      image: imageForScreen(screen.id)
+      to: screenPath(screen),
+      label: screen.menuLabel,
+      category: screen.menuCategory,
+      image: screenCover(screen)
     }))
+])
 
-  return [...fixed, ...extra]
-})
+watch(
+  () => route.path,
+  (path) => {
+    activePath.value = path
+  }
+)
 
 const themeOptions = [
   { value: 'light', label: 'Claro' },

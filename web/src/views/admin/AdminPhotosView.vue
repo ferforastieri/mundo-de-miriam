@@ -251,7 +251,7 @@ watch(
     if (list.length === 0) return
 
     if (!list.some((screen) => screen.id === selectedScreenId.value)) {
-      const preferred = list.find((screen) => screen.id === 'beauty') || list[0]
+      const preferred = list[0]
       selectedScreenId.value = preferred.id
     }
   },

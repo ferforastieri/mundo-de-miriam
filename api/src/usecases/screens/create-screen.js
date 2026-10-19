@@ -1,3 +1,4 @@
+import { MAX_SCREEN_CATEGORY, MAX_SCREEN_LABEL, SCREEN_ICONS } from '../../config.js'
 import { badRequest, conflict } from '../../http/errors.js'
 import { toScreen } from '../../mappers/screen.mapper.js'
 import { nowIso } from '../../utils/dates.js'
@@ -13,7 +14,10 @@ export async function createScreen(container, {
   description = '',
   kind = 'gallery',
   visible = true,
-  sortOrder
+  sortOrder,
+  menuLabel,
+  menuCategory = '',
+  icon = 'image'
 }) {
   const cleanName = String(name || '').trim()
   const cleanDescription = String(description || '').trim()
@@ -28,6 +32,30 @@ export async function createScreen(container, {
 
   if (!KINDS.includes(kind)) {
     throw badRequest('invalid_kind', 'Tipo de tela inválido.')
+  }
+
+  const cleanLabel = menuLabel === undefined ? cleanName : String(menuLabel).trim()
+
+  if (!cleanLabel || cleanLabel.length > MAX_SCREEN_LABEL) {
+    throw badRequest(
+      'invalid_menu_label',
+      `O rótulo do menu deve ter entre 1 e ${MAX_SCREEN_LABEL} caracteres.`
+    )
+  }
+
+  const cleanCategory = String(menuCategory || '').trim()
+
+  if (cleanCategory.length > MAX_SCREEN_CATEGORY) {
+    throw badRequest(
+      'invalid_menu_category',
+      `A categoria do menu deve ter no máximo ${MAX_SCREEN_CATEGORY} caracteres.`
+    )
+  }
+
+  const iconKey = String(icon || 'image')
+
+  if (!SCREEN_ICONS.includes(iconKey)) {
+    throw badRequest('invalid_icon', 'Ícone inválido.')
   }
 
   const screenId = String(id || slugify(cleanName, 'tela')).trim()
@@ -57,6 +85,9 @@ export async function createScreen(container, {
     kind,
     sortOrder: order,
     isVisible: visible ? 1 : 0,
+    menuLabel: cleanLabel,
+    menuCategory: cleanCategory,
+    icon: iconKey,
     createdAt: now
   })
 

@@ -1,72 +1,34 @@
 <template>
   <nav class="navigation">
-    <CustomButton variant="outline" size="medium" full-width @click="navigateToAbout">
+    <CustomButton variant="outline" size="medium" full-width @click="go('/about')">
       <TranslatableText text="SOBRE MIM" />
     </CustomButton>
-    <CustomButton variant="outline" size="medium" full-width @click="navigateToCurriculum">
+    <CustomButton variant="outline" size="medium" full-width @click="go('/curriculum')">
       <TranslatableText text="CURRÍCULO" />
     </CustomButton>
-    <CustomButton variant="outline" size="medium" full-width @click="navigateToArtisticPortfolio">
-      <TranslatableText text="MAQUIAGEM ARTISTICA" />
-    </CustomButton>
-    <CustomButton variant="outline" size="medium" full-width @click="navigateToBeautyPortfolio">
-      <TranslatableText text="MAQUIAGEM BEAUTY" />
-    </CustomButton>
-    <CustomButton variant="outline" size="medium" full-width @click="navigateToEcommerce">
-      <TranslatableText text="FOTOGRAFIA E-COMMERCE" />
-    </CustomButton>
-    <CustomButton variant="outline" size="medium" full-width @click="navigateToPartnerships">
-      <TranslatableText text="PARCERIAS" />
+    <CustomButton
+      v-for="screen in screens"
+      :key="screen.id"
+      variant="outline"
+      size="medium"
+      full-width
+      @click="go(screenPath(screen))"
+    >
+      {{ screen.menuLabel.toUpperCase() }}
     </CustomButton>
   </nav>
 </template>
 
-<script>
+<script setup>
 import { useRouter } from 'vue-router'
 import { TranslatableText, CustomButton } from '../common'
+import { screenPath, usePublicScreens } from '@/composables/usePublicGallery'
 
-export default {
-  name: 'HomeNavigation',
-  components: {
-    TranslatableText,
-    CustomButton
-  },
-  setup() {
-    const router = useRouter()
-    
-    const navigateToBeautyPortfolio = () => {
-      router.push('/beauty-portfolio')
-    }
-    
-    const navigateToArtisticPortfolio = () => {
-      router.push('/artistic-portfolio')
-    }
-    
-    const navigateToPartnerships = () => {
-      router.push('/partnerships')
-    }
-    
-    const navigateToEcommerce = () => {
-      router.push('/ecommerce')
-    }
-    
-    const navigateToAbout = () => {
-      router.push('/about')
-    }
+const router = useRouter()
+const { screens } = usePublicScreens()
 
-    const navigateToCurriculum = () => {
-      router.push('/curriculum')
-    }
-
-    return {
-      navigateToCurriculum,
-      navigateToAbout,
-      navigateToBeautyPortfolio,
-      navigateToArtisticPortfolio,
-      navigateToPartnerships,
-      navigateToEcommerce
-    }
-  }
+function go(path) {
+  router.push(path)
 }
 </script>
 
@@ -79,7 +41,6 @@ export default {
   animation: slideUp 0.5s ease 0.2s backwards;
 }
 
-
 @keyframes slideUp {
   from {
     opacity: 0;
@@ -90,5 +51,4 @@ export default {
     transform: translateY(0);
   }
 }
-
 </style>

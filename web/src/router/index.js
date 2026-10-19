@@ -3,10 +3,6 @@ import { nextTick } from 'vue'
 import HomeView from '../views/home/HomeView.vue'
 import AboutView from '../views/about/AboutView.vue'
 import CurriculumView from '../views/curriculum/CurriculumView.vue'
-import BeautyPortfolio from '../views/portfolio/BeautyPortfolio.vue'
-import ArtisticPortfolio from '../views/portfolio/ArtisticPortfolio.vue'
-import PartnershipsPortfolio from '../views/portfolio/PartnershipsPortfolio.vue'
-import EcommercePortfolio from '../views/portfolio/EcommercePortfolio.vue'
 import AdminLayout from '../layouts/admin/AdminLayout.vue'
 import AdminLoginView from '../views/admin/AdminLoginView.vue'
 import { useAdminAuth } from '../composables/useAdminAuth'
@@ -28,26 +24,11 @@ const routes = [
     name: 'Curriculum',
     component: CurriculumView
   },
-  {
-    path: '/beauty-portfolio',
-    name: 'BeautyPortfolio',
-    component: BeautyPortfolio
-  },
-  {
-    path: '/artistic-portfolio',
-    name: 'ArtisticPortfolio',
-    component: ArtisticPortfolio
-  },
-  {
-    path: '/partnerships',
-    name: 'PartnershipsPortfolio',
-    component: PartnershipsPortfolio
-  },
-  {
-    path: '/ecommerce',
-    name: 'EcommercePortfolio',
-    component: EcommercePortfolio
-  },
+  // URLs antigas das telas → rota dinâmica (as telas vivem no banco)
+  { path: '/beauty-portfolio', redirect: '/galeria/beauty' },
+  { path: '/artistic-portfolio', redirect: '/galeria/artistic' },
+  { path: '/ecommerce', redirect: '/galeria/ecommerce' },
+  { path: '/partnerships', redirect: '/galeria/partnerships' },
   {
     path: '/galeria/:screenId',
     name: 'Gallery',

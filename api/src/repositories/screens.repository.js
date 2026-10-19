@@ -24,8 +24,9 @@ export function createScreensRepository(db) {
       await db
         .prepare(
           `INSERT INTO screens
-            (id, name, description, kind, sort_order, is_visible, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+            (id, name, description, kind, sort_order, is_visible, menu_label, menu_category, icon,
+             created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
         )
         .bind(
           screen.id,
@@ -34,20 +35,40 @@ export function createScreensRepository(db) {
           screen.kind,
           screen.sortOrder,
           screen.isVisible,
+          screen.menuLabel,
+          screen.menuCategory,
+          screen.icon,
           screen.createdAt,
           screen.createdAt
         )
         .run()
     },
 
-    async update(id, { name, description, sortOrder, isVisible, updatedAt }) {
+    async update(id, screen) {
       await db
         .prepare(
           `UPDATE screens
-           SET name = ?, description = ?, sort_order = ?, is_visible = ?, updated_at = ?
+           SET name = ?,
+               description = ?,
+               sort_order = ?,
+               is_visible = ?,
+               menu_label = ?,
+               menu_category = ?,
+               icon = ?,
+               updated_at = ?
            WHERE id = ?`
         )
-        .bind(name, description, sortOrder, isVisible, updatedAt, id)
+        .bind(
+          screen.name,
+          screen.description,
+          screen.sortOrder,
+          screen.isVisible,
+          screen.menuLabel,
+          screen.menuCategory,
+          screen.icon,
+          screen.updatedAt,
+          id
+        )
         .run()
     }
   }

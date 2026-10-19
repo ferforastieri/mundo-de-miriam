@@ -1,6 +1,7 @@
 import {
   ADMIN_ROBOTS,
   INDEXABLE_ROBOTS,
+  LEGACY_SCREEN_PATHS,
   SITE_NAME,
   SOCIAL_IMAGE,
   SOCIAL_IMAGE_ALT,
@@ -59,6 +60,13 @@ export async function serveHtmlWithSeo(request, env) {
     return env.ASSETS.fetch(request)
   }
 
+  // URLs antigas das telas: redireciona para a rota dinâmica.
+  const legacyScreenId = LEGACY_SCREEN_PATHS[url.pathname.replace(/\/+$/, '') || '/']
+
+  if (legacyScreenId) {
+    return Response.redirect(`${url.origin}/galeria/${legacyScreenId}${url.search}`, 301)
+  }
+
   const assetResponse = await env.ASSETS.fetch(request)
   const contentType = assetResponse.headers.get('content-type') || ''
 
@@ -87,7 +95,7 @@ export async function serveHtmlWithSeo(request, env) {
     : isAdmin
       ? ADMIN_DESCRIPTION
       : dynamicScreen
-        ? dynamicScreen.description || 'Galeria de fotos por Miriam Cléres Forastieri.'
+        ? dynamicScreen.description || ''
         : galleryMissing
           ? 'Galeria não encontrada.'
           : seo?.description || ''
@@ -160,7 +168,7 @@ export async function serveHtmlWithSeo(request, env) {
   }
 
   return new Response(response.body, {
-    status: response.status,
+    status: galleryMissing ? 404 : response.status,
     headers
   })
 }

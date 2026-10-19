@@ -26,49 +26,20 @@ export const SEO_ROUTES = [
     title: 'Currículo de Miriam Cléres Forastieri',
     heading: 'Currículo de Miriam Cléres Forastieri',
     description: 'Formação, experiência e competências profissionais de Miriam Cléres Forastieri em maquiagem artística, fotografia, beleza e criação de conteúdo.'
-  },
-  {
-    path: '/beauty-portfolio',
-    label: 'Maquiagem beauty',
-    title: 'Portfólio de Maquiagem Beauty | Miriam Cléres Forastieri',
-    heading: 'Portfólio de maquiagem beauty',
-    description: 'Conheça os trabalhos de maquiagem beauty e produção de beleza realizados por Miriam Cléres Forastieri em Sorocaba e região.'
-  },
-  {
-    path: '/artistic-portfolio',
-    label: 'Maquiagem artística',
-    title: 'Portfólio de Maquiagem Artística | Miriam Forastieri',
-    heading: 'Portfólio de maquiagem artística',
-    description: 'Explore trabalhos de maquiagem artística, caracterização e criações visuais de Miriam Cléres Forastieri, maquiadora e fotógrafa em Sorocaba.'
-  },
-  {
-    path: '/ecommerce',
-    label: 'Fotografia e-commerce',
-    title: 'Fotografia para E-commerce | Miriam Cléres Forastieri',
-    heading: 'Fotografia para e-commerce',
-    description: 'Fotografia profissional de produtos e conteúdo para e-commerce, marcas e redes sociais por Miriam Cléres Forastieri em Sorocaba.'
-  },
-  {
-    path: '/partnerships',
-    label: 'Parcerias',
-    title: 'Parcerias com Marcas | Miriam Cléres Forastieri',
-    heading: 'Parcerias com marcas',
-    description: 'Campanhas e conteúdos desenvolvidos por Miriam Cléres Forastieri em parceria com marcas de beleza, maquiagem e lifestyle.'
   }
 ]
 
 export function getSeoForPath(path) {
-  return SEO_ROUTES.find((route) => route.path === path) || SEO_ROUTES[0]
+  return SEO_ROUTES.find((route) => route.path === path) || null
 }
 
 export function getCanonicalUrl(path) {
-  const seo = getSeoForPath(path)
-  return `${SITE_URL}${seo.path === '/' ? '/' : seo.path}`
+  const normalized = path === '/' ? '/' : path.replace(/\/+$/, '') || '/'
+  return `${SITE_URL}${normalized}`
 }
 
-export function getStructuredData(path) {
-  const seo = getSeoForPath(path)
-  const canonicalUrl = getCanonicalUrl(path)
+export function getStructuredData(seo) {
+  const canonicalUrl = getCanonicalUrl(seo.path)
   const personId = `${SITE_URL}/#miriam-cleres-forastieri`
   const websiteId = `${SITE_URL}/#website`
   const serviceId = `${SITE_URL}/#professional-service`
@@ -174,9 +145,12 @@ export function getStructuredData(path) {
   return { '@context': 'https://schema.org', '@graph': graph }
 }
 
-export function applySeo(path) {
-  const seo = getSeoForPath(path)
-  const canonicalUrl = getCanonicalUrl(path)
+export function applySeo(path, overrides = null) {
+  const seo = overrides ? { path, ...overrides } : getSeoForPath(path)
+
+  if (!seo) return
+
+  const canonicalUrl = getCanonicalUrl(seo.path)
 
   document.title = seo.title
   document.documentElement.lang = 'pt-BR'
@@ -207,7 +181,7 @@ export function applySeo(path) {
   canonical.href = canonicalUrl
 
   const structuredData = document.getElementById('structured-data')
-  if (structuredData) structuredData.textContent = JSON.stringify(getStructuredData(path))
+  if (structuredData) structuredData.textContent = JSON.stringify(getStructuredData(seo))
 }
 
 function setMeta(attribute, key, content) {

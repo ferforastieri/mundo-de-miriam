@@ -3,9 +3,12 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue"
 import { useRoute } from 'vue-router'
 import LanguageSwitcher from './components/common/LanguageSwitcher.vue'
 import NavigationDrawer from './components/common/NavigationDrawer.vue'
+import ScreenIcon from './components/common/ScreenIcon.vue'
 import { useTheme } from './composables/useTheme'
+import { screenPath, usePublicScreens } from './composables/usePublicGallery'
 
 const { isDark, initTheme, toggleTheme } = useTheme()
+const { screens: menuScreens } = usePublicScreens()
 const showScrollCue = ref(false)
 const currentYear = new Date().getFullYear()
 const route = useRoute()
@@ -81,64 +84,50 @@ watch(() => route.fullPath, async () => {
           @toggle-theme="toggleTheme"
         />
       </div>
-      <nav class="site-mobile-links" aria-label="Atalhos principais">
+            <nav class="site-mobile-links" aria-label="Atalhos principais">
         <RouterLink to="/" aria-label="Início">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3.5 11.5 12 4l8.5 7.5M5.5 10v10h13V10M9.5 20v-6h5v6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
           <span>Início</span>
         </RouterLink>
-        <RouterLink to="/about" class="mobile-link--about" aria-label="Sobre mim">
+        <RouterLink to="/about" aria-label="Sobre mim">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.7" /><path d="M4.5 21a7.5 7.5 0 0 1 15 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" /></svg>
           <span>Sobre</span>
         </RouterLink>
-        <RouterLink to="/beauty-portfolio" aria-label="Portfólio Beauty">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.5" y="5" width="17" height="14" rx="2" stroke="currentColor" stroke-width="1.7" /><path d="m5 16 4.2-4.2 3.2 3.1 2.2-2.2L19 17M16.8 8.5h.01" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
-          <span>Beauty</span>
-        </RouterLink>
-        <RouterLink to="/curriculum" class="mobile-link--curriculum" aria-label="Currículo">
+        <RouterLink to="/curriculum" aria-label="Currículo">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 3h9l3 3v15H6Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" /><path d="M15 3v4h4M9 11h6M9 15h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" /></svg>
           <span>Currículo</span>
         </RouterLink>
-        <RouterLink to="/artistic-portfolio" class="mobile-link--artistic" aria-label="Portfólio Artístico">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3a9 9 0 0 0 0 18h1.2a1.8 1.8 0 0 0 0-3.6h-.7a1.6 1.6 0 0 1 0-3.2H16a5 5 0 0 0 5-5C21 5.8 17 3 12 3Z" stroke="currentColor" stroke-width="1.7" /><path d="M7.5 10h.01M9 6.8h.01M13 6h.01M16.5 8h.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" /></svg>
-          <span>Artístico</span>
-        </RouterLink>
-        <RouterLink to="/ecommerce" class="mobile-link--ecommerce" aria-label="Fotografia E-commerce">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h4l1.5-2h5L16 7h4v12H4Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" /><circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="1.7" /></svg>
-          <span>E-commerce</span>
-        </RouterLink>
-        <RouterLink to="/partnerships" class="mobile-link--partnerships" aria-label="Parcerias">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.5 12.5 12 16l3.5-3.5M3 9l4-4 5 5M21 9l-4-4-3 3M7 17l2 2a2 2 0 0 0 3 0l5-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
-          <span>Parcerias</span>
+        <RouterLink
+          v-for="screen in menuScreens"
+          :key="screen.id"
+          :to="screenPath(screen)"
+          :aria-label="screen.name"
+        >
+          <ScreenIcon :name="screen.icon" />
+          <span>{{ screen.menuLabel }}</span>
         </RouterLink>
       </nav>
-      <nav class="site-desktop-links" aria-label="Atalhos principais">
-        <RouterLink to="/" class="desktop-link--base" aria-label="Início">
+            <nav class="site-desktop-links" aria-label="Atalhos principais">
+        <RouterLink to="/" aria-label="Início">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3.5 11.5 12 4l8.5 7.5M5.5 10v10h13V10M9.5 20v-6h5v6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
           <span>Início</span>
         </RouterLink>
-        <RouterLink to="/about" class="desktop-link--base" aria-label="Sobre mim">
+        <RouterLink to="/about" aria-label="Sobre mim">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.7" /><path d="M4.5 21a7.5 7.5 0 0 1 15 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" /></svg>
           <span>Sobre</span>
         </RouterLink>
-        <RouterLink to="/beauty-portfolio" class="desktop-link--base" aria-label="Portfólio Beauty">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.5" y="5" width="17" height="14" rx="2" stroke="currentColor" stroke-width="1.7" /><path d="m5 16 4.2-4.2 3.2 3.1 2.2-2.2L19 17M16.8 8.5h.01" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
-          <span>Beauty</span>
-        </RouterLink>
-        <RouterLink to="/curriculum" class="desktop-link--curriculum" aria-label="Currículo">
+        <RouterLink to="/curriculum" aria-label="Currículo">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 3h9l3 3v15H6Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" /><path d="M15 3v4h4M9 11h6M9 15h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" /></svg>
           <span>Currículo</span>
         </RouterLink>
-        <RouterLink to="/artistic-portfolio" class="desktop-link--artistic" aria-label="Portfólio Artístico">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3a9 9 0 0 0 0 18h1.2a1.8 1.8 0 0 0 0-3.6h-.7a1.6 1.6 0 0 1 0-3.2H16a5 5 0 0 0 5-5C21 5.8 17 3 12 3Z" stroke="currentColor" stroke-width="1.7" /><path d="M7.5 10h.01M9 6.8h.01M13 6h.01M16.5 8h.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" /></svg>
-          <span>Artístico</span>
-        </RouterLink>
-        <RouterLink to="/ecommerce" class="desktop-link--ecommerce" aria-label="Fotografia E-commerce">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h4l1.5-2h5L16 7h4v12H4Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" /><circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="1.7" /></svg>
-          <span>E-commerce</span>
-        </RouterLink>
-        <RouterLink to="/partnerships" class="desktop-link--partnerships" aria-label="Parcerias">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.5 12.5 12 16l3.5-3.5M3 9l4-4 5 5M21 9l-4-4-3 3M7 17l2 2a2 2 0 0 0 3 0l5-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
-          <span>Parcerias</span>
+        <RouterLink
+          v-for="screen in menuScreens"
+          :key="screen.id"
+          :to="screenPath(screen)"
+          :aria-label="screen.name"
+        >
+          <ScreenIcon :name="screen.icon" />
+          <span>{{ screen.menuLabel }}</span>
         </RouterLink>
         <span class="site-desktop-copyright">
           <span class="site-desktop-copyright__mark" aria-hidden="true">©</span>
@@ -335,13 +324,17 @@ watch(() => route.fullPath, async () => {
   align-items: center;
   justify-content: center;
   gap: clamp(0.7rem, 1.5vw, 1.5rem);
+  overflow-x: auto;
   font-family: system-ui, sans-serif;
   font-size: 0.58rem;
   letter-spacing: 0.04em;
+  scrollbar-width: none;
 }
 
+.site-desktop-links::-webkit-scrollbar { display: none; }
+
 .site-desktop-links a {
-  display: none;
+  display: grid;
   min-width: 54px;
   padding: 0.2rem 0.25rem;
   justify-items: center;
@@ -352,7 +345,6 @@ watch(() => route.fullPath, async () => {
 }
 
 .site-desktop-links svg { width: 21px; height: 21px; }
-.site-desktop-links a.desktop-link--base { display: grid; }
 .site-desktop-links a.router-link-exact-active { color: var(--primary); }
 .site-desktop-copyright {
   display: none;
@@ -441,7 +433,7 @@ watch(() => route.fullPath, async () => {
   .site-mobile-links svg { width: 24px; height: 24px; }
   .site-mobile-links a.router-link-exact-active,
   .site-mobile-links a.router-link-active { color: var(--primary); }
-  .site-mobile-links :is(.mobile-link--about, .mobile-link--curriculum, .mobile-link--artistic, .mobile-link--ecommerce, .mobile-link--partnerships) { display: none; }
+  .site-mobile-links a:nth-child(n + 2) { display: none; }
   .site-desktop-links { display: none; }
   .site-desktop-socials { display: none; }
   .site-dock__right {
@@ -524,43 +516,31 @@ watch(() => route.fullPath, async () => {
 }
 
 @media (min-width: 340px) and (max-width: 768px) {
-  .site-mobile-links .mobile-link--about { display: grid; }
+  .site-mobile-links a:nth-child(2) { display: grid; }
 }
 
 @media (min-width: 400px) and (max-width: 768px) {
-  .site-mobile-links .mobile-link--curriculum { display: grid; }
+  .site-mobile-links a:nth-child(3) { display: grid; }
 }
 
 @media (min-width: 465px) and (max-width: 768px) {
-  .site-mobile-links .mobile-link--artistic { display: grid; }
+  .site-mobile-links a:nth-child(4) { display: grid; }
 }
 
 @media (min-width: 525px) and (max-width: 768px) {
-  .site-mobile-links .mobile-link--ecommerce { display: grid; }
+  .site-mobile-links a:nth-child(5) { display: grid; }
 }
 
 @media (min-width: 590px) and (max-width: 768px) {
-  .site-mobile-links .mobile-link--partnerships { display: grid; }
+  .site-mobile-links a:nth-child(6) { display: grid; }
 }
 
-@media (min-width: 900px) {
-  .site-desktop-links .desktop-link--curriculum { display: grid; }
+@media (min-width: 660px) and (max-width: 768px) {
+  .site-mobile-links a:nth-child(7) { display: grid; }
 }
 
 @media (min-width: 1000px) {
   .site-desktop-socials__prompt { display: inline-flex; }
-}
-
-@media (min-width: 1050px) {
-  .site-desktop-links .desktop-link--artistic { display: grid; }
-}
-
-@media (min-width: 1200px) {
-  .site-desktop-links .desktop-link--ecommerce { display: grid; }
-}
-
-@media (min-width: 1350px) {
-  .site-desktop-links .desktop-link--partnerships { display: grid; }
 }
 
 @media (min-width: 1720px) {

@@ -52,6 +52,27 @@
         <input v-model="createForm.description" class="admin-input" maxlength="240" placeholder="Aparece no topo da página" />
       </label>
 
+      <div class="screen-create__grid">
+        <label class="admin-field">
+          <span class="admin-label">Rótulo no menu</span>
+          <input v-model="createForm.menuLabel" class="admin-input" maxlength="24" placeholder="Ex.: Noivas (padrão: o nome)" />
+        </label>
+
+        <label class="admin-field">
+          <span class="admin-label">Categoria no menu</span>
+          <input v-model="createForm.menuCategory" class="admin-input" maxlength="24" placeholder="Ex.: Maquiagem" />
+        </label>
+
+        <label class="admin-field">
+          <span class="admin-label">Ícone</span>
+          <select v-model="createForm.icon" class="admin-select">
+            <option v-for="icon in SCREEN_ICONS" :key="icon.value" :value="icon.value">
+              {{ icon.label }}
+            </option>
+          </select>
+        </label>
+      </div>
+
       <label class="admin-checkbox">
         <input v-model="createForm.visible" type="checkbox" />
         Publicar a tela no site
@@ -119,6 +140,27 @@
             <span class="admin-label">Descrição</span>
             <input v-model="drafts[screen.id].description" class="admin-input" maxlength="240" />
           </label>
+
+          <div class="screen-create__grid">
+            <label class="admin-field">
+              <span class="admin-label">Rótulo no menu</span>
+              <input v-model="drafts[screen.id].menuLabel" class="admin-input" maxlength="24" />
+            </label>
+
+            <label class="admin-field">
+              <span class="admin-label">Categoria no menu</span>
+              <input v-model="drafts[screen.id].menuCategory" class="admin-input" maxlength="24" />
+            </label>
+
+            <label class="admin-field">
+              <span class="admin-label">Ícone</span>
+              <select v-model="drafts[screen.id].icon" class="admin-select">
+                <option v-for="icon in SCREEN_ICONS" :key="icon.value" :value="icon.value">
+                  {{ icon.label }}
+                </option>
+              </select>
+            </label>
+          </div>
 
           <div class="screen-card__footer">
             <label class="admin-checkbox">
@@ -252,6 +294,17 @@ import ConfirmDialog from '@/components/admin/ConfirmDialog.vue'
 
 const toast = useAdminToast()
 
+const SCREEN_ICONS = [
+  { value: 'image', label: 'Imagem / galeria' },
+  { value: 'palette', label: 'Paleta (arte)' },
+  { value: 'camera', label: 'Câmera (fotografia)' },
+  { value: 'partnership', label: 'Parceria' },
+  { value: 'portrait', label: 'Retrato (pessoa)' },
+  { value: 'document', label: 'Documento (currículo)' },
+  { value: 'symbol', label: 'Símbolo' },
+  { value: 'star', label: 'Estrela' }
+]
+
 const showCreate = ref(false)
 const creatingScreen = ref(false)
 const createForm = reactive({
@@ -259,7 +312,10 @@ const createForm = reactive({
   id: '',
   description: '',
   kind: 'gallery',
-  visible: true
+  visible: true,
+  menuLabel: '',
+  menuCategory: '',
+  icon: 'image'
 })
 
 async function submitCreate() {
@@ -273,7 +329,10 @@ async function submitCreate() {
       id: createForm.id.trim() || undefined,
       description: createForm.description.trim(),
       kind: createForm.kind,
-      visible: createForm.visible
+      visible: createForm.visible,
+      menuLabel: createForm.menuLabel.trim() || undefined,
+      menuCategory: createForm.menuCategory.trim(),
+      icon: createForm.icon
     })
     toast.success('Tela criada.')
     showCreate.value = false
@@ -282,6 +341,9 @@ async function submitCreate() {
     createForm.description = ''
     createForm.kind = 'gallery'
     createForm.visible = true
+    createForm.menuLabel = ''
+    createForm.menuCategory = ''
+    createForm.icon = 'image'
     await refetch()
   } catch (error) {
     toast.error(error.message || 'Não foi possível criar a tela.')
@@ -313,7 +375,10 @@ watch(
         name: screen.name,
         description: screen.description || '',
         visible: screen.visible,
-        sortOrder: screen.position
+        sortOrder: screen.position,
+        menuLabel: screen.menuLabel,
+        menuCategory: screen.menuCategory,
+        icon: screen.icon
       }
 
       for (const group of screen.groups || []) {

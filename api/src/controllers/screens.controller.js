@@ -1,3 +1,4 @@
+import { SCREEN_ICONS } from '../config.js'
 import { getContainer } from '../context.js'
 import { requireAdmin } from '../http/guards.js'
 import { createGroup } from '../usecases/screens/create-group.js'
@@ -25,7 +26,10 @@ const updateScreenSchema = {
       name: { type: 'string', maxLength: 80 },
       description: { type: 'string', maxLength: 240 },
       sortOrder: { type: 'integer', minimum: 0, maximum: 9999 },
-      visible: { type: 'boolean' }
+      visible: { type: 'boolean' },
+      menuLabel: { type: 'string', minLength: 1, maxLength: 24 },
+      menuCategory: { type: 'string', maxLength: 24 },
+      icon: { type: 'string', enum: SCREEN_ICONS }
     }
   }
 }
@@ -41,7 +45,10 @@ const createScreenSchema = {
       description: { type: 'string', maxLength: 240 },
       kind: { type: 'string', enum: ['gallery', 'partnerships', 'single'] },
       visible: { type: 'boolean' },
-      sortOrder: { type: 'integer', minimum: 0, maximum: 9999 }
+      sortOrder: { type: 'integer', minimum: 0, maximum: 9999 },
+      menuLabel: { type: 'string', minLength: 1, maxLength: 24 },
+      menuCategory: { type: 'string', maxLength: 24 },
+      icon: { type: 'string', enum: SCREEN_ICONS }
     }
   }
 }

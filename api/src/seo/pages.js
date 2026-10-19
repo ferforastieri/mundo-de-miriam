@@ -35,42 +35,21 @@ export const SEO_ROUTES = [
     heading: 'Currículo de Miriam Cléres Forastieri',
     description:
       'Formação, experiência e competências profissionais de Miriam Cléres Forastieri em maquiagem artística, fotografia, beleza e criação de conteúdo.'
-  },
-  {
-    path: '/beauty-portfolio',
-    label: 'Maquiagem beauty',
-    title: 'Portfólio de Maquiagem Beauty | Miriam Cléres Forastieri',
-    heading: 'Portfólio de maquiagem beauty',
-    description:
-      'Conheça os trabalhos de maquiagem beauty e produção de beleza realizados por Miriam Cléres Forastieri em Sorocaba e região.'
-  },
-  {
-    path: '/artistic-portfolio',
-    label: 'Maquiagem artística',
-    title: 'Portfólio de Maquiagem Artística | Miriam Forastieri',
-    heading: 'Portfólio de maquiagem artística',
-    description:
-      'Explore trabalhos de maquiagem artística, caracterização e criações visuais de Miriam Cléres Forastieri, maquiadora e fotógrafa em Sorocaba.'
-  },
-  {
-    path: '/ecommerce',
-    label: 'Fotografia e-commerce',
-    title: 'Fotografia para E-commerce | Miriam Cléres Forastieri',
-    heading: 'Fotografia para e-commerce',
-    description:
-      'Fotografia profissional de produtos e conteúdo para e-commerce, marcas e redes sociais por Miriam Cléres Forastieri em Sorocaba.'
-  },
-  {
-    path: '/partnerships',
-    label: 'Parcerias',
-    title: 'Parcerias com Marcas | Miriam Cléres Forastieri',
-    heading: 'Parcerias com marcas',
-    description:
-      'Campanhas e conteúdos desenvolvidos por Miriam Cléres Forastieri em parceria com marcas de beleza, maquiagem e lifestyle.'
   }
 ]
 
 export const SEO_PATHS = SEO_ROUTES.map((route) => route.path)
+
+/**
+ * URLs antigas das telas (quando as rotas eram fixas no código).
+ * Continuam sendo redirecionadas para a rota dinâmica `/galeria/<id>`.
+ */
+export const LEGACY_SCREEN_PATHS = {
+  '/beauty-portfolio': 'beauty',
+  '/artistic-portfolio': 'artistic',
+  '/ecommerce': 'ecommerce',
+  '/partnerships': 'partnerships'
+}
 
 export function normalizePath(pathname) {
   if (!pathname || pathname === '/') return '/'
@@ -85,6 +64,7 @@ export function getSeoForPath(pathname) {
 export function isPagePath(pathname) {
   if (pathname.startsWith('/admin') || pathname.startsWith('/album')) return true
   if (pathname.startsWith('/galeria')) return true
+  if (normalizePath(pathname) in LEGACY_SCREEN_PATHS) return true
   return SEO_PATHS.includes(normalizePath(pathname))
 }
 

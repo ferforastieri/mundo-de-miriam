@@ -5,7 +5,10 @@ export function toScreen(row) {
     description: row.description || '',
     kind: row.kind,
     position: row.sort_order,
-    visible: Boolean(row.is_visible)
+    visible: Boolean(row.is_visible),
+    menuLabel: row.menu_label,
+    menuCategory: row.menu_category,
+    icon: row.icon
   }
 }
 

@@ -62,11 +62,9 @@ async function serveSitemap(request, env) {
       "SELECT id FROM screens WHERE is_visible = 1 AND kind IN ('gallery', 'partnerships') ORDER BY sort_order ASC"
     ).all()
 
-    const fixed = new Set(['artistic', 'beauty', 'ecommerce', 'partnerships'])
-    const extras = (result.results || []).filter((row) => !fixed.has(row.id))
     const urls = [
       ...SEO_ROUTES.map((route) => `${SITE_URL}${route.path === '/' ? '/' : route.path}`),
-      ...extras.map((row) => `${SITE_URL}/galeria/${row.id}`)
+      ...(result.results || []).map((row) => `${SITE_URL}/galeria/${row.id}`)
     ]
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>

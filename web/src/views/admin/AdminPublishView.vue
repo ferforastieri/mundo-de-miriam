@@ -210,7 +210,7 @@ watch(
   screens,
   (list) => {
     if (list.length > 0 && !list.some((screen) => screen.id === selectedScreenId.value)) {
-      selectedScreenId.value = (list.find((screen) => screen.id === 'beauty') || list[0]).id
+      selectedScreenId.value = list[0].id
     }
   },
   { immediate: true }

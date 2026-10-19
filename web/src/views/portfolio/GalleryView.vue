@@ -1,7 +1,7 @@
 <template>
-  <PortfolioLayout>
-    <div class="gallery-view">
-      <div v-if="isPending" class="loading">
+  <component :is="layout">
+    <div class="portfolio-container">
+      <div v-if="isPending && !screen" class="loading">
         <TranslatableText text="Carregando imagens..." />
       </div>
 
@@ -14,34 +14,41 @@
         </div>
 
         <PartnershipsGallery
-          v-if="screen.kind === 'partnerships'"
+          v-if="screen.kind === 'partnerships' && partnerships.length > 0"
           :partnerships="partnerships"
           @toggle-partnership="togglePartnership"
         />
 
-        <template v-else>
-          <PortfolioGallery v-if="images.length > 0" :images="images" />
-          <p v-else class="empty-state">
-            <TranslatableText text="Nenhuma foto publicada ainda." />
-          </p>
-        </template>
+        <figure v-else-if="screen.kind === 'single' && images.length > 0" class="single-photo">
+          <img :src="images[0].src" :alt="images[0].alt" />
+        </figure>
+
+        <PortfolioGallery v-else-if="images.length > 0" :images="images" />
+
+        <p v-else class="empty-state">
+          <TranslatableText text="Nenhuma foto publicada ainda." />
+        </p>
       </template>
 
       <div v-else class="empty-state">
-        <p>Tela não encontrada.</p>
-        <RouterLink class="back-home" to="/">Voltar para o início</RouterLink>
+        <p><TranslatableText text="Tela não encontrada." /></p>
+        <RouterLink class="back-home" to="/">
+          <TranslatableText text="Voltar para o início" />
+        </RouterLink>
       </div>
     </div>
-  </PortfolioLayout>
+  </component>
 </template>
 
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import PortfolioLayout from '@/layouts/portfolio/PortfolioLayout.vue'
+import PartnershipsLayout from '@/layouts/portfolio/PartnershipsLayout.vue'
 import { TranslatableText } from '@/components/common'
 import { PortfolioGallery, PartnershipsGallery } from '@/components/portfolio'
 import { usePublicGallery } from '@/composables/usePublicGallery'
+import { applySeo } from '@/seo'
 
 const route = useRoute()
 const { data, isPending } = usePublicGallery()
@@ -50,6 +57,10 @@ const screen = computed(() => {
   const screenId = String(route.params.screenId || '')
   return (data.value?.screens || []).find((item) => item.id === screenId) || null
 })
+
+const layout = computed(() =>
+  screen.value?.kind === 'partnerships' ? PartnershipsLayout : PortfolioLayout
+)
 
 const images = computed(() =>
   (screen.value?.photos || []).map((photo) => ({
@@ -61,8 +72,8 @@ const images = computed(() =>
 
 const partnerships = ref([])
 
-function buildPartnerships(nextScreen) {
-  return (nextScreen?.groups || [])
+function buildPartnerships(current, expandedByName = new Map()) {
+  return (current?.groups || [])
     .filter((group) => group.photos?.length)
     .map((group) => {
       const cover = group.photos.find((photo) => photo.featured) || group.photos[0]
@@ -76,27 +87,10 @@ function buildPartnerships(nextScreen) {
           alt: photo.alt || group.name
         })),
         mainImage: cover.url,
-        isExpanded: false
+        isExpanded: expandedByName.get(group.name) ?? false
       }
     })
 }
-
-watch(
-  screen,
-  (current) => {
-    if (!current) return
-
-    partnerships.value = buildPartnerships(current)
-    document.title = `${current.name} · Mundo de Miriam`
-
-    const meta = document.querySelector('meta[name="description"]')
-
-    if (meta && current.description) {
-      meta.setAttribute('content', current.description)
-    }
-  },
-  { immediate: true }
-)
 
 function togglePartnership(index) {
   partnerships.value.forEach((partnership, itemIndex) => {
@@ -105,10 +99,31 @@ function togglePartnership(index) {
 
   partnerships.value[index].isExpanded = !partnerships.value[index].isExpanded
 }
+
+watch(
+  screen,
+  (current) => {
+    if (!current) {
+      document.title = 'Tela não encontrada · Mundo de Miriam'
+      return
+    }
+
+    const expandedByName = new Map(partnerships.value.map((item) => [item.name, item.isExpanded]))
+    partnerships.value = buildPartnerships(current, expandedByName)
+
+    applySeo(route.path, {
+      label: current.name,
+      title: `${current.name} · Mundo de Miriam`,
+      heading: current.name,
+      description: current.description || ''
+    })
+  },
+  { immediate: true }
+)
 </script>
 
 <style scoped>
-.gallery-view {
+.portfolio-container {
   max-width: 1200px;
   width: 100%;
   animation: fadeIn 0.8s ease;
@@ -149,6 +164,18 @@ function togglePartnership(index) {
   margin: 0;
   font-style: italic;
   letter-spacing: 1px;
+}
+
+.single-photo {
+  margin: 0;
+  display: grid;
+  place-items: center;
+}
+
+.single-photo img {
+  max-width: min(560px, 100%);
+  border-radius: 16px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
 }
 
 .loading,

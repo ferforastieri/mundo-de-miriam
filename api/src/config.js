@@ -16,6 +16,20 @@ export const INSTAGRAM_TOKEN_TTL_DAYS = 60
 export const INSTAGRAM_REFRESH_WINDOW_DAYS = 7
 export const INSTAGRAM_STALE_HOURS = 6
 
+export const SCREEN_ICONS = [
+  'image',
+  'palette',
+  'camera',
+  'partnership',
+  'portrait',
+  'document',
+  'symbol',
+  'star'
+]
+
+export const MAX_SCREEN_LABEL = 24
+export const MAX_SCREEN_CATEGORY = 24
+
 export const IMAGE_CONTENT_TYPES = [
   'image/jpeg',
   'image/png',
