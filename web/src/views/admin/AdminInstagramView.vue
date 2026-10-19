@@ -44,7 +44,7 @@
           <span v-if="latest" class="admin-tag">{{ latest.source }}</span>
         </div>
 
-        <div v-if="latest" class="admin-stats">
+        <div v-if="latest" class="admin-stats" :style="statsStyle(10)">
           <AdminStatCard label="Seguidores" :value="formatNumber(latest.followers)" />
           <AdminStatCard label="Publicações" :value="formatNumber(latest.posts)" />
           <AdminStatCard label="Alcance" :value="metric(latest.reach)" hint="último dia" />
@@ -348,6 +348,14 @@ import AdminStatCard from '@/components/admin/AdminStatCard.vue'
 import AdminSparkline from '@/components/admin/AdminSparkline.vue'
 import ConfirmDialog from '@/components/admin/ConfirmDialog.vue'
 import AdminSkeleton from '@/components/admin/AdminSkeleton.vue'
+import { statColumns } from '@/utils/grid.js'
+
+function statsStyle(count) {
+  return {
+    '--stat-cols': statColumns(count, 5),
+    '--stat-cols-sm': statColumns(count, 2)
+  }
+}
 import { formatDateTime, formatNumber } from '@/utils/format.js'
 
 const queryClient = useQueryClient()
@@ -572,7 +580,14 @@ async function removeToken() {
 }
 
 .instagram-charts {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   margin-top: 1rem;
+}
+
+@media (max-width: 760px) {
+  .instagram-charts {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .instagram-history {

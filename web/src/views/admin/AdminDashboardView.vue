@@ -37,7 +37,7 @@
             </div>
           </div>
 
-          <div v-if="instagram.latest" class="admin-stats">
+          <div v-if="instagram.latest" class="admin-stats" :style="statsStyle(4)">
             <AdminStatCard label="Seguidores" :value="formatNumber(instagram.latest.followers)" />
             <AdminStatCard label="Publicações" :value="formatNumber(instagram.latest.posts)" />
             <AdminStatCard label="Views recentes" :value="formatNumber(instagram.latest.recentViews)" />
@@ -80,7 +80,7 @@
             </RouterLink>
           </div>
 
-          <div class="admin-stats">
+          <div class="admin-stats" :style="statsStyle(4)">
             <AdminStatCard label="Total" :value="photos.totals.total" />
             <AdminStatCard label="Visíveis" :value="photos.totals.visible" />
             <AdminStatCard label="Ocultas" :value="photos.totals.hidden" />
@@ -143,6 +143,14 @@ import AdminSkeleton from '@/components/admin/AdminSkeleton.vue'
 import AdminStatCard from '@/components/admin/AdminStatCard.vue'
 import AdminSparkline from '@/components/admin/AdminSparkline.vue'
 import { formatBytes, formatDateTime, formatNumber } from '@/utils/format.js'
+import { statColumns } from '@/utils/grid.js'
+
+function statsStyle(count) {
+  return {
+    '--stat-cols': statColumns(count, 5),
+    '--stat-cols-sm': statColumns(count, 2)
+  }
+}
 
 const { data, isPending, isError, error, refetch } = useQuery({
   queryKey: ['admin-dashboard'],
