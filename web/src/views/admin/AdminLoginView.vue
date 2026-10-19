@@ -36,8 +36,6 @@
           />
         </label>
 
-        <p v-if="error" class="admin-alert admin-alert--error" role="alert">{{ error }}</p>
-
         <button class="admin-btn admin-btn--primary admin-login__submit" type="submit" :disabled="loading">
           {{ loading ? 'Entrando…' : 'Entrar no painel' }}
         </button>
@@ -45,6 +43,8 @@
 
       <RouterLink class="admin-login__back" to="/">← Voltar ao site</RouterLink>
     </div>
+
+    <AdminToasts />
   </div>
 </template>
 
@@ -53,18 +53,19 @@ import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAdminAuth } from '@/composables/useAdminAuth'
 import BrandMark from '@/components/common/BrandMark.vue'
+import AdminToasts from '@/components/admin/AdminToasts.vue'
+import { useAdminToast } from '@/composables/useAdminToast'
 
 const email = ref('')
 const password = ref('')
-const error = ref('')
 const loading = ref(false)
+const toast = useAdminToast()
 
 const route = useRoute()
 const router = useRouter()
 const { login } = useAdminAuth()
 
 async function submit() {
-  error.value = ''
   loading.value = true
 
   try {
@@ -74,7 +75,7 @@ async function submit() {
     const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : null
     await router.replace(redirect && redirect.startsWith('/admin') ? redirect : { name: 'AdminDashboard' })
   } catch (requestError) {
-    error.value = requestError.message || 'Não foi possível entrar.'
+    toast.error(requestError.message || 'Não foi possível entrar.')
   } finally {
     loading.value = false
   }

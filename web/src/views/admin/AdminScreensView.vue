@@ -9,10 +9,6 @@
 
     <AdminSkeleton v-if="isPending" variant="cards" />
 
-    <div v-else-if="isError" class="admin-alert admin-alert--error">
-      {{ error?.message || 'Não foi possível carregar as telas.' }}
-    </div>
-
     <template v-else>
       <div class="screens-list">
       <article v-for="(screen, index) in screens" :key="screen.id" class="admin-card screen-card">
@@ -371,6 +367,7 @@ import { useQuery } from '@tanstack/vue-query'
 import adminService from '@/api/admin/AdminService.js'
 import { useAdminToast } from '@/composables/useAdminToast'
 import ConfirmDialog from '@/components/admin/ConfirmDialog.vue'
+import { useErrorToast } from '@/composables/useErrorToast'
 import AdminSkeleton from '@/components/admin/AdminSkeleton.vue'
 import AdminSelect from '@/components/admin/AdminSelect.vue'
 import AdminModal from '@/components/admin/AdminModal.vue'
@@ -486,6 +483,8 @@ const {
 
 const screens = computed(() => data.value?.screens || [])
 const pagination = computed(() => data.value?.pagination || null)
+
+useErrorToast(error, 'Não foi possível carregar as telas.')
 const drafts = reactive({})
 const groupDrafts = reactive({})
 const shareExpiry = reactive({})

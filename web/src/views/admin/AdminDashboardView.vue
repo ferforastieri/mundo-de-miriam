@@ -2,11 +2,6 @@
   <div>
     <AdminSkeleton v-if="isPending" variant="dashboard" />
 
-    <div v-else-if="isError" class="admin-alert admin-alert--error">
-      {{ error?.message || 'Não foi possível carregar o painel.' }}
-      <button class="admin-btn admin-btn--small" type="button" @click="refetch">Tentar novamente</button>
-    </div>
-
     <template v-else>
       <div class="admin-grid-2">
         <section class="admin-card">
@@ -48,9 +43,6 @@
             </RouterLink>
           </div>
 
-          <p v-if="instagram.state.lastError" class="admin-alert admin-alert--error dashboard-error">
-            {{ instagram.state.lastError }}
-          </p>
         </section>
 
         <section class="admin-card">
@@ -128,6 +120,7 @@ import AdminStatCard from '@/components/admin/AdminStatCard.vue'
 import AdminSparkline from '@/components/admin/AdminSparkline.vue'
 import { formatBytes, formatDateTime, formatNumber } from '@/utils/format.js'
 import { statColumns } from '@/utils/grid.js'
+import { useErrorToast } from '@/composables/useErrorToast'
 
 function statsStyle(count) {
   return {
@@ -143,6 +136,16 @@ const { data, isPending, isError, error, refetch } = useQuery({
 })
 
 const instagram = computed(() => data.value?.instagram || { state: {}, latest: null, history: [] })
+
+useErrorToast(error, 'Não foi possível carregar o painel.')
+
+useErrorToast(
+  computed(() => {
+    const message = instagram.value?.state?.lastError
+    return message ? new Error(message) : null
+  }),
+  'Falha na coleta do Instagram.'
+)
 const photos = computed(() => data.value?.photos || {
   totals: { total: 0, visible: 0, hidden: 0, bytes: 0 },
   byScreen: [],

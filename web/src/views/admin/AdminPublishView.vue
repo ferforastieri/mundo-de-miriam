@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="!instagramConfigured" class="admin-alert admin-alert--error publish-block">
+    <div v-if="!instagramConfigured" class="admin-alert publish-block">
       Configure o token do Instagram antes de publicar.
       <RouterLink class="admin-link" :to="{ name: 'AdminInstagram' }">Ir para a tela do Instagram</RouterLink>
     </div>
@@ -38,7 +38,6 @@
         </div>
 
         <AdminSkeleton v-if="photosPending" variant="photos" :count="6" />
-        <p v-else-if="photosIsError" class="admin-alert admin-alert--error">{{ photosError?.message }}</p>
         <p v-else-if="photos.length === 0" class="admin-empty">Nenhuma foto nesta tela.</p>
 
         <div v-else class="publish-grid">
@@ -103,12 +102,6 @@
           </span>
         </div>
 
-        <p v-if="lastResult?.permalink" class="admin-alert admin-alert--success publish-result">
-          Publicado!
-          <a class="admin-link" :href="lastResult.permalink" target="_blank" rel="noopener noreferrer">
-            Ver no Instagram ↗
-          </a>
-        </p>
       </section>
     </div>
 
@@ -168,6 +161,7 @@ import { computed, ref, watch } from 'vue'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import adminService from '@/api/admin/AdminService.js'
 import { useAdminToast } from '@/composables/useAdminToast'
+import { useErrorToast } from '@/composables/useErrorToast'
 import { formatDateTime } from '@/utils/format.js'
 import AdminSkeleton from '@/components/admin/AdminSkeleton.vue'
 import AdminSelect from '@/components/admin/AdminSelect.vue'
@@ -246,6 +240,12 @@ const selectedIds = ref([])
 const caption = ref('')
 const publishing = ref(false)
 const lastResult = ref(null)
+
+useErrorToast(photosError, 'Não foi possível carregar as fotos.')
+
+watch(lastResult, (result) => {
+  if (result?.permalink) toast.success('Publicado no Instagram.')
+})
 
 const selectedPhotos = computed(() =>
   selectedIds.value

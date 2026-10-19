@@ -2,10 +2,6 @@
   <div>
     <AdminSkeleton v-if="screensPending" variant="cards" />
 
-    <div v-else-if="screensIsError" class="admin-alert admin-alert--error">
-      {{ screensError?.message || 'Não foi possível carregar as telas.' }}
-    </div>
-
     <template v-else>
       <div class="photos-toolbar">
         <label class="admin-field photos-toolbar__field">
@@ -69,10 +65,6 @@
 
         <div v-if="photosEnabled">
           <AdminSkeleton v-if="photosPending" variant="photos" :count="9" />
-
-          <div v-else-if="photosIsError" class="admin-alert admin-alert--error">
-            {{ photosError?.message || 'Não foi possível carregar as fotos.' }}
-          </div>
 
           <div v-else-if="localPhotos.length === 0" class="admin-card">
             <p class="admin-empty">
@@ -181,6 +173,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useQuery } from '@tanstack/vue-query'
 import adminService from '@/api/admin/AdminService.js'
 import { useAdminToast } from '@/composables/useAdminToast'
+import { useErrorToast } from '@/composables/useErrorToast'
 import { UploadDropzone } from '@/components/common'
 import AdminSelect from '@/components/admin/AdminSelect.vue'
 import AdminSkeleton from '@/components/admin/AdminSkeleton.vue'
@@ -296,6 +289,9 @@ const {
 })
 
 const photosPagination = computed(() => photosData.value?.pagination || null)
+
+useErrorToast(screensError, 'Não foi possível carregar as telas.')
+useErrorToast(photosError, 'Não foi possível carregar as fotos.')
 
 const localPhotos = ref([])
 

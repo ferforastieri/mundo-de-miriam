@@ -2,10 +2,6 @@
   <div>
     <AdminSkeleton v-if="isPending" variant="stats" />
 
-    <div v-else-if="isError" class="admin-alert admin-alert--error">
-      {{ error?.message || 'Não foi possível carregar os dados do Instagram.' }}
-    </div>
-
     <template v-else>
       <div v-if="!state.configured" class="admin-alert instagram-setup-hint">
         <span>Configure o token para começar a coleta automática das estatísticas.</span>
@@ -273,9 +269,6 @@
             </tbody>
           </table>
 
-          <p v-if="state.lastError" class="admin-alert admin-alert--error instagram-error">
-            {{ state.lastError }}
-          </p>
         </section>
 
         <section class="admin-card">
@@ -357,6 +350,7 @@ import AdminSkeleton from '@/components/admin/AdminSkeleton.vue'
 import AdminIcon from '@/components/admin/AdminIcon.vue'
 import PaginationBar from '@/components/admin/PaginationBar.vue'
 import { statColumns } from '@/utils/grid.js'
+import { useErrorToast } from '@/composables/useErrorToast'
 
 function statsStyle(count) {
   return {
@@ -380,6 +374,16 @@ const {
 })
 
 const state = computed(() => data.value?.state || {})
+
+useErrorToast(error, 'Não foi possível carregar os dados do Instagram.')
+
+useErrorToast(
+  computed(() => {
+    const message = state.value?.lastError
+    return message ? new Error(message) : null
+  }),
+  'Falha na coleta do Instagram.'
+)
 const latest = computed(() => data.value?.latest || null)
 const history = computed(() => data.value?.history || [])
 const refreshWindowDays = computed(() => data.value?.state?.refreshWindowDays || 7)

@@ -142,19 +142,7 @@
       <RouterView />
     </main>
 
-    <div class="admin-toasts" aria-live="polite">
-      <div
-        v-for="item in toast.state.items"
-        :key="item.id"
-        class="admin-toast"
-        :class="`admin-toast--${item.type}`"
-      >
-        <span>{{ item.message }}</span>
-        <button class="admin-toast__close" type="button" aria-label="Fechar aviso" @click="toast.remove(item.id)">
-          ×
-        </button>
-      </div>
-    </div>
+    <AdminToasts />
   </div>
 </template>
 
@@ -162,10 +150,10 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAdminAuth } from '@/composables/useAdminAuth'
-import { useAdminToast } from '@/composables/useAdminToast'
 import { useTheme } from '@/composables/useTheme'
 import BrandMark from '@/components/common/BrandMark.vue'
 import AdminIcon from '@/components/admin/AdminIcon.vue'
+import AdminToasts from '@/components/admin/AdminToasts.vue'
 
 const navItems = [
   { to: '/admin/dashboard', label: 'Visão geral', icon: 'dashboard' },
@@ -179,7 +167,6 @@ const router = useRouter()
 const route = useRoute()
 const { state: authState, logout, loadMe } = useAdminAuth()
 const { isDark, toggleTheme } = useTheme()
-const toast = useAdminToast()
 
 const admin = computed(() => authState.admin)
 const initials = computed(() => (admin.value?.email || 'M').slice(0, 1).toUpperCase())
