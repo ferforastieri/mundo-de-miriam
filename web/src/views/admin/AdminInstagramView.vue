@@ -3,10 +3,7 @@
     <header class="admin-page-header">
       <div>
         <h1 class="admin-title">Instagram</h1>
-        <p class="admin-subtitle">
-          O painel renova o token automaticamente, coleta os números de hora em hora e guarda o histórico no
-          banco. O site exibe sempre o último snapshot bem-sucedido, mesmo quando a API do Instagram falha.
-        </p>
+
       </div>
 
       <div class="admin-actions-row">
