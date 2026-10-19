@@ -58,37 +58,31 @@
         <form class="admin-stack" @submit.prevent="submitPassword">
           <label class="admin-field">
             <span class="admin-label">Senha atual</span>
-            <input
-              v-model="currentPassword"
-              class="admin-input"
+            <AdminInput v-model="currentPassword"
+              
               type="password"
               autocomplete="current-password"
-              required
-            />
+              required />
           </label>
 
           <label class="admin-field">
             <span class="admin-label">Nova senha</span>
-            <input
-              v-model="newPassword"
-              class="admin-input"
+            <AdminInput v-model="newPassword"
+              
               type="password"
               autocomplete="new-password"
               minlength="12"
-              required
-            />
+              required />
           </label>
 
           <label class="admin-field">
             <span class="admin-label">Confirmar nova senha</span>
-            <input
-              v-model="confirmPassword"
-              class="admin-input"
+            <AdminInput v-model="confirmPassword"
+              
               type="password"
               autocomplete="new-password"
               minlength="12"
-              required
-            />
+              required />
           </label>
 
           <p class="admin-card__hint">Use pelo menos 12 caracteres e não reaproveite a senha atual.</p>
@@ -111,6 +105,7 @@ import { useAdminAuth } from '@/composables/useAdminAuth'
 import { useAdminToast } from '@/composables/useAdminToast'
 import AdminIcon from '@/components/admin/AdminIcon.vue'
 import { UploadDropzone } from '@/components/common'
+import AdminInput from '@/components/admin/AdminInput.vue'
 
 const { state, loadMe } = useAdminAuth()
 const toast = useAdminToast()

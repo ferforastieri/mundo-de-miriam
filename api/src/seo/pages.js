@@ -1,7 +1,7 @@
 export const SITE_URL = 'https://www.mundodemiriam.com.br'
 export const SITE_NAME = 'Mundo de Miriam'
-export const SOCIAL_IMAGE = `${SITE_URL}/assets/social/miriam-forastieri-og.jpg?v=2`
-export const TWITTER_IMAGE = `${SITE_URL}/assets/social/miriam-forastieri-twitter.jpg?v=2`
+export const SOCIAL_IMAGE = `${SITE_URL}/assets/social/miriam-forastieri-og.jpg?v=3`
+export const TWITTER_IMAGE = `${SITE_URL}/assets/social/miriam-forastieri-twitter.jpg?v=3`
 export const SOCIAL_IMAGE_ALT =
   'Retrato de Miriam Cléres Forastieri, maquiadora e fotógrafa em Sorocaba'
 export const INDEXABLE_ROBOTS =

@@ -285,14 +285,12 @@
             <label class="admin-field">
               <span class="admin-label">Novo token</span>
               <div class="instagram-token-form__input">
-                <input
-                  v-model="tokenInput"
-                  class="admin-input"
+                <AdminInput v-model="tokenInput"
+                  
                   :type="showToken ? 'text' : 'password'"
                   autocomplete="off"
                   spellcheck="false"
-                  placeholder="IGQVJ…"
-                />
+                  placeholder="IGQVJ…" />
                 <button class="admin-btn admin-btn--small" type="button" @click="showToken = !showToken">
                   {{ showToken ? 'Ocultar' : 'Mostrar' }}
                 </button>
@@ -359,6 +357,7 @@ function statsStyle(count) {
   }
 }
 import { formatDateTime, formatNumber } from '@/utils/format.js'
+import AdminInput from '@/components/admin/AdminInput.vue'
 
 const queryClient = useQueryClient()
 const toast = useAdminToast()

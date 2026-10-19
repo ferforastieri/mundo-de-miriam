@@ -78,13 +78,11 @@
 
         <label class="admin-field publish-caption">
           <span class="admin-label">Legenda</span>
-          <textarea
-            v-model="caption"
-            class="admin-textarea"
+          <AdminTextarea v-model="caption"
+            
             maxlength="2200"
             rows="6"
-            placeholder="Escreva a legenda do post…"
-          />
+            placeholder="Escreva a legenda do post…" />
           <span class="admin-muted">{{ caption.length }}/2200</span>
         </label>
 
@@ -167,6 +165,7 @@ import AdminSkeleton from '@/components/admin/AdminSkeleton.vue'
 import AdminSelect from '@/components/admin/AdminSelect.vue'
 import PaginationBar from '@/components/admin/PaginationBar.vue'
 import AdminIcon from '@/components/admin/AdminIcon.vue'
+import AdminTextarea from '@/components/admin/AdminTextarea.vue'
 
 const MAX_ITEMS = 10
 const toast = useAdminToast()

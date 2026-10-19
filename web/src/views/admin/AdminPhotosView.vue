@@ -30,13 +30,11 @@
         </div>
 
         <form v-if="showGroupForm" class="partnerships-bar__form" @submit.prevent="createGroup">
-          <input
-            v-model="newGroupName"
-            class="admin-input"
+          <AdminInput v-model="newGroupName"
+            
             maxlength="60"
             placeholder="Nome da marca/parceria"
-            required
-          />
+            required />
           <button class="admin-btn admin-btn--primary" type="submit" :disabled="creatingGroup">
             {{ creatingGroup ? 'Criando…' : 'Criar marca' }}
           </button>
@@ -181,6 +179,7 @@ import PaginationBar from '@/components/admin/PaginationBar.vue'
 import PhotoEditModal from '@/components/admin/PhotoEditModal.vue'
 import ConfirmDialog from '@/components/admin/ConfirmDialog.vue'
 import { formatBytes } from '@/utils/format.js'
+import AdminInput from '@/components/admin/AdminInput.vue'
 
 const MAX_FILE_BYTES = 20 * 1024 * 1024
 

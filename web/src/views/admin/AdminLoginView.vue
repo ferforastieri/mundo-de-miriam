@@ -11,29 +11,25 @@
       <form class="admin-login__form" @submit.prevent="submit">
         <label class="admin-field">
           <span class="admin-label">E-mail</span>
-          <input
-            v-model="email"
-            class="admin-input"
+          <AdminInput v-model="email"
+            
             type="email"
             name="email"
             autocomplete="username"
             required
             autofocus
-            placeholder="seu@email.com"
-          />
+            placeholder="seu@email.com" />
         </label>
 
         <label class="admin-field">
           <span class="admin-label">Senha</span>
-          <input
-            v-model="password"
-            class="admin-input"
+          <AdminInput v-model="password"
+            
             type="password"
             name="password"
             autocomplete="current-password"
             required
-            placeholder="••••••••••••"
-          />
+            placeholder="••••••••••••" />
         </label>
 
         <button class="admin-btn admin-btn--primary admin-login__submit" type="submit" :disabled="loading">
@@ -55,6 +51,7 @@ import { useAdminAuth } from '@/composables/useAdminAuth'
 import BrandMark from '@/components/common/BrandMark.vue'
 import AdminToasts from '@/components/admin/AdminToasts.vue'
 import { useAdminToast } from '@/composables/useAdminToast'
+import AdminInput from '@/components/admin/AdminInput.vue'
 
 const email = ref('')
 const password = ref('')

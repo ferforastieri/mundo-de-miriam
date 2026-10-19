@@ -317,14 +317,14 @@ html[data-theme="dark"] #app .admin-shell .admin-theme-toggle:hover {
   align-items: center;
   justify-content: center;
   gap: 0.45rem;
-  min-height: 42px;
-  padding: 0.55rem 0.95rem;
+  min-height: 38px;
+  padding: 0.45rem 0.85rem;
   border: 2px solid var(--primary);
   border-radius: 8px;
   background: transparent;
   color: var(--primary);
   font-family: 'Gilda Display', serif;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   letter-spacing: 0.05em;
   line-height: 1.1;
   text-decoration: none;
@@ -401,18 +401,18 @@ html[data-theme="dark"] #app .admin-shell .admin-theme-toggle:hover {
 .admin-textarea,
 .admin-select {
   width: 100%;
-  min-height: 44px;
-  padding: 0.65rem 0.8rem;
+  min-height: 40px;
+  padding: 0.5rem 0.7rem;
   border: 1px solid var(--border);
   border-radius: 10px;
   background: var(--surface);
   color: var(--text);
   font-family: 'Gilda Display', serif;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .admin-textarea {
-  min-height: 88px;
+  min-height: 80px;
   resize: vertical;
 }
 
@@ -1306,12 +1306,12 @@ html[data-theme="dark"] #app .admin-shell .admin-alert .admin-link {
 }
 
 .admin-shell .admin-select-field .styled-select__trigger {
-  min-height: 44px;
-  padding: 0.65rem 0.8rem;
+  min-height: 40px;
+  padding: 0.5rem 0.7rem;
   background: var(--surface);
   border-radius: 10px;
   font-family: 'Gilda Display', serif;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .admin-shell .admin-select-field .styled-select__menu {
@@ -1321,9 +1321,9 @@ html[data-theme="dark"] #app .admin-shell .admin-alert .admin-link {
 }
 
 .admin-shell .admin-select-field .styled-select__option {
-  min-height: 42px;
+  min-height: 38px;
   font-family: 'Gilda Display', serif;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 /* ---------- Padrão mobile: botões empilhados na largura máxima ---------- */
@@ -1354,7 +1354,7 @@ html[data-theme="dark"] #app .admin-shell .admin-alert .admin-link {
   .screen-share__row .admin-link,
   .screen-card__movers .admin-btn {
     width: 100%;
-    min-height: 44px;
+    min-height: 40px;
     justify-content: center;
   }
 
@@ -1401,7 +1401,7 @@ html[data-theme="dark"] #app .admin-shell .admin-alert .admin-link {
 
   .admin-shell .photo-card__actions .admin-btn {
     width: 100%;
-    min-height: 44px;
+    min-height: 40px;
     justify-content: center;
   }
 }
@@ -1423,7 +1423,7 @@ html[data-theme="dark"] #app .admin-shell .admin-alert .admin-link {
 
   .admin-page-actions .admin-btn {
     width: 100%;
-    min-height: 44px;
+    min-height: 40px;
   }
 
 }
@@ -1449,6 +1449,6 @@ html[data-theme="dark"] #app .admin-shell .admin-alert .admin-link {
 @media (max-width: 720px) {
   .instagram-section__head--action .admin-btn {
     width: 100%;
-    min-height: 44px;
+    min-height: 40px;
   }
 }

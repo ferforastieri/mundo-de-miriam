@@ -56,23 +56,23 @@
         <div class="screen-card__form">
           <label class="admin-field">
             <span class="admin-label">Nome exibido</span>
-            <input v-model="drafts[screen.id].name" class="admin-input" maxlength="80" />
+            <AdminInput v-model="drafts[screen.id].name"  maxlength="80" />
           </label>
 
           <label class="admin-field">
             <span class="admin-label">Descrição</span>
-            <input v-model="drafts[screen.id].description" class="admin-input" maxlength="240" />
+            <AdminInput v-model="drafts[screen.id].description"  maxlength="240" />
           </label>
 
           <div class="screen-create__grid">
             <label class="admin-field">
               <span class="admin-label">Rótulo no menu</span>
-              <input v-model="drafts[screen.id].menuLabel" class="admin-input" maxlength="24" />
+              <AdminInput v-model="drafts[screen.id].menuLabel"  maxlength="24" />
             </label>
 
             <label class="admin-field">
               <span class="admin-label">Categoria no menu</span>
-              <input v-model="drafts[screen.id].menuCategory" class="admin-input" maxlength="24" />
+              <AdminInput v-model="drafts[screen.id].menuCategory"  maxlength="24" />
             </label>
 
             <label class="admin-field">
@@ -86,10 +86,7 @@
           </div>
 
           <div class="screen-card__footer">
-            <label class="admin-checkbox">
-              <input v-model="drafts[screen.id].visible" type="checkbox" />
-              Exibir esta tela no site
-            </label>
+            <AdminCheckbox v-model="drafts[screen.id].visible" label="Exibir esta tela no site" />
 
             <button
               class="admin-btn admin-btn--primary admin-btn--small"
@@ -124,7 +121,7 @@
 
           <template v-if="screen.shareToken">
             <div class="screen-share__row">
-              <input class="admin-input" :value="shareUrl(screen)" readonly />
+              <AdminInput :value="shareUrl(screen)" readonly />
               <button class="admin-btn admin-btn--small" type="button" @click="copyShareLink(screen)">
                 Copiar
               </button>
@@ -202,13 +199,11 @@
             class="group-create-form"
             @submit.prevent="createGroup(screen.id)"
           >
-            <input
-              v-model="newGroupName"
-              class="admin-input"
+            <AdminInput v-model="newGroupName"
+              
               maxlength="60"
               placeholder="Nome da marca"
-              required
-            />
+              required />
             <button class="admin-btn admin-btn--primary admin-btn--small" type="submit" :disabled="creatingGroup">
               {{ creatingGroup ? 'Criando…' : 'Criar' }}
             </button>
@@ -224,7 +219,7 @@
           <ul v-else class="group-list">
             <li v-for="(group, groupIndex) in screen.groups" :key="group.id" class="group-row">
               <div class="group-row__main">
-                <input v-model="groupDrafts[group.id].name" class="admin-input" maxlength="60" />
+                <AdminInput v-model="groupDrafts[group.id].name"  maxlength="60" />
                 <span class="admin-tag">{{ group.photoCount }} foto{{ group.photoCount === 1 ? '' : 's' }}</span>
               </div>
 
@@ -282,7 +277,7 @@
       <div class="screen-create__grid screen-create__grid--pair">
         <label class="admin-field">
           <span class="admin-label">Nome</span>
-          <input v-model="createForm.name" class="admin-input" maxlength="80" required placeholder="Ex.: Noivas" />
+          <AdminInput v-model="createForm.name"  maxlength="80" required placeholder="Ex.: Noivas" />
         </label>
 
         <label class="admin-field">
@@ -293,18 +288,18 @@
 
       <label class="admin-field">
         <span class="admin-label">Descrição (opcional)</span>
-        <input v-model="createForm.description" class="admin-input" maxlength="240" placeholder="Aparece no topo da página" />
+        <AdminInput v-model="createForm.description"  maxlength="240" placeholder="Aparece no topo da página" />
       </label>
 
       <div class="screen-create__grid">
         <label class="admin-field">
           <span class="admin-label">Rótulo no menu</span>
-          <input v-model="createForm.menuLabel" class="admin-input" maxlength="24" placeholder="Ex.: Noivas (padrão: o nome)" />
+          <AdminInput v-model="createForm.menuLabel"  maxlength="24" placeholder="Ex.: Noivas (padrão: o nome)" />
         </label>
 
         <label class="admin-field">
           <span class="admin-label">Categoria no menu</span>
-          <input v-model="createForm.menuCategory" class="admin-input" maxlength="24" placeholder="Ex.: Maquiagem" />
+          <AdminInput v-model="createForm.menuCategory"  maxlength="24" placeholder="Ex.: Maquiagem" />
         </label>
 
         <label class="admin-field">
@@ -373,6 +368,8 @@ import AdminSelect from '@/components/admin/AdminSelect.vue'
 import AdminModal from '@/components/admin/AdminModal.vue'
 import PaginationBar from '@/components/admin/PaginationBar.vue'
 import { formatDate } from '@/utils/format.js'
+import AdminInput from '@/components/admin/AdminInput.vue'
+import AdminCheckbox from '@/components/admin/AdminCheckbox.vue'
 
 const toast = useAdminToast()
 

@@ -19,12 +19,12 @@
         <div class="admin-stack">
           <label class="admin-field">
             <span class="admin-label">Texto alternativo</span>
-            <input v-model="form.alt" class="admin-input" maxlength="240" placeholder="Descrição acessível da foto" />
+            <AdminInput v-model="form.alt"  maxlength="240" placeholder="Descrição acessível da foto" />
           </label>
 
           <label class="admin-field">
             <span class="admin-label">Legenda (opcional)</span>
-            <textarea v-model="form.caption" class="admin-textarea" maxlength="400" rows="2" />
+            <AdminTextarea v-model="form.caption"  maxlength="400" rows="2" />
           </label>
 
           <div class="photo-edit__row">
@@ -49,15 +49,13 @@
           </div>
 
           <div class="photo-edit__checks">
-            <label class="admin-checkbox">
-              <input v-model="form.visible" type="checkbox" />
-              Exibir no site
-            </label>
+            <AdminCheckbox v-model="form.visible" label="Exibir no site" />
 
-            <label v-if="form.groupId" class="admin-checkbox">
-              <input v-model="form.featured" type="checkbox" />
-              Usar como capa da marca
-            </label>
+            <AdminCheckbox
+              v-if="form.groupId"
+              v-model="form.featured"
+              label="Usar como capa da marca"
+            />
           </div>
         </div>
 
@@ -76,6 +74,9 @@
 import { computed, reactive, watch } from 'vue'
 import { formatBytes } from '@/utils/format.js'
 import AdminSelect from '@/components/admin/AdminSelect.vue'
+import AdminInput from '@/components/admin/AdminInput.vue'
+import AdminTextarea from '@/components/admin/AdminTextarea.vue'
+import AdminCheckbox from '@/components/admin/AdminCheckbox.vue'
 
 const props = defineProps({
   open: { type: Boolean, default: false },
