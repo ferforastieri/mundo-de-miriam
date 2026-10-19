@@ -1,20 +1,10 @@
 <template>
   <div>
-    <header class="admin-page-header">
-      <div>
-        <h1 class="admin-title">Publicar no Instagram</h1>
-        <p class="admin-subtitle">
-          Escolha fotos da galeria, escreva a legenda e publique direto no feed. Uma foto vira post simples;
-          duas ou mais viram carrossel.
-        </p>
-      </div>
-
-      <div class="admin-actions-row">
-        <RouterLink class="admin-btn admin-btn--small" :to="{ name: 'AdminInstagram' }">
-          Ver estatísticas
-        </RouterLink>
-      </div>
-    </header>
+    <div class="admin-page-actions">
+      <RouterLink class="admin-btn admin-btn--small" :to="{ name: 'AdminInstagram' }">
+        Ver estatísticas
+      </RouterLink>
+    </div>
 
     <div v-if="!instagramConfigured" class="admin-alert admin-alert--error publish-block">
       Configure o token do Instagram antes de publicar.

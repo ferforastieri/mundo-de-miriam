@@ -1,22 +1,5 @@
 <template>
   <div>
-    <header class="admin-page-header">
-      <div>
-        <h1 class="admin-title">Fotos</h1>
-        <p class="admin-subtitle">
-          Envie, substitua, oculte e reordene as fotos de cada tela do site. A ordem abaixo é a ordem exibida
-          para as visitantes.
-        </p>
-      </div>
-
-      <div class="admin-actions-row">
-        <span v-if="selectedScreen" class="admin-muted">
-          {{ selectedScreen.photoCount }} foto{{ selectedScreen.photoCount === 1 ? '' : 's' }}
-          <template v-if="selectedScreen.bytes"> · {{ formatBytes(selectedScreen.bytes) }}</template>
-        </span>
-      </div>
-    </header>
-
     <AdminSkeleton v-if="screensPending" variant="cards" />
 
     <div v-else-if="screensIsError" class="admin-alert admin-alert--error">
@@ -34,6 +17,11 @@
             @change="selectScreen"
           />
         </label>
+
+        <span v-if="selectedScreen" class="admin-muted photos-toolbar__meta">
+          {{ selectedScreen.photoCount }} foto{{ selectedScreen.photoCount === 1 ? '' : 's' }}
+          <template v-if="selectedScreen.bytes"> · {{ formatBytes(selectedScreen.bytes) }}</template>
+        </span>
       </div>
 
       <section v-if="isPartnerships" class="admin-card partnerships-bar">

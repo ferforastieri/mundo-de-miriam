@@ -1335,3 +1335,33 @@ html[data-theme="dark"] #app .admin-shell .admin-alert .admin-link {
     justify-content: center;
   }
 }
+
+/* Ações no topo (páginas sem título) */
+.admin-page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.photos-toolbar__meta {
+  margin-left: auto;
+  align-self: center;
+}
+
+@media (max-width: 720px) {
+  .admin-page-actions {
+    justify-content: stretch;
+  }
+
+  .admin-page-actions .admin-btn {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .photos-toolbar__meta {
+    margin-left: 0;
+    align-self: flex-start;
+  }
+}

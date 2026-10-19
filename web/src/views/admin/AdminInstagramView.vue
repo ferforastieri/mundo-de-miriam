@@ -1,17 +1,10 @@
 <template>
   <div>
-    <header class="admin-page-header">
-      <div>
-        <h1 class="admin-title">Instagram</h1>
-
-      </div>
-
-      <div class="admin-actions-row">
-        <RouterLink class="admin-btn admin-btn--small" :to="{ name: 'AdminPublish' }">
-          Publicar no Instagram
-        </RouterLink>
-      </div>
-    </header>
+    <div class="admin-page-actions">
+      <RouterLink class="admin-btn admin-btn--small" :to="{ name: 'AdminPublish' }">
+        Publicar no Instagram
+      </RouterLink>
+    </div>
 
     <AdminSkeleton v-if="isPending" variant="stats" />
 

@@ -1,20 +1,10 @@
 <template>
   <div>
-    <header class="admin-page-header">
-      <div>
-        <h1 class="admin-title">Telas</h1>
-        <p class="admin-subtitle">
-          Ajuste os nomes exibidos, a ordem das telas no painel, a visibilidade de cada seção e as marcas
-          das parcerias.
-        </p>
-      </div>
-
-      <div class="admin-actions-row">
-        <button class="admin-btn admin-btn--primary" type="button" @click="showCreate = true">
-          + Nova tela
-        </button>
-      </div>
-    </header>
+    <div class="admin-page-actions">
+      <button class="admin-btn admin-btn--primary" type="button" @click="showCreate = true">
+        + Nova tela
+      </button>
+    </div>
 
 
     <AdminSkeleton v-if="isPending" variant="cards" />

@@ -1,15 +1,5 @@
 <template>
   <div>
-    <header class="admin-page-header">
-      <div>
-        <h1 class="admin-title">Visão geral</h1>
-        <p class="admin-subtitle">
-          Acompanhe as estatísticas do Instagram, o acervo de fotos e o estado geral do site.
-        </p>
-      </div>
-
-    </header>
-
     <AdminSkeleton v-if="isPending" variant="dashboard" />
 
     <div v-else-if="isError" class="admin-alert admin-alert--error">

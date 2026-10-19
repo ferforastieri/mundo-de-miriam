@@ -1,14 +1,5 @@
 <template>
   <div>
-    <header class="admin-page-header">
-      <div>
-        <h1 class="admin-title">Minha conta</h1>
-        <p class="admin-subtitle">
-          Sua foto no painel e a senha de acesso.
-        </p>
-      </div>
-    </header>
-
     <div class="admin-stack">
       <section class="admin-card">
         <div class="admin-card__header">

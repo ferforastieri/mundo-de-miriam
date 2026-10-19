@@ -109,6 +109,12 @@ export async function serveHtmlWithSeo(request, env) {
           : seo?.description || ''
   const robots = isUnlisted || galleryMissing ? ADMIN_ROBOTS : INDEXABLE_ROBOTS
   const canonical = canonicalFor(url.pathname)
+
+  // Páginas não listadas (painel, links privados) não devem gerar um cartão
+  // próprio ao serem compartilhadas: usamos a identidade pública do site.
+  const homeSeo = getSeoForPath('/')
+  const socialTitle = isUnlisted ? homeSeo?.title || SITE_NAME : title
+  const socialDescription = isUnlisted ? homeSeo?.description || '' : description
   const fallback = dynamicScreen
     ? `<h1>${escapeHtml(dynamicScreen.name)}</h1><p>${escapeHtml(dynamicScreen.description || '')}</p><nav aria-label="Conteúdo principal"><a href="/">Mundo de Miriam</a></nav>`
     : !isUnlisted && !galleryMissing && seo
@@ -128,10 +134,10 @@ export async function serveHtmlWithSeo(request, env) {
         element.setAttribute('href', canonical)
       }
     })
-    .on('meta[property="og:title"]', setMetaContent(title))
+    .on('meta[property="og:title"]', setMetaContent(socialTitle))
     .on(
       'meta[property="og:description"]',
-      setMetaContent(description)
+      setMetaContent(socialDescription)
     )
     .on('meta[property="og:url"]', setMetaContent(canonical))
     .on('meta[property="og:image"]', setMetaContent(SOCIAL_IMAGE))
@@ -143,10 +149,10 @@ export async function serveHtmlWithSeo(request, env) {
       'meta[property="og:image:alt"]',
       setMetaContent(SOCIAL_IMAGE_ALT)
     )
-    .on('meta[name="twitter:title"]', setMetaContent(title))
+    .on('meta[name="twitter:title"]', setMetaContent(socialTitle))
     .on(
       'meta[name="twitter:description"]',
-      setMetaContent(description)
+      setMetaContent(socialDescription)
     )
     .on('meta[name="twitter:url"]', setMetaContent(canonical))
     .on('meta[name="twitter:image"]', setMetaContent(SOCIAL_IMAGE))
