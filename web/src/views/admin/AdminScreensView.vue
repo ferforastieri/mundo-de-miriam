@@ -57,9 +57,6 @@
                 ↓
               </button>
             </div>
-            <span class="admin-tag" :class="screen.visible ? 'admin-tag--success' : ''">
-              {{ screen.visible ? 'Publicada' : 'Oculta' }}
-            </span>
             <button
               class="admin-btn admin-btn--small admin-btn--danger"
               type="button"
@@ -399,7 +396,7 @@ const KIND_OPTIONS = [
 ]
 
 const ACCESS_OPTIONS = [
-  { value: 'public', label: 'Publicada no site (aparece no menu)' },
+  { value: 'public', label: 'No site (aparece no menu)' },
   { value: 'link', label: 'Link privado (só quem tem o link)' },
   { value: 'draft', label: 'Rascunho (não publica)' }
 ]
