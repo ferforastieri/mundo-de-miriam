@@ -46,7 +46,8 @@
         
       </div>
       <div class="image-content">
-        <img :src="contactPhoto" alt="Miriam Cléres - Fale Comigo" />
+        <SkeletonBlock v-if="isPending" height="100%" radius="12px" />
+        <img v-else-if="contactPhoto" :src="contactPhoto" alt="Miriam Cléres - Fale Comigo" />
       </div>
     </div>
   </div>
@@ -54,7 +55,8 @@
 
 <script>
 import { TranslatableText, CustomButton } from '../common'
-import { useSitePhoto } from '@/composables/usePublicGallery'
+import SkeletonBlock from '@/components/common/SkeletonBlock.vue'
+import { usePublicGallery, useSitePhoto } from '@/composables/usePublicGallery'
 
 export default {
   name: 'ServicesSection',
@@ -63,8 +65,11 @@ export default {
     CustomButton
   },
   setup() {
+    const { isPending } = usePublicGallery()
+
     return {
-      contactPhoto: useSitePhoto('curriculum')
+      contactPhoto: useSitePhoto('curriculum'),
+      isPending
     }
   },
   methods: {

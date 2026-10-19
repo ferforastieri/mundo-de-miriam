@@ -96,9 +96,7 @@
       </div>
     </form>
 
-    <div v-if="isPending" class="admin-card">
-      <p class="admin-empty">Carregando telas…</p>
-    </div>
+    <AdminSkeleton v-if="isPending" variant="cards" />
 
     <div v-else-if="isError" class="admin-alert admin-alert--error">
       {{ error?.message || 'Não foi possível carregar as telas.' }}
@@ -398,6 +396,7 @@ import { useQuery } from '@tanstack/vue-query'
 import adminService from '@/api/admin/AdminService.js'
 import { useAdminToast } from '@/composables/useAdminToast'
 import ConfirmDialog from '@/components/admin/ConfirmDialog.vue'
+import AdminSkeleton from '@/components/admin/AdminSkeleton.vue'
 import { formatDate } from '@/utils/format.js'
 
 const toast = useAdminToast()

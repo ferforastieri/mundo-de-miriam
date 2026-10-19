@@ -76,6 +76,12 @@
           <figure class="editorial-menu__preview" aria-hidden="true">
             <Transition name="preview-image" mode="out-in">
               <img v-if="activeItem.image" :key="activeItem.image" :src="activeItem.image" alt="" />
+              <SkeletonBlock
+                v-else-if="galleryPending"
+                key="preview-skeleton"
+                height="100%"
+                radius="14px"
+              />
             </Transition>
             <figcaption>{{ activeItem.label }}</figcaption>
           </figure>
@@ -163,6 +169,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import LanguageSwitcher from './LanguageSwitcher.vue'
 import StyledSelect from './StyledSelect.vue'
+import SkeletonBlock from '@/components/common/SkeletonBlock.vue'
 import { screenCover, screenPath, usePublicGallery } from '@/composables/usePublicGallery'
 
 const props = defineProps({
@@ -199,7 +206,7 @@ const STATIC_LINKS = [
   { to: '/curriculum', label: 'Currículo', category: 'Experiência', screen: 'curriculum' }
 ]
 
-const { data: galleryData } = usePublicGallery()
+const { data: galleryData, isPending: galleryPending } = usePublicGallery()
 
 function imageForScreen(screenId) {
   return screenCover(galleryData.value?.screens?.find((item) => item.id === screenId))

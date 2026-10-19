@@ -1,7 +1,8 @@
 <template>
   <div class="profile-section">
     <div class="profile-image">
-      <img :src="profilePhoto" alt="Miriam Cléres Forastieri" />
+      <SkeletonBlock v-if="isPending" circle height="100%" />
+      <img v-else-if="profilePhoto" :src="profilePhoto" alt="Miriam Cléres Forastieri" />
     </div>
     
     <div class="profile-info">
@@ -17,7 +18,8 @@
 
 <script>
 import { TranslatableText } from '../common'
-import { useSitePhoto } from '@/composables/usePublicGallery'
+import SkeletonBlock from '@/components/common/SkeletonBlock.vue'
+import { usePublicGallery, useSitePhoto } from '@/composables/usePublicGallery'
 
 export default {
   name: 'HomeProfile',
@@ -25,8 +27,11 @@ export default {
     TranslatableText
   },
   setup() {
+    const { isPending } = usePublicGallery()
+
     return {
-      profilePhoto: useSitePhoto('profile')
+      profilePhoto: useSitePhoto('profile'),
+      isPending
     }
   }
 }

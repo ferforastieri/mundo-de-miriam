@@ -115,6 +115,7 @@ export default {
   position: relative;
   border-radius: 16px;
   overflow: hidden;
+  background: var(--skeleton-base);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   transition: all 0.3s ease;

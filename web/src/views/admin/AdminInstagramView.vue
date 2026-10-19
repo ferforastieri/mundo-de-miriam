@@ -16,9 +16,7 @@
       </div>
     </header>
 
-    <div v-if="isPending" class="admin-card">
-      <p class="admin-empty">Carregando dados do Instagram…</p>
-    </div>
+    <AdminSkeleton v-if="isPending" variant="stats" />
 
     <div v-else-if="isError" class="admin-alert admin-alert--error">
       {{ error?.message || 'Não foi possível carregar os dados do Instagram.' }}
@@ -349,6 +347,7 @@ import { useAdminToast } from '@/composables/useAdminToast'
 import AdminStatCard from '@/components/admin/AdminStatCard.vue'
 import AdminSparkline from '@/components/admin/AdminSparkline.vue'
 import ConfirmDialog from '@/components/admin/ConfirmDialog.vue'
+import AdminSkeleton from '@/components/admin/AdminSkeleton.vue'
 import { formatDateTime, formatNumber } from '@/utils/format.js'
 
 const queryClient = useQueryClient()

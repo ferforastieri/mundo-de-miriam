@@ -1,5 +1,19 @@
 <template>
-  <section v-if="stats" class="instagram-stats" aria-labelledby="instagram-stats-title">
+  <section
+    v-if="isPending && !stats"
+    class="instagram-stats instagram-stats--skeleton"
+    aria-hidden="true"
+  >
+    <header class="stats-header">
+      <SkeletonBlock width="200px" height="1.7rem" />
+      <SkeletonBlock width="120px" height="2rem" radius="8px" />
+    </header>
+    <div class="stats-grid">
+      <SkeletonBlock v-for="n in 4" :key="n" height="86px" radius="12px" />
+    </div>
+  </section>
+
+  <section v-else-if="stats" class="instagram-stats" aria-labelledby="instagram-stats-title">
     <header class="stats-header">
       <div class="instagram-brand">
         <span class="instagram-icon" aria-hidden="true">
@@ -46,6 +60,7 @@
 import { computed, ref, watch } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import { TranslatableText } from '../common'
+import SkeletonBlock from '@/components/common/SkeletonBlock.vue'
 import galleryService from '@/api/gallery/GalleryService.js'
 
 const CACHE_TIME = 15 * 60 * 1000
@@ -65,7 +80,7 @@ function readCachedStats() {
 
 const cachedStats = ref(readCachedStats())
 
-const { data } = useQuery({
+const { data, isPending } = useQuery({
   queryKey: ['instagram-stats'],
   queryFn: () => galleryService.getInstagramStats(),
   staleTime: CACHE_TIME,

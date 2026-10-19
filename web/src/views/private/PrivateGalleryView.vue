@@ -9,8 +9,9 @@
     </header>
 
     <main class="album-main">
-      <div v-if="isPending" class="album-state">
-        <p>Carregando fotos…</p>
+      <div v-if="isPending" class="album-skeleton" aria-hidden="true">
+        <SkeletonBlock height="128px" radius="18px" />
+        <GallerySkeleton :count="6" />
       </div>
 
       <div v-else-if="notFound" class="album-state">
@@ -65,7 +66,8 @@ import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useQuery } from '@tanstack/vue-query'
 import galleryService from '@/api/gallery/GalleryService.js'
-import { PortfolioGallery, PartnershipsGallery } from '@/components/portfolio'
+import { GallerySkeleton, PortfolioGallery, PartnershipsGallery } from '@/components/portfolio'
+import SkeletonBlock from '@/components/common/SkeletonBlock.vue'
 import { formatDate } from '@/utils/format.js'
 
 const route = useRoute()
@@ -187,6 +189,11 @@ watch(
   font-size: 0.78rem;
   text-decoration: none;
   border-bottom: 1px solid currentColor;
+}
+
+.album-skeleton {
+  display: grid;
+  gap: 1.2rem;
 }
 
 .album-main {

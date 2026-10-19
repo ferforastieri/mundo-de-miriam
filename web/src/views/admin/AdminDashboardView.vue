@@ -10,9 +10,7 @@
 
     </header>
 
-    <div v-if="isPending" class="admin-card">
-      <p class="admin-empty">Carregando dados do painel…</p>
-    </div>
+    <AdminSkeleton v-if="isPending" variant="dashboard" />
 
     <div v-else-if="isError" class="admin-alert admin-alert--error">
       {{ error?.message || 'Não foi possível carregar o painel.' }}
@@ -141,6 +139,7 @@
 import { computed } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import adminService from '@/api/admin/AdminService.js'
+import AdminSkeleton from '@/components/admin/AdminSkeleton.vue'
 import AdminStatCard from '@/components/admin/AdminStatCard.vue'
 import AdminSparkline from '@/components/admin/AdminSparkline.vue'
 import { formatBytes, formatDateTime, formatNumber } from '@/utils/format.js'
@@ -160,6 +159,15 @@ const photos = computed(() => data.value?.photos || {
 </script>
 
 <style scoped>
+.admin-grid-2 > .admin-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-links {
+  margin-top: auto;
+}
+
 .dashboard-sparkline {
   margin-top: 1rem;
   padding: 0.8rem;

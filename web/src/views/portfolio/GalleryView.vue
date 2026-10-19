@@ -1,8 +1,14 @@
 <template>
   <component :is="layout">
     <div class="portfolio-container">
-      <div v-if="isPending && !screen" class="loading">
-        <TranslatableText text="Carregando imagens..." />
+      <div v-if="isPending && !screen" class="gallery-pending">
+        <div class="portfolio-header">
+          <div class="header-content">
+            <SkeletonBlock width="min(280px, 70%)" height="2rem" />
+            <SkeletonBlock width="min(200px, 50%)" height="0.9rem" />
+          </div>
+        </div>
+        <GallerySkeleton />
       </div>
 
       <template v-else-if="screen">
@@ -46,7 +52,8 @@ import { useRoute } from 'vue-router'
 import PortfolioLayout from '@/layouts/portfolio/PortfolioLayout.vue'
 import PartnershipsLayout from '@/layouts/portfolio/PartnershipsLayout.vue'
 import { TranslatableText } from '@/components/common'
-import { PortfolioGallery, PartnershipsGallery } from '@/components/portfolio'
+import { GallerySkeleton, PortfolioGallery, PartnershipsGallery } from '@/components/portfolio'
+import SkeletonBlock from '@/components/common/SkeletonBlock.vue'
 import { usePublicGallery } from '@/composables/usePublicGallery'
 import { applySeo } from '@/seo'
 
@@ -144,8 +151,15 @@ watch(
 
 .header-content {
   flex: 1;
+  display: grid;
+  justify-items: center;
+  gap: 0.6rem;
   text-align: center;
   padding-right: 7rem;
+}
+
+.gallery-pending .portfolio-header {
+  margin-bottom: 2rem;
 }
 
 .portfolio-title {

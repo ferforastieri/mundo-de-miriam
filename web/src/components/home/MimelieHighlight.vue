@@ -8,7 +8,8 @@
       aria-label="Visitar o site oficial da Mimelie"
     >
       <div class="mimelie-highlight__symbol">
-        <img :src="mimelieSymbol" alt="Símbolo da Mimelie" />
+        <SkeletonBlock v-if="isPending" circle height="100%" />
+        <img v-else-if="mimelieSymbol" :src="mimelieSymbol" alt="Símbolo da Mimelie" />
       </div>
       <div class="mimelie-highlight__copy">
         <span>Marca autoral</span>
@@ -25,9 +26,11 @@
 </template>
 
 <script setup>
-import { useSitePhoto } from '@/composables/usePublicGallery'
+import SkeletonBlock from '@/components/common/SkeletonBlock.vue'
+import { usePublicGallery, useSitePhoto } from '@/composables/usePublicGallery'
 
 const mimelieSymbol = useSitePhoto('mimelie')
+const { isPending } = usePublicGallery()
 </script>
 
 <style scoped>

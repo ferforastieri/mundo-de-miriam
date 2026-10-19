@@ -17,9 +17,7 @@
       </div>
     </header>
 
-    <div v-if="screensPending" class="admin-card">
-      <p class="admin-empty">Carregando telas…</p>
-    </div>
+    <AdminSkeleton v-if="screensPending" variant="cards" />
 
     <div v-else-if="screensIsError" class="admin-alert admin-alert--error">
       {{ screensError?.message || 'Não foi possível carregar as telas.' }}
@@ -94,9 +92,7 @@
         </p>
 
         <div v-if="photosEnabled">
-          <div v-if="photosPending" class="admin-card">
-            <p class="admin-empty">Carregando fotos…</p>
-          </div>
+          <AdminSkeleton v-if="photosPending" variant="photos" :count="9" />
 
           <div v-else-if="photosIsError" class="admin-alert admin-alert--error">
             {{ photosError?.message || 'Não foi possível carregar as fotos.' }}
@@ -210,6 +206,7 @@ import { useQuery } from '@tanstack/vue-query'
 import adminService from '@/api/admin/AdminService.js'
 import { useAdminToast } from '@/composables/useAdminToast'
 import UploadDropzone from '@/components/admin/UploadDropzone.vue'
+import AdminSkeleton from '@/components/admin/AdminSkeleton.vue'
 import PhotoEditModal from '@/components/admin/PhotoEditModal.vue'
 import ConfirmDialog from '@/components/admin/ConfirmDialog.vue'
 import { formatBytes } from '@/utils/format.js'

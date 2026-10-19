@@ -54,7 +54,7 @@
           </button>
         </nav>
 
-        <p v-if="photosPending" class="admin-empty">Carregando fotos…</p>
+        <AdminSkeleton v-if="photosPending" variant="photos" :count="6" />
         <p v-else-if="photosIsError" class="admin-alert admin-alert--error">{{ photosError?.message }}</p>
         <p v-else-if="photos.length === 0" class="admin-empty">Nenhuma foto nesta tela.</p>
 
@@ -178,6 +178,7 @@ import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import adminService from '@/api/admin/AdminService.js'
 import { useAdminToast } from '@/composables/useAdminToast'
 import { formatDateTime } from '@/utils/format.js'
+import AdminSkeleton from '@/components/admin/AdminSkeleton.vue'
 
 const MAX_ITEMS = 10
 const toast = useAdminToast()
