@@ -21,20 +21,16 @@
         <div>
           <h2 class="admin-card__title">Nova tela</h2>
           <p class="admin-card__hint">
-            Ela aparece nas abas de Fotos e no menu do site em <code>/galeria/&lt;identificador&gt;</code>.
+            Ela aparece nas abas de Fotos; se publicada, entra no menu do site em
+            <code>/galeria/&lt;identificador gerado do nome&gt;</code>.
           </p>
         </div>
       </div>
 
-      <div class="screen-create__grid">
+      <div class="screen-create__grid screen-create__grid--pair">
         <label class="admin-field">
           <span class="admin-label">Nome</span>
           <input v-model="createForm.name" class="admin-input" maxlength="80" required placeholder="Ex.: Noivas" />
-        </label>
-
-        <label class="admin-field">
-          <span class="admin-label">Identificador (opcional)</span>
-          <input v-model="createForm.id" class="admin-input" maxlength="60" placeholder="gerado do nome" />
         </label>
 
         <label class="admin-field">
@@ -73,7 +69,7 @@
         </label>
       </div>
 
-      <div class="screen-create__grid">
+      <div class="screen-create__grid screen-create__grid--pair">
         <label class="admin-field">
           <span class="admin-label">Publicação</span>
           <select v-model="createForm.access" class="admin-select">
@@ -413,7 +409,6 @@ const showCreate = ref(false)
 const creatingScreen = ref(false)
 const createForm = reactive({
   name: '',
-  id: '',
   description: '',
   kind: 'gallery',
   access: 'public',
@@ -431,7 +426,6 @@ async function submitCreate() {
   try {
     const created = await adminService.createScreen({
       name: createForm.name.trim(),
-      id: createForm.id.trim() || undefined,
       description: createForm.description.trim(),
       kind: createForm.kind,
       visible: createForm.access === 'public',
@@ -451,7 +445,6 @@ async function submitCreate() {
     )
     showCreate.value = false
     createForm.name = ''
-    createForm.id = ''
     createForm.description = ''
     createForm.kind = 'gallery'
     createForm.access = 'public'
@@ -738,6 +731,8 @@ async function confirmDeleteGroup() {
 }
 
 .screen-create {
+  display: grid;
+  gap: 0.9rem;
   margin-bottom: 1rem;
 }
 
@@ -745,6 +740,10 @@ async function confirmDeleteGroup() {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr) minmax(0, 1.2fr);
   gap: 0.75rem;
+}
+
+.screen-create__grid--pair {
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
 }
 
 @media (max-width: 760px) {
