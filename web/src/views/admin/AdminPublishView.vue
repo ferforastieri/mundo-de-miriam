@@ -1,11 +1,5 @@
 <template>
   <div>
-    <div class="admin-page-actions">
-      <RouterLink class="admin-btn admin-btn--small" :to="{ name: 'AdminInstagram' }">
-        Ver estatísticas
-      </RouterLink>
-    </div>
-
     <div v-if="!instagramConfigured" class="admin-alert admin-alert--error publish-block">
       Configure o token do Instagram antes de publicar.
       <RouterLink class="admin-link" :to="{ name: 'AdminInstagram' }">Ir para a tela do Instagram</RouterLink>
@@ -21,14 +15,19 @@
             </p>
           </div>
 
-          <button
-            v-if="selectedIds.length > 0"
-            class="admin-btn admin-btn--small"
-            type="button"
-            @click="selectedIds = []"
-          >
-            Limpar seleção
-          </button>
+          <div class="admin-actions-row">
+            <RouterLink class="admin-btn admin-btn--small" :to="{ name: 'AdminInstagram' }">
+              Ver estatísticas
+            </RouterLink>
+            <button
+              v-if="selectedIds.length > 0"
+              class="admin-btn admin-btn--small"
+              type="button"
+              @click="selectedIds = []"
+            >
+              Limpar seleção
+            </button>
+          </div>
         </div>
 
         <div class="photos-toolbar">

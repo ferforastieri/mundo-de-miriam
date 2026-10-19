@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="admin-page-actions">
+    <div class="admin-page-actions admin-page-actions--wide">
       <button class="admin-btn admin-btn--primary" type="button" @click="showCreate = true">
         + Nova tela
       </button>

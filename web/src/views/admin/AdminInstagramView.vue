@@ -1,11 +1,5 @@
 <template>
   <div>
-    <div class="admin-page-actions">
-      <RouterLink class="admin-btn admin-btn--small" :to="{ name: 'AdminPublish' }">
-        Publicar no Instagram
-      </RouterLink>
-    </div>
-
     <AdminSkeleton v-if="isPending" variant="stats" />
 
     <div v-else-if="isError" class="admin-alert admin-alert--error">
@@ -18,9 +12,15 @@
         <a class="admin-link" href="#configuracoes">Ir para as configurações</a>
       </div>
 
-      <div class="instagram-section__head">
-        <h2 class="instagram-section__title">Desempenho</h2>
-        <p class="instagram-section__hint">Números do último dia e evolução ao longo do tempo</p>
+      <div class="instagram-section__head instagram-section__head--action">
+        <div>
+          <h2 class="instagram-section__title">Desempenho</h2>
+          <p class="instagram-section__hint">Números do último dia e evolução ao longo do tempo</p>
+        </div>
+
+        <RouterLink class="admin-btn admin-btn--small" :to="{ name: 'AdminPublish' }">
+          Publicar no Instagram
+        </RouterLink>
       </div>
 
       <section class="admin-card instagram-metrics">
