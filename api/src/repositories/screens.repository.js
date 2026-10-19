@@ -51,6 +51,10 @@ export function createScreensRepository(db) {
         .run()
     },
 
+    async remove(id) {
+      await db.prepare('DELETE FROM screens WHERE id = ?').bind(id).run()
+    },
+
     async update(id, screen) {
       await db
         .prepare(

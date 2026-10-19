@@ -38,6 +38,10 @@ class AdminService {
     return http.get('/api/admin/screens')
   }
 
+  deleteScreen(screenId) {
+    return http.delete(`/api/admin/screens/${encodeURIComponent(screenId)}`)
+  }
+
   createScreen(payload) {
     return http.post('/api/admin/screens', payload)
   }

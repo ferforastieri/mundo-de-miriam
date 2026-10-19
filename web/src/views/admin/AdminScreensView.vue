@@ -138,6 +138,13 @@
             <span class="admin-tag" :class="screen.visible ? 'admin-tag--success' : ''">
               {{ screen.visible ? 'Publicada' : 'Oculta' }}
             </span>
+            <button
+              class="admin-btn admin-btn--small admin-btn--danger"
+              type="button"
+              @click="askDeleteScreen(screen)"
+            >
+              Excluir
+            </button>
           </div>
         </div>
 
@@ -362,6 +369,17 @@
     </div>
 
     <ConfirmDialog
+      :open="Boolean(screenToDelete)"
+      title="Excluir tela"
+      :message="deleteScreenMessage"
+      confirm-label="Excluir para sempre"
+      :loading="deletingScreen"
+      danger
+      @confirm="confirmDeleteScreen"
+      @cancel="screenToDelete = null"
+    />
+
+    <ConfirmDialog
       :open="Boolean(groupToDelete)"
       title="Excluir marca"
       :message="groupToDelete ? `A marca “${groupToDelete.name}” será removida. Só é possível excluir marcas sem fotos.` : ''"
@@ -579,6 +597,43 @@ watch(
   },
   { immediate: true, deep: false }
 )
+
+const screenToDelete = ref(null)
+const deletingScreen = ref(false)
+
+const deleteScreenMessage = computed(() => {
+  if (!screenToDelete.value) return ''
+
+  const total = screenToDelete.value.photoCount || 0
+  const arquivos = total === 1 ? '1 foto/vídeo' : `${total} fotos/vídeos`
+
+  return `A tela “${screenToDelete.value.name}” e ${arquivos} serão removidos para sempre do site e do armazenamento. Não dá para desfazer.`
+})
+
+function askDeleteScreen(screen) {
+  screenToDelete.value = screen
+}
+
+async function confirmDeleteScreen() {
+  if (!screenToDelete.value) return
+
+  deletingScreen.value = true
+
+  try {
+    const result = await adminService.deleteScreen(screenToDelete.value.id)
+    toast.success(
+      result.failedFiles
+        ? `Tela excluída (${result.failedFiles} arquivo(s) não puderam ser removidos).`
+        : 'Tela excluída.'
+    )
+    screenToDelete.value = null
+    await refetch()
+  } catch (requestError) {
+    toast.error(requestError.message || 'Não foi possível excluir a tela.')
+  } finally {
+    deletingScreen.value = false
+  }
+}
 
 const savingScreenId = ref('')
 const savingGroupId = ref('')

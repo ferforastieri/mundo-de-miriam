@@ -3,6 +3,7 @@ import { getContainer } from '../context.js'
 import { requireAdmin } from '../http/guards.js'
 import { createGroup } from '../usecases/screens/create-group.js'
 import { createScreen } from '../usecases/screens/create-screen.js'
+import { deleteScreen } from '../usecases/screens/delete-screen.js'
 import { deleteGroup } from '../usecases/screens/delete-group.js'
 import { listScreens } from '../usecases/screens/list-screens.js'
 import { reorderGroups } from '../usecases/screens/reorder-groups.js'
@@ -123,6 +124,14 @@ export function registerScreensRoutes(app) {
     { preHandler: requireAdmin, schema: createScreenSchema },
     async (request) => {
       return createScreen(getContainer(), request.body)
+    }
+  )
+
+  app.delete(
+    '/api/admin/screens/:id',
+    { preHandler: requireAdmin, schema: { params: screenIdParams } },
+    async (request) => {
+      return deleteScreen(getContainer(), request.params.id)
     }
   )
 
