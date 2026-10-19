@@ -5,6 +5,7 @@ import {
   SITE_NAME,
   SOCIAL_IMAGE,
   SOCIAL_IMAGE_ALT,
+  TWITTER_IMAGE,
   buildFallbackContent,
   canonicalFor,
   getSeoForPath,
@@ -121,6 +122,8 @@ export async function serveHtmlWithSeo(request, env) {
       ? buildFallbackContent(seo)
       : null
 
+  let ogImageApplied = false
+
   let rewriter = new HTMLRewriter()
     .on('title', {
       element(element) {
@@ -140,7 +143,13 @@ export async function serveHtmlWithSeo(request, env) {
       setMetaContent(socialDescription)
     )
     .on('meta[property="og:url"]', setMetaContent(canonical))
-    .on('meta[property="og:image"]', setMetaContent(SOCIAL_IMAGE))
+    .on('meta[property="og:image"]', {
+      element(element) {
+        if (ogImageApplied) return
+        ogImageApplied = true
+        element.setAttribute('content', SOCIAL_IMAGE)
+      }
+    })
     .on(
       'meta[property="og:image:secure_url"]',
       setMetaContent(SOCIAL_IMAGE)
@@ -155,7 +164,7 @@ export async function serveHtmlWithSeo(request, env) {
       setMetaContent(socialDescription)
     )
     .on('meta[name="twitter:url"]', setMetaContent(canonical))
-    .on('meta[name="twitter:image"]', setMetaContent(SOCIAL_IMAGE))
+    .on('meta[name="twitter:image"]', setMetaContent(TWITTER_IMAGE))
     .on(
       'meta[name="twitter:image:alt"]',
       setMetaContent(SOCIAL_IMAGE_ALT)

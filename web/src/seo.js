@@ -1,6 +1,9 @@
 export const SITE_URL = 'https://www.mundodemiriam.com.br'
 export const SITE_NAME = 'Mundo de Miriam'
 export const SOCIAL_IMAGE = `${SITE_URL}/assets/social/miriam-forastieri-og.jpg?v=2`
+export const TWITTER_IMAGE = `${SITE_URL}/assets/social/miriam-forastieri-twitter.jpg?v=2`
+export const SQUARE_IMAGE = `${SITE_URL}/assets/social/miriam-forastieri-square.jpg?v=2`
+export const PINTEREST_IMAGE = `${SITE_URL}/assets/social/miriam-forastieri-pinterest.jpg?v=2`
 export const SOCIAL_IMAGE_WIDTH = '1200'
 export const SOCIAL_IMAGE_HEIGHT = '630'
 export const SOCIAL_IMAGE_ALT = 'Retrato de Miriam Cléres Forastieri, maquiadora e fotógrafa em Sorocaba'
@@ -169,7 +172,7 @@ export function applySeo(path, overrides = null) {
   setMeta('name', 'twitter:title', seo.title)
   setMeta('name', 'twitter:description', seo.description)
   setMeta('name', 'twitter:url', canonicalUrl)
-  setMeta('name', 'twitter:image', SOCIAL_IMAGE)
+  setMeta('name', 'twitter:image', TWITTER_IMAGE)
   setMeta('name', 'twitter:image:alt', SOCIAL_IMAGE_ALT)
 
   let canonical = document.head.querySelector('link[rel="canonical"]')
