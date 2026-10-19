@@ -67,6 +67,13 @@ export async function serveHtmlWithSeo(request, env) {
     return Response.redirect(`${url.origin}/galeria/${legacyScreenId}${url.search}`, 301)
   }
 
+  // Links antigos de álbuns (/album/<token>) → link privado da tela (/a/<token>).
+  const legacyAlbum = url.pathname.match(/^\/album\/([A-Za-z0-9_-]{8,64})\/?$/)
+
+  if (legacyAlbum) {
+    return Response.redirect(`${url.origin}/a/${legacyAlbum[1]}${url.search}`, 301)
+  }
+
   const assetResponse = await env.ASSETS.fetch(request)
   const contentType = assetResponse.headers.get('content-type') || ''
 
@@ -76,13 +83,14 @@ export async function serveHtmlWithSeo(request, env) {
 
   const isAdmin = url.pathname.startsWith('/admin')
   const isAlbum = url.pathname.startsWith('/album')
+  const isShared = url.pathname.startsWith('/a/')
   const isGallery = url.pathname.startsWith('/galeria')
-  const isUnlisted = isAdmin || isAlbum
+  const isUnlisted = isAdmin || isAlbum || isShared
   const seo = getSeoForPath(url.pathname)
   const dynamicScreen = isGallery ? await getDynamicScreen(env, url.pathname) : null
   const galleryMissing = isGallery && dynamicScreen === false
-  const title = isAlbum
-    ? 'Álbum de fotos · Mundo de Miriam'
+  const title = isAlbum || isShared
+    ? 'Fotos compartilhadas · Mundo de Miriam'
     : isAdmin
       ? ADMIN_TITLE
       : galleryMissing
@@ -90,8 +98,8 @@ export async function serveHtmlWithSeo(request, env) {
         : dynamicScreen
           ? `${dynamicScreen.name} · Mundo de Miriam`
           : seo?.title || SITE_NAME
-  const description = isAlbum
-    ? 'Álbum de fotos compartilhado por Miriam Cléres Forastieri.'
+  const description = isAlbum || isShared
+    ? 'Página privada de fotos compartilhada por Miriam Cléres Forastieri.'
     : isAdmin
       ? ADMIN_DESCRIPTION
       : dynamicScreen
@@ -161,9 +169,9 @@ export async function serveHtmlWithSeo(request, env) {
   headers.set('cache-control', 'public, max-age=0, must-revalidate')
   headers.set('x-content-type-options', 'nosniff')
 
-  // O preview (*.workers.dev) aponta o canonical para o domínio oficial;
-  // evitamos que ele seja indexado como conteúdo duplicado.
-  if (url.hostname.endsWith('.workers.dev')) {
+  // Páginas não listadas (painel, links privados) e o preview (*.workers.dev)
+  // não devem ser indexados.
+  if (isUnlisted || url.hostname.endsWith('.workers.dev')) {
     headers.set('x-robots-tag', 'noindex')
   }
 

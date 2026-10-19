@@ -6,6 +6,8 @@ import { createScreen } from '../usecases/screens/create-screen.js'
 import { deleteGroup } from '../usecases/screens/delete-group.js'
 import { listScreens } from '../usecases/screens/list-screens.js'
 import { reorderGroups } from '../usecases/screens/reorder-groups.js'
+import { revokeScreenShare } from '../usecases/screens/revoke-screen-share.js'
+import { shareScreen } from '../usecases/screens/share-screen.js'
 import { updateGroup } from '../usecases/screens/update-group.js'
 import { updateScreen } from '../usecases/screens/update-screen.js'
 
@@ -49,6 +51,18 @@ const createScreenSchema = {
       menuLabel: { type: 'string', minLength: 1, maxLength: 24 },
       menuCategory: { type: 'string', maxLength: 24 },
       icon: { type: 'string', enum: SCREEN_ICONS }
+    }
+  }
+}
+
+const shareScreenSchema = {
+  params: screenIdParams,
+  body: {
+    type: 'object',
+    additionalProperties: false,
+    properties: {
+      expiresInDays: { type: ['integer', 'null'], minimum: 0, maximum: 3650 },
+      rotate: { type: 'boolean' }
     }
   }
 }
@@ -109,6 +123,22 @@ export function registerScreensRoutes(app) {
     { preHandler: requireAdmin, schema: createScreenSchema },
     async (request) => {
       return createScreen(getContainer(), request.body)
+    }
+  )
+
+  app.post(
+    '/api/admin/screens/:id/share',
+    { preHandler: requireAdmin, schema: shareScreenSchema },
+    async (request) => {
+      return shareScreen(getContainer(), request.params.id, request.body || {})
+    }
+  )
+
+  app.delete(
+    '/api/admin/screens/:id/share',
+    { preHandler: requireAdmin, schema: { params: screenIdParams } },
+    async (request) => {
+      return revokeScreenShare(getContainer(), request.params.id)
     }
   )
 

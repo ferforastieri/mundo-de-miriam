@@ -117,49 +117,12 @@ class AdminService {
     return http.post('/api/admin/instagram/publish', { photoIds, caption })
   }
 
-  getAlbums() {
-    return http.get('/api/admin/albums')
+  shareScreen(screenId, payload = {}) {
+    return http.post(`/api/admin/screens/${encodeURIComponent(screenId)}/share`, payload)
   }
 
-  getAlbum(albumId) {
-    return http.get(`/api/admin/albums/${encodeURIComponent(albumId)}`)
-  }
-
-  createAlbum({ title, description = '', expiresInDays = null }) {
-    return http.post('/api/admin/albums', { title, description, expiresInDays })
-  }
-
-  updateAlbum(albumId, patch) {
-    return http.patch(`/api/admin/albums/${encodeURIComponent(albumId)}`, patch)
-  }
-
-  deleteAlbum(albumId) {
-    return http.delete(`/api/admin/albums/${encodeURIComponent(albumId)}`)
-  }
-
-  uploadAlbumPhoto(albumId, file, alt = '') {
-    return http.upload(
-      `/api/admin/albums/${encodeURIComponent(albumId)}/photos${queryString({
-        fileName: file.name,
-        alt
-      })}`,
-      file
-    )
-  }
-
-  updateAlbumPhoto(photoId, alt) {
-    return http.patch(`/api/admin/album-photos/${encodeURIComponent(photoId)}`, { alt })
-  }
-
-  deleteAlbumPhoto(photoId) {
-    return http.delete(`/api/admin/album-photos/${encodeURIComponent(photoId)}`)
-  }
-
-  reorderAlbumPhotos(albumId, orderedIds) {
-    return http.patch(
-      `/api/admin/albums/${encodeURIComponent(albumId)}/photos/reorder`,
-      { orderedIds }
-    )
+  revokeScreenShare(screenId) {
+    return http.delete(`/api/admin/screens/${encodeURIComponent(screenId)}/share`)
   }
 }
 

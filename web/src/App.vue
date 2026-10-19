@@ -12,7 +12,9 @@ const { screens: menuScreens } = usePublicScreens()
 const showScrollCue = ref(false)
 const currentYear = new Date().getFullYear()
 const route = useRoute()
-const isImmersive = computed(() => route.path.startsWith('/admin') || route.path.startsWith('/album'))
+const isImmersive = computed(
+  () => route.path.startsWith('/admin') || route.path.startsWith('/a/') || route.path.startsWith('/album')
+)
 
 const getScrollTarget = () => (
   document.querySelector('.portfolio-layout, .partnerships-layout') || document.scrollingElement

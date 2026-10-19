@@ -20,6 +20,13 @@ export function createScreensRepository(db) {
       return db.prepare('SELECT * FROM screens WHERE id = ?').bind(id).first()
     },
 
+    async findByShareToken(token) {
+      return db
+        .prepare('SELECT * FROM screens WHERE share_token = ?')
+        .bind(token)
+        .first()
+    },
+
     async create(screen) {
       await db
         .prepare(
@@ -55,6 +62,8 @@ export function createScreensRepository(db) {
                menu_label = ?,
                menu_category = ?,
                icon = ?,
+               share_token = ?,
+               expires_at = ?,
                updated_at = ?
            WHERE id = ?`
         )
@@ -66,6 +75,8 @@ export function createScreensRepository(db) {
           screen.menuLabel,
           screen.menuCategory,
           screen.icon,
+          screen.shareToken,
+          screen.expiresAt,
           screen.updatedAt,
           id
         )

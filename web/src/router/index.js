@@ -35,11 +35,12 @@ const routes = [
     component: () => import('../views/portfolio/GalleryView.vue')
   },
   {
-    path: '/album/:token',
-    name: 'Album',
-    component: () => import('../views/album/AlbumView.vue'),
-    meta: { noindex: true, title: 'Álbum de fotos' }
+    path: '/a/:token',
+    name: 'SharedScreen',
+    component: () => import('../views/private/PrivateGalleryView.vue'),
+    meta: { noindex: true, title: 'Fotos compartilhadas' }
   },
+  { path: '/album/:token', redirect: (to) => ({ path: `/a/${to.params.token}` }) },
   {
     path: '/admin/login',
     name: 'AdminLogin',
@@ -82,12 +83,7 @@ const routes = [
         component: () => import('../views/admin/AdminPublishView.vue'),
         meta: { title: 'Publicar' }
       },
-      {
-        path: 'branding',
-        name: 'AdminAlbums',
-        component: () => import('../views/admin/AdminAlbumsView.vue'),
-        meta: { title: 'Branding' }
-      },
+      { path: 'branding', redirect: { name: 'AdminScreens' } },
       {
         path: 'account',
         name: 'AdminAccount',

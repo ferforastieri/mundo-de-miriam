@@ -1,7 +1,7 @@
 import { MAX_SCREEN_CATEGORY, MAX_SCREEN_LABEL, SCREEN_ICONS } from '../../config.js'
 import { badRequest, notFound } from '../../http/errors.js'
 import { toScreen } from '../../mappers/screen.mapper.js'
-import { nowIso } from '../../utils/dates.js'
+import { screenUpdatePayload } from './screen-payload.js'
 
 const MAX_NAME_LENGTH = 80
 const MAX_DESCRIPTION_LENGTH = 240
@@ -60,17 +60,24 @@ export async function updateScreen(container, screenId, patch = {}) {
     throw badRequest('invalid_icon', 'Ícone inválido.')
   }
 
-  await container.screens.update(screenId, {
-    name,
-    description,
-    sortOrder,
-    isVisible,
-    menuLabel,
-    menuCategory,
-    icon,
-    updatedAt: nowIso()
-  })
+  await container.screens.update(
+    screenId,
+    screenUpdatePayload(current, {
+      name,
+      description,
+      sortOrder,
+      isVisible,
+      menuLabel,
+      menuCategory,
+      icon
+    })
+  )
 
   const updated = await container.screens.findById(screenId)
-  return toScreen(updated)
+
+  return {
+    ...toScreen(updated),
+    shareToken: updated.share_token,
+    expiresAt: updated.expires_at
+  }
 }

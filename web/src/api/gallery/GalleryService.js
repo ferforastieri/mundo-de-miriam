@@ -9,8 +9,8 @@ class GalleryService {
     return http.get('/api/instagram/stats')
   }
 
-  getAlbum(token) {
-    return http.get(`/api/public/albums/${encodeURIComponent(token)}`)
+  getSharedScreen(token) {
+    return http.get(`/api/public/screens/${encodeURIComponent(token)}`)
   }
 }
 

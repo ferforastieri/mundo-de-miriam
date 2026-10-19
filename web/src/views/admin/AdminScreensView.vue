@@ -73,10 +73,25 @@
         </label>
       </div>
 
-      <label class="admin-checkbox">
-        <input v-model="createForm.visible" type="checkbox" />
-        Publicar a tela no site
-      </label>
+      <div class="screen-create__grid">
+        <label class="admin-field">
+          <span class="admin-label">Publicação</span>
+          <select v-model="createForm.access" class="admin-select">
+            <option value="public">Publicada no site (aparece no menu)</option>
+            <option value="link">Link privado (só quem tem o link)</option>
+            <option value="draft">Rascunho (não publica)</option>
+          </select>
+        </label>
+
+        <label v-if="createForm.access === 'link'" class="admin-field">
+          <span class="admin-label">Validade do link</span>
+          <select v-model="createForm.expiresInDays" class="admin-select">
+            <option v-for="option in SHARE_EXPIRY_OPTIONS" :key="option.value" :value="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </label>
+      </div>
 
       <div class="admin-actions-row">
         <button class="admin-btn admin-btn--primary" type="submit" :disabled="creatingScreen">
@@ -175,6 +190,84 @@
               @click="saveScreen(screen)"
             >
               {{ savingScreenId === screen.id ? 'Salvando…' : 'Salvar tela' }}
+            </button>
+          </div>
+        </div>
+
+        <hr class="admin-separator" />
+
+        <div class="screen-share">
+          <div class="screen-share__head">
+            <span class="admin-label">Link privado</span>
+            <span
+              class="admin-tag"
+              :class="{
+                'admin-tag--success': screen.shareToken && !shareIsExpired(screen),
+                'admin-tag--danger': shareIsExpired(screen)
+              }"
+            >
+              {{ shareLabel(screen) }}
+            </span>
+          </div>
+
+          <p class="admin-card__hint">
+            Não aparece no site nem nos buscadores. Quem tiver o link vê as fotos desta tela.
+          </p>
+
+          <template v-if="screen.shareToken">
+            <div class="screen-share__row">
+              <input class="admin-input" :value="shareUrl(screen)" readonly />
+              <button class="admin-btn admin-btn--small" type="button" @click="copyShareLink(screen)">
+                Copiar
+              </button>
+              <a class="admin-btn admin-btn--small" :href="shareUrl(screen)" target="_blank" rel="noopener">
+                Abrir
+              </a>
+            </div>
+
+            <div class="screen-share__row">
+              <label class="admin-field">
+                <span class="admin-label">Nova validade</span>
+                <select
+                  class="admin-select"
+                  :value="shareExpiry[screen.id]"
+                  :disabled="sharingScreenId === screen.id"
+                  @change="updateShareExpiry(screen, $event.target.value)"
+                >
+                  <option v-for="option in SHARE_EXPIRY_OPTIONS" :key="option.value" :value="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
+              </label>
+
+              <button
+                class="admin-btn admin-btn--small"
+                type="button"
+                :disabled="sharingScreenId === screen.id"
+                @click="rotateShare(screen)"
+              >
+                Gerar novo link
+              </button>
+
+              <button
+                class="admin-btn admin-btn--small admin-btn--danger"
+                type="button"
+                :disabled="sharingScreenId === screen.id"
+                @click="revokeShare(screen)"
+              >
+                Revogar link
+              </button>
+            </div>
+          </template>
+
+          <div v-else class="screen-share__row">
+            <button
+              class="admin-btn admin-btn--primary admin-btn--small"
+              type="button"
+              :disabled="sharingScreenId === screen.id"
+              @click="createShare(screen)"
+            >
+              {{ sharingScreenId === screen.id ? 'Gerando…' : 'Gerar link privado' }}
             </button>
           </div>
         </div>
@@ -291,6 +384,7 @@ import { useQuery } from '@tanstack/vue-query'
 import adminService from '@/api/admin/AdminService.js'
 import { useAdminToast } from '@/composables/useAdminToast'
 import ConfirmDialog from '@/components/admin/ConfirmDialog.vue'
+import { formatDate } from '@/utils/format.js'
 
 const toast = useAdminToast()
 
@@ -305,6 +399,16 @@ const SCREEN_ICONS = [
   { value: 'star', label: 'Estrela' }
 ]
 
+const SHARE_EXPIRY_OPTIONS = [
+  { value: '0', label: 'Para sempre' },
+  { value: '7', label: '7 dias' },
+  { value: '30', label: '30 dias' },
+  { value: '60', label: '60 dias' },
+  { value: '90', label: '90 dias' },
+  { value: '180', label: '180 dias' },
+  { value: '365', label: '365 dias' }
+]
+
 const showCreate = ref(false)
 const creatingScreen = ref(false)
 const createForm = reactive({
@@ -312,7 +416,8 @@ const createForm = reactive({
   id: '',
   description: '',
   kind: 'gallery',
-  visible: true,
+  access: 'public',
+  expiresInDays: '0',
   menuLabel: '',
   menuCategory: '',
   icon: 'image'
@@ -324,23 +429,33 @@ async function submitCreate() {
   creatingScreen.value = true
 
   try {
-    await adminService.createScreen({
+    const created = await adminService.createScreen({
       name: createForm.name.trim(),
       id: createForm.id.trim() || undefined,
       description: createForm.description.trim(),
       kind: createForm.kind,
-      visible: createForm.visible,
+      visible: createForm.access === 'public',
       menuLabel: createForm.menuLabel.trim() || undefined,
       menuCategory: createForm.menuCategory.trim(),
       icon: createForm.icon
     })
-    toast.success('Tela criada.')
+
+    if (createForm.access === 'link') {
+      await adminService.shareScreen(created.id, {
+        expiresInDays: Number(createForm.expiresInDays)
+      })
+    }
+
+    toast.success(
+      createForm.access === 'link' ? 'Tela criada com link privado.' : 'Tela criada.'
+    )
     showCreate.value = false
     createForm.name = ''
     createForm.id = ''
     createForm.description = ''
     createForm.kind = 'gallery'
-    createForm.visible = true
+    createForm.access = 'public'
+    createForm.expiresInDays = '0'
     createForm.menuLabel = ''
     createForm.menuCategory = ''
     createForm.icon = 'image'
@@ -366,6 +481,87 @@ const {
 const screens = computed(() => data.value?.screens || [])
 const drafts = reactive({})
 const groupDrafts = reactive({})
+const shareExpiry = reactive({})
+const sharingScreenId = ref('')
+
+function shareUrl(screen) {
+  return `${window.location.origin}/a/${screen.shareToken}`
+}
+
+function shareIsExpired(screen) {
+  return Boolean(screen.expiresAt) && new Date(screen.expiresAt).getTime() <= Date.now()
+}
+
+function shareLabel(screen) {
+  if (!screen.shareToken) return 'Sem link'
+  if (shareIsExpired(screen)) return 'Expirado'
+  if (screen.expiresAt) return `Ativo até ${formatDate(screen.expiresAt)}`
+  return 'Ativo para sempre'
+}
+
+async function runShareAction(screen, action, successMessage) {
+  sharingScreenId.value = screen.id
+
+  try {
+    await action()
+    toast.success(successMessage)
+    await refetch()
+  } catch (requestError) {
+    toast.error(requestError.message || 'Não foi possível atualizar o link.')
+  } finally {
+    sharingScreenId.value = ''
+  }
+}
+
+function createShare(screen) {
+  return runShareAction(
+    screen,
+    () =>
+      adminService.shareScreen(screen.id, {
+        expiresInDays: Number(shareExpiry[screen.id] || 0)
+      }),
+    'Link privado criado.'
+  )
+}
+
+function updateShareExpiry(screen, value) {
+  shareExpiry[screen.id] = value
+
+  return runShareAction(
+    screen,
+    () => adminService.shareScreen(screen.id, { expiresInDays: Number(value) }),
+    'Validade do link atualizada.'
+  )
+}
+
+function rotateShare(screen) {
+  return runShareAction(
+    screen,
+    () =>
+      adminService.shareScreen(screen.id, {
+        expiresInDays: Number(shareExpiry[screen.id] || 0),
+        rotate: true
+      }),
+    'Novo link gerado (o anterior deixou de funcionar).'
+  )
+}
+
+function revokeShare(screen) {
+  return runShareAction(
+    screen,
+    () => adminService.revokeScreenShare(screen.id),
+    'Link privado removido.'
+  )
+}
+
+async function copyShareLink(screen) {
+  try {
+    await navigator.clipboard.writeText(shareUrl(screen))
+    toast.success('Link copiado.')
+  } catch {
+    toast.error('Não foi possível copiar. Selecione o link manualmente.')
+  }
+}
 
 watch(
   screens,
@@ -380,6 +576,8 @@ watch(
         menuCategory: screen.menuCategory,
         icon: screen.icon
       }
+
+      shareExpiry[screen.id] = '0'
 
       for (const group of screen.groups || []) {
         groupDrafts[group.id] = { name: group.name }
@@ -516,6 +714,29 @@ async function confirmDeleteGroup() {
 </script>
 
 <style scoped>
+.screen-share {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.screen-share__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.screen-share__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.5rem;
+}
+
+.screen-share__row .admin-input {
+  flex: 1 1 260px;
+}
+
 .screen-create {
   margin-bottom: 1rem;
 }

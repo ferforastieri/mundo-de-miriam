@@ -3,41 +3,53 @@
     <header class="album-header">
       <RouterLink class="album-brand" to="/">
         <span class="album-brand__eyebrow">Mundo de Miriam</span>
-        <span class="album-brand__title">Álbum de fotos</span>
+        <span class="album-brand__title">Fotos compartilhadas</span>
       </RouterLink>
       <RouterLink class="album-back" to="/">Ver portfólio ↗</RouterLink>
     </header>
 
     <main class="album-main">
       <div v-if="isPending" class="album-state">
-        <p>Carregando álbum…</p>
+        <p>Carregando fotos…</p>
       </div>
 
       <div v-else-if="notFound" class="album-state">
-        <h1>Álbum não encontrado</h1>
-        <p>O link pode estar incorreto ou o álbum foi removido.</p>
+        <h1>Link não encontrado</h1>
+        <p>O link pode estar incorreto ou ter sido removido.</p>
         <RouterLink class="album-action" to="/">Ir para o site</RouterLink>
       </div>
 
       <div v-else-if="expired" class="album-state">
-        <h1>Este álbum expirou</h1>
+        <h1>Este link expirou</h1>
         <p>Peça um novo link para Miriam para continuar acessando as fotos.</p>
         <RouterLink class="album-action" to="/">Ir para o site</RouterLink>
       </div>
 
-      <template v-else>
+      <template v-else-if="screen">
         <section class="album-intro">
-          <p class="album-eyebrow">Álbum de fotos</p>
-          <h1>{{ album.title }}</h1>
-          <p v-if="album.description" class="album-description">{{ album.description }}</p>
+          <p class="album-eyebrow">Fotos compartilhadas</p>
+          <h1>{{ screen.name }}</h1>
+          <p v-if="screen.description" class="album-description">{{ screen.description }}</p>
           <p class="album-meta">
-            {{ photos.length }} foto{{ photos.length === 1 ? '' : 's' }}
-            <template v-if="album.expiresAt"> · disponível até {{ formatDate(album.expiresAt) }}</template>
+            {{ photoCount }} foto{{ photoCount === 1 ? '' : 's' }}
+            <template v-if="expiresAt"> · disponível até {{ formatDate(expiresAt) }}</template>
             <template v-else> · disponível para sempre</template>
           </p>
         </section>
 
-        <PortfolioGallery :images="images" />
+        <PartnershipsGallery
+          v-if="screen.kind === 'partnerships' && partnerships.length > 0"
+          :partnerships="partnerships"
+          @toggle-partnership="togglePartnership"
+        />
+
+        <figure v-else-if="screen.kind === 'single' && images.length > 0" class="album-single">
+          <img :src="images[0].src" :alt="images[0].alt" />
+        </figure>
+
+        <PortfolioGallery v-else-if="images.length > 0" :images="images" />
+
+        <p v-else class="album-meta">Nenhuma foto publicada ainda.</p>
       </template>
     </main>
 
@@ -53,7 +65,7 @@ import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useQuery } from '@tanstack/vue-query'
 import galleryService from '@/api/gallery/GalleryService.js'
-import { PortfolioGallery } from '@/components/portfolio'
+import { PortfolioGallery, PartnershipsGallery } from '@/components/portfolio'
 import { formatDate } from '@/utils/format.js'
 
 const route = useRoute()
@@ -61,23 +73,61 @@ const token = computed(() => String(route.params.token || ''))
 const notFound = ref(false)
 
 const { data, isPending, isError, error } = useQuery({
-  queryKey: ['public-album', token],
-  queryFn: () => galleryService.getAlbum(token.value),
+  queryKey: ['public-screen', token],
+  queryFn: () => galleryService.getSharedScreen(token.value),
   retry: false,
   enabled: computed(() => Boolean(token.value))
 })
 
-const album = computed(() => data.value?.album || {})
-const photos = computed(() => data.value?.photos || [])
+const screen = computed(() => (data.value?.available ? data.value.screen : null))
+const expiresAt = computed(() => data.value?.screen?.expiresAt || null)
 const expired = computed(() => data.value?.available === false && data.value?.reason === 'expired')
 
 const images = computed(() =>
-  photos.value.map((photo) => ({
+  (screen.value?.photos || []).map((photo) => ({
     id: photo.id,
     src: photo.url,
-    alt: photo.alt || album.value.title || ''
+    alt: photo.alt || screen.value?.name || ''
   }))
 )
+
+const photoCount = computed(() => {
+  if (screen.value?.kind === 'partnerships') {
+    return (screen.value?.groups || []).reduce((total, group) => total + (group.photos?.length || 0), 0)
+  }
+
+  return images.value.length
+})
+
+const partnerships = ref([])
+
+function buildPartnerships(current) {
+  return (current?.groups || [])
+    .filter((group) => group.photos?.length)
+    .map((group) => {
+      const cover = group.photos.find((photo) => photo.featured) || group.photos[0]
+
+      return {
+        id: group.id,
+        name: group.name,
+        images: group.photos.map((photo) => ({
+          id: photo.id,
+          src: photo.url,
+          alt: photo.alt || group.name
+        })),
+        mainImage: cover.url,
+        isExpanded: false
+      }
+    })
+}
+
+function togglePartnership(index) {
+  partnerships.value.forEach((partnership, itemIndex) => {
+    if (itemIndex !== index) partnership.isExpanded = false
+  })
+
+  partnerships.value[index].isExpanded = !partnerships.value[index].isExpanded
+}
 
 watch(
   [data, isError, error],
@@ -85,7 +135,8 @@ watch(
     notFound.value = Boolean(failed && queryError?.status === 404)
 
     if (payload?.available) {
-      document.title = `${payload.album.title} · Mundo de Miriam`
+      partnerships.value = buildPartnerships(payload.screen)
+      document.title = `${payload.screen.name} · Mundo de Miriam`
     }
   },
   { immediate: true }
@@ -228,6 +279,18 @@ watch(
   color: var(--muted);
   font-family: system-ui, sans-serif;
   font-size: 0.78rem;
+}
+
+.album-single {
+  margin: 0;
+  display: grid;
+  place-items: center;
+}
+
+.album-single img {
+  max-width: min(560px, 100%);
+  border-radius: 16px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
 }
 
 .album-footer {

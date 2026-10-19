@@ -24,6 +24,8 @@ export async function listScreens(container) {
 
   return screens.map((screen) => ({
     ...toScreen(screen),
+    shareToken: screen.share_token,
+    expiresAt: screen.expires_at,
     photoCount: countsByScreen.get(screen.id)?.total || 0,
     bytes: countsByScreen.get(screen.id)?.bytes || 0,
     groups: groups
