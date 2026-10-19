@@ -149,8 +149,15 @@ watch(
 
 .private-header {
   display: grid;
-  gap: 0.3rem;
-  margin-bottom: 1.5rem;
+  justify-items: center;
+  gap: 0.35rem;
+  padding: 1.6rem 2rem;
+  margin-bottom: 2rem;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  text-align: center;
 }
 
 .private-eyebrow {
@@ -167,24 +174,44 @@ watch(
   margin: 0;
   color: var(--primary);
   font-family: 'Gilda Display', serif;
-  font-size: clamp(1.5rem, 3.4vw, 1.9rem);
+  font-size: clamp(1.45rem, 3.2vw, 1.8rem);
   font-weight: normal;
   letter-spacing: 0.02em;
+  line-height: 1.15;
 }
 
 .private-description {
   margin: 0;
+  max-width: 620px;
   color: var(--muted);
-  font-family: system-ui, sans-serif;
+  font-family: 'Gilda Display', serif;
   font-size: 0.92rem;
   line-height: 1.5;
 }
 
 .private-meta {
-  margin: 0.1rem 0 0;
+  margin: 0.25rem 0 0;
+  padding-top: 0.55rem;
+  border-top: 1px solid var(--border);
+  width: min(320px, 100%);
   color: var(--muted);
   font-family: system-ui, sans-serif;
-  font-size: 0.76rem;
+  font-size: 0.74rem;
+}
+
+@media (max-width: 640px) {
+  .private-header {
+    padding: 1.15rem 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .private-title {
+    font-size: 1.35rem;
+  }
+
+  .private-description {
+    font-size: 0.86rem;
+  }
 }
 
 .private-pending {
