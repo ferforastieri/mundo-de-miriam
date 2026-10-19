@@ -18,10 +18,6 @@
           />
         </label>
 
-        <span v-if="selectedScreen" class="admin-muted photos-toolbar__meta">
-          {{ selectedScreen.photoCount }} foto{{ selectedScreen.photoCount === 1 ? '' : 's' }}
-          <template v-if="selectedScreen.bytes"> · {{ formatBytes(selectedScreen.bytes) }}</template>
-        </span>
       </div>
 
       <section v-if="isPartnerships" class="admin-card partnerships-bar">

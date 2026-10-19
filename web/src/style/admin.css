@@ -317,7 +317,8 @@ html[data-theme="dark"] #app .admin-shell .admin-theme-toggle:hover {
   align-items: center;
   justify-content: center;
   gap: 0.45rem;
-  padding: 0.55rem 1rem;
+  min-height: 42px;
+  padding: 0.55rem 0.95rem;
   border: 2px solid var(--primary);
   border-radius: 8px;
   background: transparent;
@@ -379,15 +380,9 @@ html[data-theme="dark"] #app .admin-shell .admin-theme-toggle:hover {
   box-shadow: none;
 }
 
-.admin-btn--small {
-  padding: 0.35rem 0.7rem;
-  border-width: 1px;
-  font-size: 0.78rem;
-}
-
 .admin-btn--icon {
-  width: 34px;
-  height: 34px;
+  width: 42px;
+  height: 42px;
   padding: 0;
 }
 
@@ -1340,15 +1335,11 @@ html[data-theme="dark"] #app .admin-shell .admin-alert .admin-link {
 .admin-page-actions {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: 0.6rem;
   margin-bottom: 1rem;
 }
 
-.photos-toolbar__meta {
-  margin-left: auto;
-  align-self: center;
-}
 
 @media (max-width: 720px) {
   .admin-page-actions {
@@ -1360,8 +1351,4 @@ html[data-theme="dark"] #app .admin-shell .admin-alert .admin-link {
     min-height: 44px;
   }
 
-  .photos-toolbar__meta {
-    margin-left: 0;
-    align-self: flex-start;
-  }
 }
