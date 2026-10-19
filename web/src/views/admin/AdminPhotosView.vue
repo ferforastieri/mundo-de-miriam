@@ -297,7 +297,7 @@ const {
 } = useQuery({
   queryKey: ['admin-photos', selectedScreenId, selectedGroupId, page],
   queryFn: () =>
-    adminService.getPhotos(selectedScreenId.value, selectedGroupId.value || null, page.value, 24),
+    adminService.getPhotos(selectedScreenId.value, selectedGroupId.value || null, page.value, 12),
   enabled: photosEnabled
 })
 
