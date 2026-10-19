@@ -34,8 +34,28 @@ class AdminService {
     return http.get('/api/admin/dashboard')
   }
 
-  getScreens() {
-    return http.get('/api/admin/screens')
+  getScreens(params = {}) {
+    return http.get(`/api/admin/screens${queryString(params)}`)
+  }
+
+  getInstagramMedia(params = {}) {
+    return http.get(`/api/admin/instagram/media${queryString(params)}`)
+  }
+
+  getInstagramAttempts(params = {}) {
+    return http.get(`/api/admin/instagram/attempts${queryString(params)}`)
+  }
+
+  getInstagramPublications(params = {}) {
+    return http.get(`/api/admin/instagram/publications${queryString(params)}`)
+  }
+
+  uploadAvatar(file) {
+    return http.upload('/api/admin/auth/avatar', file)
+  }
+
+  removeAvatar() {
+    return http.delete('/api/admin/auth/avatar')
   }
 
   deleteScreen(screenId) {
@@ -68,8 +88,8 @@ class AdminService {
     })
   }
 
-  getPhotos(screenId, groupId = null) {
-    return http.get(`/api/admin/photos${queryString({ screenId, groupId })}`)
+  getPhotos(screenId, groupId = null, page = 1, pageSize = 24) {
+    return http.get(`/api/admin/photos${queryString({ screenId, groupId, page, pageSize })}`)
   }
 
   uploadPhoto({ screenId, groupId, file, alt = '', caption = '' }) {

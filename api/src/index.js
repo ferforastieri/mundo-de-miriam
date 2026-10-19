@@ -8,7 +8,7 @@ import { serveHtmlWithSeo } from './seo/render.js'
 import { SEO_ROUTES, SITE_URL } from './seo/pages.js'
 
 const PORT = 8787
-const MEDIA_KEY_PATTERN = /^(photos|albums)\/[a-zA-Z0-9-]+\/[a-zA-Z0-9._-]+$/
+const MEDIA_KEY_PATTERN = /^(photos|albums|avatars)\/[a-zA-Z0-9-]+\/[a-zA-Z0-9._-]+$/
 
 const server = buildServer()
 await server.ready()

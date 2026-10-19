@@ -115,9 +115,28 @@ const reorderGroupsSchema = {
 }
 
 export function registerScreensRoutes(app) {
-  app.get('/api/admin/screens', { preHandler: requireAdmin }, async () => {
-    return { screens: await listScreens(getContainer()) }
-  })
+  app.get(
+    '/api/admin/screens',
+    {
+      preHandler: requireAdmin,
+      schema: {
+        querystring: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            page: { type: 'integer', minimum: 1 },
+            pageSize: { type: 'integer', minimum: 1, maximum: 200 }
+          }
+        }
+      }
+    },
+    async (request) => {
+      return listScreens(getContainer(), {
+        page: request.query.page,
+        pageSize: request.query.pageSize
+      })
+    }
+  )
 
   app.post(
     '/api/admin/screens',

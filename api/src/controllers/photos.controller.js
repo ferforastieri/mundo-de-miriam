@@ -18,7 +18,9 @@ const listQuerySchema = {
     additionalProperties: false,
     properties: {
       screenId: { type: 'string', minLength: 1, maxLength: 60 },
-      groupId: { type: 'string', maxLength: 60 }
+      groupId: { type: 'string', maxLength: 60 },
+      page: { type: 'integer', minimum: 1 },
+      pageSize: { type: 'integer', minimum: 1, maximum: 200 }
     }
   }
 }
@@ -74,7 +76,9 @@ export function registerPhotosRoutes(app) {
   app.get('/api/admin/photos', { preHandler: requireAdmin, schema: listQuerySchema }, async (request) => {
     return listPhotos(getContainer(), {
       screenId: request.query.screenId,
-      groupId: request.query.groupId || null
+      groupId: request.query.groupId || null,
+      page: request.query.page,
+      pageSize: request.query.pageSize
     })
   })
 

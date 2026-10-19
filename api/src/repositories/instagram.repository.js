@@ -104,6 +104,24 @@ export function createInstagramRepository(db) {
       return result.results || []
     },
 
+    async countSnapshots() {
+      const row = await db.prepare('SELECT COUNT(*) AS total FROM instagram_snapshots').first()
+      return Number(row?.total || 0)
+    },
+
+    async listSnapshotsPage(limit, offset) {
+      const result = await db
+        .prepare(
+          `SELECT * FROM instagram_snapshots
+           ORDER BY captured_at DESC
+           LIMIT ? OFFSET ?`
+        )
+        .bind(limit, offset)
+        .all()
+
+      return result.results || []
+    },
+
     async deleteSnapshotsBefore(cutoff) {
       await db
         .prepare('DELETE FROM instagram_snapshots WHERE captured_at < ?')
@@ -149,6 +167,24 @@ export function createInstagramRepository(db) {
           media.updatedAt
         )
         .run()
+    },
+
+    async countMedia() {
+      const row = await db.prepare('SELECT COUNT(*) AS total FROM instagram_media').first()
+      return Number(row?.total || 0)
+    },
+
+    async listMediaPage(limit, offset) {
+      const result = await db
+        .prepare(
+          `SELECT * FROM instagram_media
+           ORDER BY published_at DESC
+           LIMIT ? OFFSET ?`
+        )
+        .bind(limit, offset)
+        .all()
+
+      return result.results || []
     },
 
     async listMedia(limit = 12) {
@@ -214,6 +250,22 @@ export function createInstagramRepository(db) {
           publication.error ?? null
         )
         .run()
+    },
+
+    async countPublications() {
+      const row = await db.prepare('SELECT COUNT(*) AS total FROM instagram_publications').first()
+      return Number(row?.total || 0)
+    },
+
+    async listPublicationsPage(limit, offset) {
+      const result = await db
+        .prepare(
+          'SELECT * FROM instagram_publications ORDER BY created_at DESC LIMIT ? OFFSET ?'
+        )
+        .bind(limit, offset)
+        .all()
+
+      return result.results || []
     },
 
     async listPublications(limit = 20) {

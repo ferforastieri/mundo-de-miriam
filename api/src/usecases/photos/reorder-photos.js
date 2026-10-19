@@ -21,17 +21,21 @@ export async function reorderPhotos(container, { screenId, groupId = null, order
     includeHidden: true
   })
 
-  const currentIds = photos.map((photo) => photo.id).sort()
-  const nextIds = [...new Set((orderedIds || []).map(String))].sort()
+  const byId = new Map(photos.map((photo) => [photo.id, photo]))
+  const nextIds = [...new Set((orderedIds || []).map(String))]
 
-  if (
-    currentIds.length !== nextIds.length ||
-    currentIds.some((id, index) => id !== nextIds[index])
-  ) {
+  if (nextIds.length === 0 || nextIds.some((id) => !byId.has(id))) {
     throw badRequest('invalid_order', 'A ordem enviada não corresponde às fotos desta tela.')
   }
 
-  await container.photos.reorder(orderedIds.map(String), nowIso())
+  // Cada página reordena apenas as suas fotos: reaproveitamos as posições
+  // (sort_order) que elas já ocupavam, sem afetar as demais páginas.
+  const slots = nextIds.map((id) => byId.get(id).sort_order).sort((a, b) => a - b)
+  const updatedAt = nowIso()
+
+  await Promise.all(
+    nextIds.map((id, index) => container.photos.setSortOrder(id, slots[index], updatedAt))
+  )
 
   return { reordered: true }
 }

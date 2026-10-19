@@ -11,8 +11,8 @@
 
       <div class="admin-actions-row">
         <span v-if="selectedScreen" class="admin-muted">
-          {{ localPhotos.length }} foto{{ localPhotos.length === 1 ? '' : 's' }}
-          <template v-if="totalBytes"> · {{ formatBytes(totalBytes) }}</template>
+          {{ selectedScreen.photoCount }} foto{{ selectedScreen.photoCount === 1 ? '' : 's' }}
+          <template v-if="selectedScreen.bytes"> · {{ formatBytes(selectedScreen.bytes) }}</template>
         </span>
       </div>
     </header>
@@ -24,37 +24,36 @@
     </div>
 
     <template v-else>
-      <nav class="admin-tabs" aria-label="Telas do site">
-        <button
-          v-for="screen in screens"
-          :key="screen.id"
-          class="admin-tab"
-          :class="{ 'admin-tab--active': screen.id === selectedScreenId }"
-          type="button"
-          @click="selectScreen(screen.id)"
-        >
-          {{ screen.name }}
-          <span class="admin-tab__count">{{ screen.photoCount }}</span>
-        </button>
-      </nav>
+      <div class="photos-toolbar">
+        <label class="admin-field photos-toolbar__field">
+          <span class="admin-label">Tela</span>
+          <select
+            class="admin-select"
+            :value="selectedScreenId"
+            @change="selectScreen($event.target.value)"
+          >
+            <option v-for="screen in screens" :key="screen.id" :value="screen.id">
+              {{ screen.name }} ({{ screen.photoCount }})
+            </option>
+          </select>
+        </label>
+      </div>
 
       <section v-if="isPartnerships" class="admin-card partnerships-bar">
         <div class="partnerships-bar__groups">
-          <button
-            v-for="group in groups"
-            :key="group.id"
-            class="admin-tab"
-            :class="{ 'admin-tab--active': group.id === selectedGroupId }"
-            type="button"
-            @click="selectGroup(group.id)"
-          >
-            {{ group.name }}
-            <span class="admin-tab__count">{{ group.photoCount }}</span>
-          </button>
-
-          <span v-if="groups.length === 0" class="admin-muted">
-            Nenhuma marca cadastrada. Crie a primeira para começar.
-          </span>
+          <label class="admin-field partnerships-bar__field">
+            <span class="admin-label">Marca / parceria</span>
+            <select
+              class="admin-select"
+              :value="selectedGroupId"
+              @change="selectGroup($event.target.value)"
+            >
+              <option v-if="groups.length === 0" value="">Nenhuma marca cadastrada</option>
+              <option v-for="group in groups" :key="group.id" :value="group.id">
+                {{ group.name }} ({{ group.photoCount }})
+              </option>
+            </select>
+          </label>
         </div>
 
         <form v-if="showGroupForm" class="partnerships-bar__form" @submit.prevent="createGroup">
@@ -207,6 +206,7 @@ import adminService from '@/api/admin/AdminService.js'
 import { useAdminToast } from '@/composables/useAdminToast'
 import UploadDropzone from '@/components/admin/UploadDropzone.vue'
 import AdminSkeleton from '@/components/admin/AdminSkeleton.vue'
+import PaginationBar from '@/components/admin/PaginationBar.vue'
 import PhotoEditModal from '@/components/admin/PhotoEditModal.vue'
 import ConfirmDialog from '@/components/admin/ConfirmDialog.vue'
 import { formatBytes } from '@/utils/format.js'
@@ -230,6 +230,7 @@ const {
 
 const screens = computed(() => screensData.value?.screens || [])
 
+const page = ref(1)
 const selectedScreenId = ref(typeof route.query.screen === 'string' ? route.query.screen : '')
 const selectedGroupId = ref(typeof route.query.group === 'string' ? route.query.group : '')
 
@@ -294,10 +295,13 @@ const {
   error: photosError,
   refetch: refetchPhotos
 } = useQuery({
-  queryKey: ['admin-photos', selectedScreenId, selectedGroupId],
-  queryFn: () => adminService.getPhotos(selectedScreenId.value, selectedGroupId.value || null),
+  queryKey: ['admin-photos', selectedScreenId, selectedGroupId, page],
+  queryFn: () =>
+    adminService.getPhotos(selectedScreenId.value, selectedGroupId.value || null, page.value, 24),
   enabled: photosEnabled
 })
+
+const photosPagination = computed(() => photosData.value?.pagination || null)
 
 const localPhotos = ref([])
 
@@ -310,6 +314,7 @@ watch(
 )
 
 watch([selectedScreenId, selectedGroupId], () => {
+  page.value = 1
   localPhotos.value = []
 })
 

@@ -41,18 +41,16 @@
           </button>
         </div>
 
-        <nav class="admin-tabs publish-tabs" aria-label="Telas">
-          <button
-            v-for="screen in screens"
-            :key="screen.id"
-            class="admin-tab"
-            :class="{ 'admin-tab--active': screen.id === selectedScreenId }"
-            type="button"
-            @click="selectedScreenId = screen.id"
-          >
-            {{ screen.name }}
-          </button>
-        </nav>
+        <div class="photos-toolbar">
+          <label class="admin-field photos-toolbar__field">
+            <span class="admin-label">Tela</span>
+            <select v-model="selectedScreenId" class="admin-select">
+              <option v-for="screen in screens" :key="screen.id" :value="screen.id">
+                {{ screen.name }} ({{ screen.photoCount }})
+              </option>
+            </select>
+          </label>
+        </div>
 
         <AdminSkeleton v-if="photosPending" variant="photos" :count="6" />
         <p v-else-if="photosIsError" class="admin-alert admin-alert--error">{{ photosError?.message }}</p>
@@ -132,12 +130,14 @@
     <section class="admin-card publish-history">
       <div class="admin-card__header">
         <div>
-          <h2 class="admin-card__title">Histórico de publicações</h2>
+          <h2 class="admin-card__title"><AdminIcon name="send" /> Histórico de publicações</h2>
           <p class="admin-card__hint">{{ publishedLast24h }} publicada(s) nas últimas 24h (limite de 25)</p>
         </div>
       </div>
 
-      <p v-if="publications.length === 0" class="admin-empty">Nenhuma publicação feita pelo painel ainda.</p>
+      <AdminSkeleton v-if="publicationsPending" variant="cards" :count="1" />
+
+      <p v-else-if="publications.length === 0" class="admin-empty">Nenhuma publicação feita pelo painel ainda.</p>
 
       <div v-else class="admin-table-wrap">
         <table class="admin-table">
@@ -168,6 +168,12 @@
           </tbody>
         </table>
       </div>
+
+      <PaginationBar
+        :pagination="publicationsPagination"
+        label="publicações"
+        @update:page="publicationsPage = $event"
+      />
     </section>
   </div>
 </template>
@@ -179,6 +185,8 @@ import adminService from '@/api/admin/AdminService.js'
 import { useAdminToast } from '@/composables/useAdminToast'
 import { formatDateTime } from '@/utils/format.js'
 import AdminSkeleton from '@/components/admin/AdminSkeleton.vue'
+import PaginationBar from '@/components/admin/PaginationBar.vue'
+import AdminIcon from '@/components/admin/AdminIcon.vue'
 
 const MAX_ITEMS = 10
 const toast = useAdminToast()
@@ -189,8 +197,8 @@ const {
   isPending: screensPending,
   refetch: refetchScreens
 } = useQuery({
-  queryKey: ['admin-screens'],
-  queryFn: () => adminService.getScreens()
+  queryKey: ['admin-screens', 'all'],
+  queryFn: () => adminService.getScreens({ pageSize: 200 })
 })
 
 const {
@@ -203,8 +211,20 @@ const {
 
 const screens = computed(() => screensData.value?.screens || [])
 const instagramConfigured = computed(() => Boolean(instagramData.value?.state?.configured))
-const publications = computed(() => instagramData.value?.publications || [])
 const publishedLast24h = computed(() => instagramData.value?.publishedLast24h || 0)
+
+const publicationsPage = ref(1)
+
+const {
+  data: publicationsData,
+  isPending: publicationsPending
+} = useQuery({
+  queryKey: ['admin-instagram-publications', publicationsPage],
+  queryFn: () => adminService.getInstagramPublications({ page: publicationsPage.value, pageSize: 10 })
+})
+
+const publications = computed(() => publicationsData.value?.publications || [])
+const publicationsPagination = computed(() => publicationsData.value?.pagination || null)
 
 const selectedScreenId = ref('')
 watch(

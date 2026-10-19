@@ -1,6 +1,6 @@
 export function createPhotosRepository(db) {
   return {
-    async listByScreen(screenId, { groupId = null, includeHidden = true } = {}) {
+    async listByScreen(screenId, { groupId = null, includeHidden = true, limit = null, offset = 0 } = {}) {
       const clauses = ['screen_id = ?']
       const bindings = [screenId]
 
@@ -13,14 +13,13 @@ export function createPhotosRepository(db) {
         clauses.push('is_visible = 1')
       }
 
-      const result = await db
-        .prepare(
-          `SELECT * FROM photos
-           WHERE ${clauses.join(' AND ')}
-           ORDER BY sort_order ASC, created_at ASC`
-        )
-        .bind(...bindings)
-        .all()
+      const sql = `SELECT * FROM photos
+        WHERE ${clauses.join(' AND ')}
+        ORDER BY sort_order ASC, created_at ASC${limit ? ' LIMIT ? OFFSET ?' : ''}`
+      const statement = limit
+        ? db.prepare(sql).bind(...bindings, limit, offset)
+        : db.prepare(sql).bind(...bindings)
+      const result = await statement.all()
 
       return result.results || []
     },
@@ -103,6 +102,30 @@ export function createPhotosRepository(db) {
 
     async remove(id) {
       await db.prepare('DELETE FROM photos WHERE id = ?').bind(id).run()
+    },
+
+    async countByScreen(screenId, { groupId = null } = {}) {
+      const clauses = ['screen_id = ?']
+      const bindings = [screenId]
+
+      if (groupId !== undefined && groupId !== null) {
+        clauses.push('group_id = ?')
+        bindings.push(groupId)
+      }
+
+      const row = await db
+        .prepare(`SELECT COUNT(*) AS total FROM photos WHERE ${clauses.join(' AND ')}`)
+        .bind(...bindings)
+        .first()
+
+      return Number(row?.total || 0)
+    },
+
+    async setSortOrder(id, sortOrder, updatedAt) {
+      await db
+        .prepare('UPDATE photos SET sort_order = ?, updated_at = ? WHERE id = ?')
+        .bind(sortOrder, updatedAt, id)
+        .run()
     },
 
     async maxSortOrder({ screenId, groupId = null }) {

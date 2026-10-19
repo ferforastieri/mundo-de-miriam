@@ -8,6 +8,20 @@ export function createScreensRepository(db) {
       return result.results || []
     },
 
+    async countAll() {
+      const row = await db.prepare('SELECT COUNT(*) AS total FROM screens').first()
+      return Number(row?.total || 0)
+    },
+
+    async listPage({ limit, offset }) {
+      const result = await db
+        .prepare('SELECT * FROM screens ORDER BY sort_order ASC, name ASC LIMIT ? OFFSET ?')
+        .bind(limit, offset)
+        .all()
+
+      return result.results || []
+    },
+
     async listVisible() {
       const result = await db
         .prepare('SELECT * FROM screens WHERE is_visible = 1 ORDER BY sort_order ASC, name ASC')

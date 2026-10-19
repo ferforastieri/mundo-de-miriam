@@ -28,7 +28,8 @@ export function createSessionsRepository(db) {
              s.expires_at,
              u.id AS admin_user_id,
              u.email,
-             u.last_login_at
+             u.last_login_at,
+             u.avatar_key
            FROM sessions s
            INNER JOIN admin_users u ON u.id = s.admin_user_id
            WHERE s.token_hash = ?`

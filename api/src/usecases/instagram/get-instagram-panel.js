@@ -5,23 +5,17 @@ import {
 import {
   toInstagramDemographics,
   toInstagramHistoryPoint,
-  toInstagramMedia,
-  toInstagramPublication,
   toInstagramState
 } from '../../mappers/instagram.mapper.js'
 import { isoDaysAgo, nowIso } from '../../utils/dates.js'
 
 export async function getInstagramPanel(container) {
-  const [state, latest, history, attempts, media, demographics, publications] =
-    await Promise.all([
-      container.instagram.getState(),
-      container.instagram.latestSuccessful(),
-      container.instagram.listSuccessfulSince(isoDaysAgo(90)),
-      container.instagram.listRecent(30),
-      container.instagram.listMedia(12),
-      container.instagram.listDemographics(),
-      container.instagram.listPublications(20)
-    ])
+  const [state, latest, history, demographics] = await Promise.all([
+    container.instagram.getState(),
+    container.instagram.latestSuccessful(),
+    container.instagram.listSuccessfulSince(isoDaysAgo(90)),
+    container.instagram.listDemographics()
+  ])
 
   const dailyHistory = buildDailyHistory(history)
 
@@ -37,17 +31,7 @@ export async function getInstagramPanel(container) {
         }
       : null,
     history: dailyHistory,
-    attempts: attempts.map((attempt) => ({
-      capturedAt: attempt.captured_at,
-      source: attempt.source,
-      success: Boolean(attempt.success),
-      error: attempt.error || null,
-      followers: attempt.followers,
-      posts: attempt.posts
-    })),
-    media: media.map(toInstagramMedia),
     demographics: toInstagramDemographics(demographics),
-    publications: publications.map(toInstagramPublication),
     publishedLast24h: await container.instagram.countPublicationsSince(isoDaysAgo(1)),
     generatedAt: nowIso(),
     tokenTtlDays: INSTAGRAM_TOKEN_TTL_DAYS

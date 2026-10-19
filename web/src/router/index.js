@@ -88,7 +88,7 @@ const routes = [
         path: 'account',
         name: 'AdminAccount',
         component: () => import('../views/admin/AdminAccountView.vue'),
-        meta: { title: 'Conta' }
+        meta: { title: 'Minha conta' }
       }
     ]
   }

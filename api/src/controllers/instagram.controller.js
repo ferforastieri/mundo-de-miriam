@@ -2,6 +2,9 @@ import { getContainer } from '../context.js'
 import { requireAdmin } from '../http/guards.js'
 import { clearInstagramToken } from '../usecases/instagram/clear-instagram-token.js'
 import { getInstagramPanel } from '../usecases/instagram/get-instagram-panel.js'
+import { listInstagramAttempts } from '../usecases/instagram/list-attempts.js'
+import { listInstagramMedia } from '../usecases/instagram/list-media.js'
+import { listInstagramPublications } from '../usecases/instagram/list-publications.js'
 import { publishPhotos } from '../usecases/instagram/publish-photos.js'
 import { refreshInstagramStats } from '../usecases/instagram/refresh-instagram-stats.js'
 import { setInstagramToken } from '../usecases/instagram/set-instagram-token.js'
@@ -37,6 +40,18 @@ const publishSchema = {
 export function registerInstagramRoutes(app) {
   app.get('/api/admin/instagram', { preHandler: requireAdmin }, async () => {
     return getInstagramPanel(getContainer())
+  })
+
+  app.get('/api/admin/instagram/media', { preHandler: requireAdmin }, async (request) => {
+    return listInstagramMedia(getContainer(), request.query)
+  })
+
+  app.get('/api/admin/instagram/attempts', { preHandler: requireAdmin }, async (request) => {
+    return listInstagramAttempts(getContainer(), request.query)
+  })
+
+  app.get('/api/admin/instagram/publications', { preHandler: requireAdmin }, async (request) => {
+    return listInstagramPublications(getContainer(), request.query)
   })
 
   app.post('/api/admin/instagram/refresh', { preHandler: requireAdmin }, async () => {

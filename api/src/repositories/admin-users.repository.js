@@ -18,6 +18,13 @@ export function createAdminUsersRepository(db) {
         .run()
     },
 
+    async updateAvatar(id, avatarKey, updatedAt) {
+      await db
+        .prepare('UPDATE admin_users SET avatar_key = ?, updated_at = ? WHERE id = ?')
+        .bind(avatarKey, updatedAt, id)
+        .run()
+    },
+
     async updatePassword(id, { hash, salt, iterations, updatedAt }) {
       await db
         .prepare(

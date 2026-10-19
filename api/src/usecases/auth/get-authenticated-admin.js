@@ -15,6 +15,7 @@ export async function getAuthenticatedAdmin(container, rawToken) {
     id: session.admin_user_id,
     email: session.email,
     sessionId: session.session_id,
-    lastLoginAt: session.last_login_at || null
+    lastLoginAt: session.last_login_at || null,
+    avatarUrl: session.avatar_key ? `/media/${session.avatar_key}` : null
   }
 }

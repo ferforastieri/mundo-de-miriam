@@ -10,91 +10,12 @@
       </div>
 
       <div class="admin-actions-row">
-        <button class="admin-btn admin-btn--primary" type="button" @click="showCreate = !showCreate">
-          {{ showCreate ? 'Cancelar' : '+ Nova tela' }}
+        <button class="admin-btn admin-btn--primary" type="button" @click="showCreate = true">
+          + Nova tela
         </button>
       </div>
     </header>
 
-    <form v-if="showCreate" class="admin-card screen-create" @submit.prevent="submitCreate">
-      <div class="admin-card__header">
-        <div>
-          <h2 class="admin-card__title">Nova tela</h2>
-          <p class="admin-card__hint">
-            Ela aparece nas abas de Fotos; se publicada, entra no menu do site em
-            <code>/galeria/&lt;identificador gerado do nome&gt;</code>.
-          </p>
-        </div>
-      </div>
-
-      <div class="screen-create__grid screen-create__grid--pair">
-        <label class="admin-field">
-          <span class="admin-label">Nome</span>
-          <input v-model="createForm.name" class="admin-input" maxlength="80" required placeholder="Ex.: Noivas" />
-        </label>
-
-        <label class="admin-field">
-          <span class="admin-label">Tipo</span>
-          <select v-model="createForm.kind" class="admin-select">
-            <option value="gallery">Galeria de fotos</option>
-            <option value="partnerships">Parcerias (com marcas)</option>
-            <option value="single">Imagem única</option>
-          </select>
-        </label>
-      </div>
-
-      <label class="admin-field">
-        <span class="admin-label">Descrição (opcional)</span>
-        <input v-model="createForm.description" class="admin-input" maxlength="240" placeholder="Aparece no topo da página" />
-      </label>
-
-      <div class="screen-create__grid">
-        <label class="admin-field">
-          <span class="admin-label">Rótulo no menu</span>
-          <input v-model="createForm.menuLabel" class="admin-input" maxlength="24" placeholder="Ex.: Noivas (padrão: o nome)" />
-        </label>
-
-        <label class="admin-field">
-          <span class="admin-label">Categoria no menu</span>
-          <input v-model="createForm.menuCategory" class="admin-input" maxlength="24" placeholder="Ex.: Maquiagem" />
-        </label>
-
-        <label class="admin-field">
-          <span class="admin-label">Ícone</span>
-          <select v-model="createForm.icon" class="admin-select">
-            <option v-for="icon in SCREEN_ICONS" :key="icon.value" :value="icon.value">
-              {{ icon.label }}
-            </option>
-          </select>
-        </label>
-      </div>
-
-      <div class="screen-create__grid screen-create__grid--pair">
-        <label class="admin-field">
-          <span class="admin-label">Publicação</span>
-          <select v-model="createForm.access" class="admin-select">
-            <option value="public">Publicada no site (aparece no menu)</option>
-            <option value="link">Link privado (só quem tem o link)</option>
-            <option value="draft">Rascunho (não publica)</option>
-          </select>
-        </label>
-
-        <label v-if="createForm.access === 'link'" class="admin-field">
-          <span class="admin-label">Validade do link</span>
-          <select v-model="createForm.expiresInDays" class="admin-select">
-            <option v-for="option in SHARE_EXPIRY_OPTIONS" :key="option.value" :value="option.value">
-              {{ option.label }}
-            </option>
-          </select>
-        </label>
-      </div>
-
-      <div class="admin-actions-row">
-        <button class="admin-btn admin-btn--primary" type="submit" :disabled="creatingScreen">
-          {{ creatingScreen ? 'Criando…' : 'Criar tela' }}
-        </button>
-      </div>
-    </form>
 
     <AdminSkeleton v-if="isPending" variant="cards" />
 
@@ -102,7 +23,8 @@
       {{ error?.message || 'Não foi possível carregar as telas.' }}
     </div>
 
-    <div v-else class="screens-list">
+    <template v-else>
+      <div class="screens-list">
       <article v-for="(screen, index) in screens" :key="screen.id" class="admin-card screen-card">
         <div class="screen-card__header">
           <div>
@@ -364,7 +286,87 @@
           </ul>
         </template>
       </article>
-    </div>
+      </div>
+
+      <PaginationBar :pagination="pagination" label="telas" @update:page="page = $event" />
+    </template>
+
+    <AdminModal :open="showCreate" title="Nova tela" size="lg" @close="closeCreate">
+    <form class="screen-create" @submit.prevent="submitCreate">
+      <p class="admin-card__hint">
+        Ela aparece nas abas de Fotos; se publicada, entra no menu do site em
+        <code>/galeria/&lt;identificador gerado do nome&gt;</code>.
+      </p>
+
+      <div class="screen-create__grid screen-create__grid--pair">
+        <label class="admin-field">
+          <span class="admin-label">Nome</span>
+          <input v-model="createForm.name" class="admin-input" maxlength="80" required placeholder="Ex.: Noivas" />
+        </label>
+
+        <label class="admin-field">
+          <span class="admin-label">Tipo</span>
+          <select v-model="createForm.kind" class="admin-select">
+            <option value="gallery">Galeria de fotos</option>
+            <option value="partnerships">Parcerias (com marcas)</option>
+            <option value="single">Imagem única</option>
+          </select>
+        </label>
+      </div>
+
+      <label class="admin-field">
+        <span class="admin-label">Descrição (opcional)</span>
+        <input v-model="createForm.description" class="admin-input" maxlength="240" placeholder="Aparece no topo da página" />
+      </label>
+
+      <div class="screen-create__grid">
+        <label class="admin-field">
+          <span class="admin-label">Rótulo no menu</span>
+          <input v-model="createForm.menuLabel" class="admin-input" maxlength="24" placeholder="Ex.: Noivas (padrão: o nome)" />
+        </label>
+
+        <label class="admin-field">
+          <span class="admin-label">Categoria no menu</span>
+          <input v-model="createForm.menuCategory" class="admin-input" maxlength="24" placeholder="Ex.: Maquiagem" />
+        </label>
+
+        <label class="admin-field">
+          <span class="admin-label">Ícone</span>
+          <select v-model="createForm.icon" class="admin-select">
+            <option v-for="icon in SCREEN_ICONS" :key="icon.value" :value="icon.value">
+              {{ icon.label }}
+            </option>
+          </select>
+        </label>
+      </div>
+
+      <div class="screen-create__grid screen-create__grid--pair">
+        <label class="admin-field">
+          <span class="admin-label">Publicação</span>
+          <select v-model="createForm.access" class="admin-select">
+            <option value="public">Publicada no site (aparece no menu)</option>
+            <option value="link">Link privado (só quem tem o link)</option>
+            <option value="draft">Rascunho (não publica)</option>
+          </select>
+        </label>
+
+        <label v-if="createForm.access === 'link'" class="admin-field">
+          <span class="admin-label">Validade do link</span>
+          <select v-model="createForm.expiresInDays" class="admin-select">
+            <option v-for="option in SHARE_EXPIRY_OPTIONS" :key="option.value" :value="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </label>
+      </div>
+
+      <div class="admin-actions-row">
+        <button class="admin-btn admin-btn--primary" type="submit" :disabled="creatingScreen">
+          {{ creatingScreen ? 'Criando…' : 'Criar tela' }}
+        </button>
+      </div>
+    </form>
+    </AdminModal>
 
     <ConfirmDialog
       :open="Boolean(screenToDelete)"
@@ -397,6 +399,8 @@ import adminService from '@/api/admin/AdminService.js'
 import { useAdminToast } from '@/composables/useAdminToast'
 import ConfirmDialog from '@/components/admin/ConfirmDialog.vue'
 import AdminSkeleton from '@/components/admin/AdminSkeleton.vue'
+import AdminModal from '@/components/admin/AdminModal.vue'
+import PaginationBar from '@/components/admin/PaginationBar.vue'
 import { formatDate } from '@/utils/format.js'
 
 const toast = useAdminToast()
@@ -423,6 +427,11 @@ const SHARE_EXPIRY_OPTIONS = [
 ]
 
 const showCreate = ref(false)
+const page = ref(1)
+
+function closeCreate() {
+  showCreate.value = false
+}
 const creatingScreen = ref(false)
 const createForm = reactive({
   name: '',
@@ -461,6 +470,8 @@ async function submitCreate() {
       createForm.access === 'link' ? 'Tela criada com link privado.' : 'Tela criada.'
     )
     showCreate.value = false
+    await refetch()
+    page.value = pagination.value?.totalPages || 1
     createForm.name = ''
     createForm.description = ''
     createForm.kind = 'gallery'
@@ -469,7 +480,6 @@ async function submitCreate() {
     createForm.menuLabel = ''
     createForm.menuCategory = ''
     createForm.icon = 'image'
-    await refetch()
   } catch (error) {
     toast.error(error.message || 'Não foi possível criar a tela.')
   } finally {
@@ -484,11 +494,12 @@ const {
   error,
   refetch
 } = useQuery({
-  queryKey: ['admin-screens'],
-  queryFn: () => adminService.getScreens()
+  queryKey: ['admin-screens', page],
+  queryFn: () => adminService.getScreens({ page: page.value, pageSize: 5 })
 })
 
 const screens = computed(() => data.value?.screens || [])
+const pagination = computed(() => data.value?.pagination || null)
 const drafts = reactive({})
 const groupDrafts = reactive({})
 const shareExpiry = reactive({})
@@ -626,6 +637,11 @@ async function confirmDeleteScreen() {
         : 'Tela excluída.'
     )
     screenToDelete.value = null
+
+    if (screens.value.length === 1 && page.value > 1) {
+      page.value -= 1
+    }
+
     await refetch()
   } catch (requestError) {
     toast.error(requestError.message || 'Não foi possível excluir a tela.')

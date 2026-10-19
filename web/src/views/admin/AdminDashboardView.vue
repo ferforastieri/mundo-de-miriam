@@ -22,7 +22,7 @@
         <section class="admin-card">
           <div class="admin-card__header">
             <div>
-              <h2 class="admin-card__title">Instagram</h2>
+              <h2 class="admin-card__title"><AdminIcon name="instagram" /> Instagram</h2>
               <p v-if="instagram.state.username" class="admin-card__hint">
                 @{{ instagram.state.username }}
               </p>
@@ -35,10 +35,10 @@
           </div>
 
           <div v-if="instagram.latest" class="admin-stats" :style="statsStyle(4)">
-            <AdminStatCard label="Seguidores" :value="formatNumber(instagram.latest.followers)" />
-            <AdminStatCard label="Publicações" :value="formatNumber(instagram.latest.posts)" />
-            <AdminStatCard label="Views recentes" :value="formatNumber(instagram.latest.recentViews)" />
-            <AdminStatCard label="Interações" :value="formatNumber(instagram.latest.recentInteractions)" />
+            <AdminStatCard icon="users" label="Seguidores" :value="formatNumber(instagram.latest.followers)" />
+            <AdminStatCard icon="image" label="Publicações" :value="formatNumber(instagram.latest.posts)" />
+            <AdminStatCard icon="eye" label="Views recentes" :value="formatNumber(instagram.latest.recentViews)" />
+            <AdminStatCard icon="activity" label="Interações" :value="formatNumber(instagram.latest.recentInteractions)" />
           </div>
 
           <p v-else class="admin-empty">
@@ -66,7 +66,7 @@
         <section class="admin-card">
           <div class="admin-card__header">
             <div>
-              <h2 class="admin-card__title">Acervo de fotos</h2>
+              <h2 class="admin-card__title"><AdminIcon name="archive" /> Acervo de fotos</h2>
             </div>
             <RouterLink class="admin-btn admin-btn--small" :to="{ name: 'AdminPhotos' }">
               Gerenciar fotos
@@ -74,10 +74,10 @@
           </div>
 
           <div class="admin-stats" :style="statsStyle(4)">
-            <AdminStatCard label="Total" :value="photos.totals.total" />
-            <AdminStatCard label="Visíveis" :value="photos.totals.visible" />
-            <AdminStatCard label="Ocultas" :value="photos.totals.hidden" />
-            <AdminStatCard label="Armazenamento" :value="formatBytes(photos.totals.bytes)" />
+            <AdminStatCard icon="archive" label="Total" :value="photos.totals.total" />
+            <AdminStatCard icon="eye" label="Visíveis" :value="photos.totals.visible" />
+            <AdminStatCard icon="eyeOff" label="Ocultas" :value="photos.totals.hidden" />
+            <AdminStatCard icon="database" label="Armazenamento" :value="formatBytes(photos.totals.bytes)" />
           </div>
 
           <table class="admin-table dashboard-table">
@@ -102,7 +102,7 @@
       <section class="admin-card dashboard-recent">
         <div class="admin-card__header">
           <div>
-            <h2 class="admin-card__title">Últimos envios</h2>
+            <h2 class="admin-card__title"><AdminIcon name="image" /> Últimos envios</h2>
             <p class="admin-card__hint">As fotos adicionadas mais recentemente</p>
           </div>
         </div>
@@ -133,6 +133,7 @@ import { computed } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import adminService from '@/api/admin/AdminService.js'
 import AdminSkeleton from '@/components/admin/AdminSkeleton.vue'
+import AdminIcon from '@/components/admin/AdminIcon.vue'
 import AdminStatCard from '@/components/admin/AdminStatCard.vue'
 import AdminSparkline from '@/components/admin/AdminSparkline.vue'
 import { formatBytes, formatDateTime, formatNumber } from '@/utils/format.js'

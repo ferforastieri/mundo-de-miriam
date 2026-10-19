@@ -114,7 +114,29 @@ html[data-theme="dark"] #app .admin-shell .admin-theme-toggle:hover {
   display: none;
 }
 
+.admin-nav__link .admin-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.admin-menu-button {
+  display: none;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--primary);
+  cursor: pointer;
+}
+
 .admin-nav__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   padding: 0.5rem 0.85rem;
   border: 1px solid transparent;
   border-radius: 999px;
@@ -763,14 +785,20 @@ html[data-theme="dark"] #app .admin-shell .admin-alert .admin-link {
 @media (max-width: 720px) {
   .admin-header__inner {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
     gap: 0.55rem 0.7rem;
     padding: 0.7rem 0.85rem;
   }
 
-  .admin-brand {
+  .admin-menu-button {
+    display: grid;
     grid-column: 1;
+    grid-row: 1;
+  }
+
+  .admin-brand {
+    grid-column: 2;
     grid-row: 1;
     min-width: 0;
   }
@@ -800,7 +828,7 @@ html[data-theme="dark"] #app .admin-shell .admin-alert .admin-link {
   }
 
   .admin-header__actions {
-    grid-column: 2;
+    grid-column: 3;
     grid-row: 1;
     display: flex;
     flex-wrap: nowrap;
@@ -821,17 +849,7 @@ html[data-theme="dark"] #app .admin-shell .admin-alert .admin-link {
   }
 
   .admin-nav {
-    grid-column: 1 / -1;
-    grid-row: 2;
-    order: initial;
-    width: 100%;
-    min-width: 0;
-    gap: 0.2rem;
-  }
-
-  .admin-nav__link {
-    padding: 0.45rem 0.6rem;
-    font-size: 0.84rem;
+    display: none;
   }
 
   .admin-page-header {
@@ -891,12 +909,310 @@ html[data-theme="dark"] #app .admin-shell .admin-alert .admin-link {
   }
 }
 
-@media (max-width: 480px) {
-  .admin-visit__label {
-    display: none;
-  }
 
-  .admin-header__actions .admin-visit {
-    padding: 0.45rem 0.55rem;
-  }
+
+/* ---------- Avatar e menu da conta ---------- */
+.admin-user {
+  position: relative;
+}
+
+.admin-user__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.22rem 0.32rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--primary);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.admin-user__trigger:hover {
+  background: var(--surface-muted);
+}
+
+.admin-user__avatar {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: var(--surface-muted);
+}
+
+.admin-user__avatar--initials {
+  background: var(--primary);
+  color: var(--on-primary);
+  font-family: 'Gilda Display', serif;
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.admin-user__caret {
+  width: 14px;
+  height: 14px;
+  color: var(--muted);
+}
+
+.admin-user__menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.5rem);
+  z-index: 60;
+  display: grid;
+  gap: 0.15rem;
+  min-width: 230px;
+  padding: 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
+}
+
+.admin-user__identity {
+  margin: 0;
+  padding: 0.5rem 0.6rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+  font-family: system-ui, sans-serif;
+  font-size: 0.72rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-user__item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.6rem;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font-family: 'Gilda Display', serif;
+  font-size: 0.95rem;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.admin-user__item:hover {
+  background: var(--surface-muted);
+}
+
+.admin-user__item--danger {
+  color: #b42318;
+}
+
+.admin-dropdown-enter-active,
+.admin-dropdown-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.admin-dropdown-enter-from,
+.admin-dropdown-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+/* ---------- Drawer de navegação (mobile) ---------- */
+.admin-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 130;
+  background: rgba(24, 14, 9, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+.admin-drawer__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: min(320px, 86vw);
+  height: 100%;
+  padding: 1.1rem;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  animation: admin-drawer-in 0.22s ease;
+}
+
+@keyframes admin-drawer-in {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+.admin-drawer__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.admin-drawer__brand {
+  color: var(--primary);
+  font-family: 'Gilda Display', serif;
+  font-size: 1.1rem;
+}
+
+.admin-drawer__close {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--primary);
+  cursor: pointer;
+}
+
+.admin-drawer__nav,
+.admin-drawer__footer {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.admin-drawer__footer {
+  margin-top: auto;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--border);
+}
+
+.admin-drawer__link {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 0.8rem;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  font-family: 'Gilda Display', serif;
+  font-size: 1rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.admin-drawer__link:hover,
+.admin-drawer__link.router-link-active {
+  background: var(--surface-muted);
+  color: var(--primary);
+}
+
+.admin-drawer-enter-active,
+.admin-drawer-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.admin-drawer-enter-from,
+.admin-drawer-leave-to {
+  opacity: 0;
+}
+
+.admin-card__title .admin-icon,
+.admin-card__title > .admin-icon {
+  width: 18px;
+  height: 18px;
+  margin-right: 0.45rem;
+  vertical-align: -3px;
+  color: var(--primary);
+  opacity: 0.8;
+}
+
+.admin-stat__label .admin-icon {
+  width: 14px;
+  height: 14px;
+  margin-right: 0.35rem;
+  vertical-align: -2px;
+  color: var(--primary);
+  opacity: 0.75;
+}
+
+/* ---------- Seletores de tela / marca ---------- */
+.photos-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.photos-toolbar__field {
+  flex: 1 1 240px;
+  max-width: 420px;
+}
+
+.partnerships-bar__groups {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.6rem;
+}
+
+.partnerships-bar__field {
+  flex: 1 1 220px;
+  max-width: 360px;
+}
+
+/* ---------- Modal (AdminModal + PhotoEditModal) ---------- */
+.admin-modal--lg {
+  width: min(820px, 100%);
+}
+
+.admin-modal__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.admin-modal__head .admin-modal__title {
+  margin: 0;
+}
+
+.admin-modal__close {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--primary);
+  cursor: pointer;
+}
+
+.admin-modal__close:hover {
+  background: var(--surface-muted);
+}
+
+.admin-modal__footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1.1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.admin-modal-fade-enter-active,
+.admin-modal-fade-leave-active {
+  transition: opacity 0.18s ease;
+}
+
+.admin-modal-fade-enter-from,
+.admin-modal-fade-leave-to {
+  opacity: 0;
+}
+
+.admin-modal__content {
+  display: block;
 }

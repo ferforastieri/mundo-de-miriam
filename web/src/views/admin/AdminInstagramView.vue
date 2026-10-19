@@ -36,7 +36,7 @@
       <section class="admin-card instagram-metrics">
         <div class="admin-card__header">
           <div>
-            <h2 class="admin-card__title">Números do último snapshot</h2>
+            <h2 class="admin-card__title"><AdminIcon name="activity" /> Números do último snapshot</h2>
             <p class="admin-card__hint">
               {{ latest ? `Coletado em ${formatDateTime(latest.capturedAt)}` : 'Nenhuma coleta bem-sucedida ainda' }}
             </p>
@@ -45,16 +45,16 @@
         </div>
 
         <div v-if="latest" class="admin-stats" :style="statsStyle(10)">
-          <AdminStatCard label="Seguidores" :value="formatNumber(latest.followers)" />
-          <AdminStatCard label="Publicações" :value="formatNumber(latest.posts)" />
-          <AdminStatCard label="Alcance" :value="metric(latest.reach)" hint="último dia" />
-          <AdminStatCard label="Visitas ao perfil" :value="metric(latest.profileViews)" hint="último dia" />
-          <AdminStatCard label="Contas engajadas" :value="metric(latest.accountsEngaged)" hint="último dia" />
-          <AdminStatCard label="Novos seguidores" :value="metric(latest.newFollowers)" hint="último dia" />
-          <AdminStatCard label="Salvamentos" :value="metric(latest.saves)" hint="último dia" />
-          <AdminStatCard label="Compartilhamentos" :value="metric(latest.shares)" hint="último dia" />
-          <AdminStatCard label="Interações totais" :value="metric(latest.totalInteractions)" hint="último dia" />
-          <AdminStatCard label="Cliques no site" :value="metric(latest.websiteClicks)" hint="último dia" />
+          <AdminStatCard icon="users" label="Seguidores" :value="formatNumber(latest.followers)" />
+          <AdminStatCard icon="image" label="Publicações" :value="formatNumber(latest.posts)" />
+          <AdminStatCard icon="eye" label="Alcance" :value="metric(latest.reach)" hint="último dia" />
+          <AdminStatCard icon="userCheck" label="Visitas ao perfil" :value="metric(latest.profileViews)" hint="último dia" />
+          <AdminStatCard icon="heart" label="Contas engajadas" :value="metric(latest.accountsEngaged)" hint="último dia" />
+          <AdminStatCard icon="userPlus" label="Novos seguidores" :value="metric(latest.newFollowers)" hint="último dia" />
+          <AdminStatCard icon="bookmark" label="Salvamentos" :value="metric(latest.saves)" hint="último dia" />
+          <AdminStatCard icon="share" label="Compartilhamentos" :value="metric(latest.shares)" hint="último dia" />
+          <AdminStatCard icon="activity" label="Interações totais" :value="metric(latest.totalInteractions)" hint="último dia" />
+          <AdminStatCard icon="cursor" label="Cliques no site" :value="metric(latest.websiteClicks)" hint="último dia" />
         </div>
 
         <p v-else class="admin-empty">
@@ -95,7 +95,7 @@
       <section v-if="hasDemographics" class="admin-card instagram-demographics">
         <div class="admin-card__header">
           <div>
-            <h2 class="admin-card__title">Público (seguidores)</h2>
+            <h2 class="admin-card__title"><AdminIcon name="users" /> Público (seguidores)</h2>
             <p class="admin-card__hint">Top cidades, países, idade e gênero — disponível para contas com 100+ seguidores</p>
           </div>
         </div>
@@ -142,12 +142,14 @@
       <section class="admin-card instagram-media">
         <div class="admin-card__header">
           <div>
-            <h2 class="admin-card__title">Desempenho por publicação</h2>
-            <p class="admin-card__hint">Últimas 12 publicações coletadas da API</p>
+            <h2 class="admin-card__title"><AdminIcon name="image" /> Desempenho por publicação</h2>
+            <p class="admin-card__hint">Publicações coletadas da API</p>
           </div>
         </div>
 
-        <p v-if="media.length === 0" class="admin-empty">
+        <AdminSkeleton v-if="mediaPending" variant="photos" :count="6" />
+
+        <p v-else-if="media.length === 0" class="admin-empty">
           Nenhuma publicação coletada ainda. Isso aparece depois da primeira coleta com o token ativo.
         </p>
 
@@ -184,17 +186,25 @@
             </tbody>
           </table>
         </div>
+
+        <PaginationBar
+          :pagination="mediaPagination"
+          label="publicações"
+          @update:page="mediaPage = $event"
+        />
       </section>
 
       <section class="admin-card instagram-history">
         <div class="admin-card__header">
           <div>
-            <h2 class="admin-card__title">Histórico recente</h2>
-            <p class="admin-card__hint">Últimas coletas registradas, incluindo falhas</p>
+            <h2 class="admin-card__title"><AdminIcon name="activity" /> Histórico recente</h2>
+            <p class="admin-card__hint">Coletas registradas, incluindo falhas</p>
           </div>
         </div>
 
-        <p v-if="attempts.length === 0" class="admin-empty">Nenhuma tentativa registrada ainda.</p>
+        <AdminSkeleton v-if="attemptsPending" variant="cards" :count="1" />
+
+        <p v-else-if="attempts.length === 0" class="admin-empty">Nenhuma tentativa registrada ainda.</p>
 
         <div v-else class="admin-table-wrap">
           <table class="admin-table">
@@ -224,6 +234,12 @@
             </tbody>
           </table>
         </div>
+
+        <PaginationBar
+          :pagination="attemptsPagination"
+          label="coletas"
+          @update:page="attemptsPage = $event"
+        />
       </section>
       <div id="configuracoes" class="instagram-section__head instagram-settings-head">
         <h2 class="instagram-section__title">Configurações</h2>
@@ -234,7 +250,7 @@
         <section class="admin-card">
           <div class="admin-card__header">
             <div>
-              <h2 class="admin-card__title">Estado da integração</h2>
+              <h2 class="admin-card__title"><AdminIcon name="settings" /> Estado da integração</h2>
               <p class="admin-card__hint">Token e última sincronização</p>
             </div>
 
@@ -275,7 +291,7 @@
         <section class="admin-card">
           <div class="admin-card__header">
             <div>
-              <h2 class="admin-card__title">Token de acesso</h2>
+              <h2 class="admin-card__title"><AdminIcon name="key" /> Token de acesso</h2>
               <p class="admin-card__hint">
                 Cole o token de longa duração da API do Instagram. Ele é criptografado antes de ser salvo.
               </p>
@@ -348,6 +364,8 @@ import AdminStatCard from '@/components/admin/AdminStatCard.vue'
 import AdminSparkline from '@/components/admin/AdminSparkline.vue'
 import ConfirmDialog from '@/components/admin/ConfirmDialog.vue'
 import AdminSkeleton from '@/components/admin/AdminSkeleton.vue'
+import AdminIcon from '@/components/admin/AdminIcon.vue'
+import PaginationBar from '@/components/admin/PaginationBar.vue'
 import { statColumns } from '@/utils/grid.js'
 
 function statsStyle(count) {
@@ -374,10 +392,26 @@ const {
 const state = computed(() => data.value?.state || {})
 const latest = computed(() => data.value?.latest || null)
 const history = computed(() => data.value?.history || [])
-const attempts = computed(() => data.value?.attempts || [])
 const refreshWindowDays = computed(() => data.value?.state?.refreshWindowDays || 7)
-const media = computed(() => data.value?.media || [])
 const demographics = computed(() => data.value?.demographics || {})
+
+const mediaPage = ref(1)
+const attemptsPage = ref(1)
+
+const { data: mediaData, isPending: mediaPending } = useQuery({
+  queryKey: ['admin-instagram-media', mediaPage],
+  queryFn: () => adminService.getInstagramMedia({ page: mediaPage.value, pageSize: 10 })
+})
+
+const { data: attemptsData, isPending: attemptsPending } = useQuery({
+  queryKey: ['admin-instagram-attempts', attemptsPage],
+  queryFn: () => adminService.getInstagramAttempts({ page: attemptsPage.value, pageSize: 10 })
+})
+
+const media = computed(() => mediaData.value?.media || [])
+const mediaPagination = computed(() => mediaData.value?.pagination || null)
+const attempts = computed(() => attemptsData.value?.attempts || [])
+const attemptsPagination = computed(() => attemptsData.value?.pagination || null)
 const hasDemographics = computed(() => Object.keys(demographics.value).length > 0)
 
 const MEDIA_TYPE_LABELS = {

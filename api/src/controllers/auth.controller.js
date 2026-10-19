@@ -9,6 +9,8 @@ import {
 import { login } from '../usecases/auth/login.js'
 import { logout } from '../usecases/auth/logout.js'
 import { changePassword } from '../usecases/auth/change-password.js'
+import { removeAdminAvatar } from '../usecases/auth/remove-avatar.js'
+import { uploadAdminAvatar } from '../usecases/auth/upload-avatar.js'
 import { addSecondsIso, nowIso } from '../utils/dates.js'
 
 const loginSchema = {
@@ -101,6 +103,17 @@ export function registerAuthRoutes(app) {
     )
 
     return { admin: request.admin }
+  })
+
+  app.post('/api/admin/auth/avatar', { preHandler: requireAdmin }, async (request) => {
+    return uploadAdminAvatar(getContainer(), request.admin.id, {
+      body: request.body,
+      contentType: request.headers['content-type']
+    })
+  })
+
+  app.delete('/api/admin/auth/avatar', { preHandler: requireAdmin }, async (request) => {
+    return removeAdminAvatar(getContainer(), request.admin.id)
   })
 
   app.post(
