@@ -1,11 +1,11 @@
-import { MAX_IMAGE_BYTES } from '../../config.js'
+import { MAX_IMAGE_BYTES, MAX_VIDEO_BYTES } from '../../config.js'
 import {
   badRequest,
   payloadTooLarge,
   unsupportedMedia
 } from '../../http/errors.js'
 import { toAdminPhoto } from '../../mappers/photo.mapper.js'
-import { detectImageContentType, extensionForContentType } from '../../services/image.js'
+import { detectMediaContentType, extensionForContentType } from '../../services/image.js'
 import { nowIso } from '../../utils/dates.js'
 import { slugify } from '../../utils/slug.js'
 
@@ -37,25 +37,34 @@ export async function resolvePhotoScope(container, { screenId, groupId }) {
   return { screen, group }
 }
 
-export function validateImageBuffer(buffer) {
+export function validateMediaBuffer(buffer) {
   const bytes = buffer?.byteLength ?? 0
 
   if (bytes === 0) {
     throw badRequest('empty_file', 'O arquivo enviado está vazio.')
   }
 
-  if (bytes > MAX_IMAGE_BYTES) {
-    throw payloadTooLarge('A imagem deve ter no máximo 20 MB.')
-  }
-
-  const contentType = detectImageContentType(buffer)
+  const contentType = detectMediaContentType(buffer)
 
   if (!contentType) {
-    throw unsupportedMedia('Envie uma imagem JPEG, PNG, WebP, GIF ou AVIF.')
+    throw unsupportedMedia(
+      'Envie uma imagem (JPEG, PNG, WebP, GIF, AVIF) ou um vídeo (MP4, WebM ou MOV).'
+    )
+  }
+
+  if (contentType.startsWith('video/')) {
+    if (bytes > MAX_VIDEO_BYTES) {
+      throw payloadTooLarge('O vídeo deve ter no máximo 50 MB.')
+    }
+  } else if (bytes > MAX_IMAGE_BYTES) {
+    throw payloadTooLarge('A imagem deve ter no máximo 20 MB.')
   }
 
   return contentType
 }
+
+/** Compatibilidade com chamadas antigas. */
+export const validateImageBuffer = validateMediaBuffer
 
 export async function uploadPhoto(container, {
   screenId,
@@ -66,7 +75,7 @@ export async function uploadPhoto(container, {
   caption = ''
 }) {
   const { screen, group } = await resolvePhotoScope(container, { screenId, groupId })
-  const contentType = validateImageBuffer(buffer)
+  const contentType = validateMediaBuffer(buffer)
   const extension = extensionForContentType(contentType)
   const photoId = crypto.randomUUID()
   const storageKey = `photos/${photoId}/${slugify(fileName || 'imagem')}.${extension}`

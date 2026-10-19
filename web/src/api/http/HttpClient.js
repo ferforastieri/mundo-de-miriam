@@ -76,9 +76,9 @@ class HttpClient {
     return request(path, { method: 'DELETE' })
   }
 
-  upload(path, file) {
+  upload(path, file, method = 'POST') {
     return request(path, {
-      method: 'POST',
+      method,
       headers: { 'Content-Type': file.type || 'application/octet-stream' },
       body: file
     })

@@ -6,13 +6,24 @@
       class="gallery-item"
       @click="openModal(index)"
     >
-      <img 
-        :src="image.src" 
+      <video
+        v-if="isVideo(image)"
+        :src="image.src"
+        muted
+        playsinline
+        preload="metadata"
+      ></video>
+      <img
+        v-else
+        :src="image.src"
         :alt="image.alt"
         loading="lazy"
       />
       <div class="gallery-overlay">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+        <svg v-if="isVideo(image)" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M8 5v14l11-7z"/>
+        </svg>
+        <svg v-else width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
           <path d="M15 3v4H5v10h14V9h4V3h-8zM3 21h18v-2H3v2zM9 9h6v2H9V9zm0 4h6v2H9v-2z"/>
         </svg>
       </div>
@@ -28,7 +39,14 @@
           </button>
         
           <div class="modal-image-container">
-            <img :src="currentImage.src" :alt="currentImage.alt" />
+            <video
+              v-if="isVideo(currentImage)"
+              :src="currentImage.src"
+              controls
+              autoplay
+              playsinline
+            ></video>
+            <img v-else :src="currentImage.src" :alt="currentImage.alt" />
           </div>
         
           <div class="modal-navigation">
@@ -77,6 +95,9 @@ export default {
     }
   },
   methods: {
+    isVideo(image) {
+      return String(image?.type || '').startsWith('video/')
+    },
     openModal(index) {
       this.currentIndex = index
       this.modalOpen = true
@@ -127,10 +148,12 @@ export default {
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
 }
 
-.gallery-item img {
+.gallery-item img,
+.gallery-item video {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
   transition: transform 0.3s ease;
 }
 
@@ -213,11 +236,16 @@ export default {
   background: #0d0d0d;
 }
 
-.modal-image-container img {
+.modal-image-container img,
+.modal-image-container video {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: contain;
+}
+
+.modal-image-container video {
+  background: #000;
 }
 
 .modal-navigation {

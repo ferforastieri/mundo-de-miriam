@@ -10,8 +10,16 @@
       <!-- Card Header -->
       <div class="card-header">
         <div class="main-image">
-          <img 
-            :src="partnership.mainImage" 
+          <video
+            v-if="isVideoType(partnership.mainType)"
+            :src="partnership.mainImage"
+            muted
+            playsinline
+            preload="metadata"
+          ></video>
+          <img
+            v-else
+            :src="partnership.mainImage"
             :alt="partnership.name"
             loading="lazy"
           />
@@ -31,8 +39,16 @@
             class="gallery-item"
             @click="openModal(partnership.images, imgIndex)"
           >
-            <img 
-              :src="image.src" 
+            <video
+              v-if="isVideoType(image.type)"
+              :src="image.src"
+              muted
+              playsinline
+              preload="metadata"
+            ></video>
+            <img
+              v-else
+              :src="image.src"
               :alt="image.alt"
               loading="lazy"
             />
@@ -58,7 +74,14 @@
           </button>
         
           <div class="modal-image-container">
-            <img :src="currentImage.src" :alt="currentImage.alt" />
+            <video
+              v-if="isVideoType(currentImage.type)"
+              :src="currentImage.src"
+              controls
+              autoplay
+              playsinline
+            ></video>
+            <img v-else :src="currentImage.src" :alt="currentImage.alt" />
           </div>
         
           <div class="modal-navigation">
@@ -105,6 +128,9 @@ export default {
     }
   },
   methods: {
+    isVideoType(type) {
+      return String(type || '').startsWith('video/')
+    },
     togglePartnership(index) {
       this.$emit('toggle-partnership', index)
     },
@@ -170,14 +196,17 @@ export default {
   overflow: hidden;
 }
 
-.main-image img {
+.main-image img,
+.main-image video {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
   transition: transform 0.3s ease;
 }
 
-.partnership-card:hover .main-image img {
+.partnership-card:hover .main-image img,
+.partnership-card:hover .main-image video {
   transform: scale(1.05);
 }
 
@@ -254,10 +283,12 @@ export default {
   transform: scale(1.05);
 }
 
-.gallery-item img {
+.gallery-item img,
+.gallery-item video {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
 .modal {
@@ -316,11 +347,16 @@ export default {
   background: #0d0d0d;
 }
 
-.modal-image-container img {
+.modal-image-container img,
+.modal-image-container video {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: contain;
+}
+
+.modal-image-container video {
+  background: #000;
 }
 
 .modal-navigation {

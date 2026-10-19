@@ -881,4 +881,16 @@ async function confirmDeleteGroup() {
 .group-row__main .admin-input {
   flex: 1;
 }
+@media (max-width: 720px) {
+  .screen-share__row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .screen-share__row .admin-input,
+  .screen-share__row .admin-field {
+    width: 100%;
+    flex: 0 0 auto;
+  }
+}
 </style>

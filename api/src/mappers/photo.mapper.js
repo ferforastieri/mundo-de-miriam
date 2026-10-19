@@ -4,6 +4,7 @@ export function toPublicPhoto(row) {
     url: `/media/${row.storage_key}`,
     alt: row.alt || '',
     caption: row.caption || '',
+    contentType: row.content_type || 'image/jpeg',
     width: row.width ?? null,
     height: row.height ?? null,
     position: row.sort_order,

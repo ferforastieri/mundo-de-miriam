@@ -34,26 +34,74 @@ async function serveMedia(request, env) {
     return new Response('Not Found', { status: 404 })
   }
 
+  const rangeHeader = request.headers.get('range')
+  const head = await env.MEDIA.head(key)
+
+  if (!head) {
+    return new Response('Not Found', { status: 404 })
+  }
+
+  const headers = new Headers()
+  head.writeHttpMetadata(headers)
+  headers.set('etag', head.httpEtag)
+  headers.set('cache-control', 'public, max-age=31536000, immutable')
+  headers.set('x-content-type-options', 'nosniff')
+  headers.set('accept-ranges', 'bytes')
+
+  if (request.headers.get('if-none-match') === head.httpEtag) {
+    return new Response(null, { status: 304, headers })
+  }
+
+  if (rangeHeader) {
+    const match = /^bytes=(\d*)-(\d*)$/.exec(rangeHeader.trim())
+    const size = head.size
+
+    if (match && (match[1] || match[2]) && size > 0) {
+      let start
+      let end
+
+      if (!match[1]) {
+        const suffix = Number(match[2])
+        start = Math.max(0, size - suffix)
+        end = size - 1
+      } else {
+        start = Number(match[1])
+        end = match[2] ? Math.min(Number(match[2]), size - 1) : size - 1
+      }
+
+      if (Number.isFinite(start) && Number.isFinite(end) && start <= end && start < size) {
+        const length = end - start + 1
+        const partial = await env.MEDIA.get(key, { range: { offset: start, length } })
+
+        if (!partial) {
+          return new Response('Not Found', { status: 404 })
+        }
+
+        const partialHeaders = new Headers(headers)
+        partialHeaders.set('content-range', `bytes ${start}-${end}/${size}`)
+        partialHeaders.set('content-length', String(length))
+
+        return new Response(partial.body, { status: 206, headers: partialHeaders })
+      }
+
+      return new Response(null, {
+        status: 416,
+        headers: { 'content-range': `bytes */${size}` }
+      })
+    }
+  }
+
+  if (request.method === 'HEAD') {
+    return new Response(null, { status: 200, headers })
+  }
+
   const object = await env.MEDIA.get(key)
 
   if (!object) {
     return new Response('Not Found', { status: 404 })
   }
 
-  const headers = new Headers()
-  object.writeHttpMetadata(headers)
-  headers.set('etag', object.httpEtag)
-  headers.set('cache-control', 'public, max-age=31536000, immutable')
-  headers.set('x-content-type-options', 'nosniff')
-
-  if (request.headers.get('if-none-match') === object.httpEtag) {
-    return new Response(null, { status: 304, headers })
-  }
-
-  return new Response(request.method === 'HEAD' ? null : object.body, {
-    status: 200,
-    headers
-  })
+  return new Response(object.body, { status: 200, headers })
 }
 
 async function serveSitemap(request, env) {

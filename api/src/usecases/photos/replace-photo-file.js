@@ -3,7 +3,7 @@ import { toAdminPhoto } from '../../mappers/photo.mapper.js'
 import { extensionForContentType } from '../../services/image.js'
 import { nowIso } from '../../utils/dates.js'
 import { slugify } from '../../utils/slug.js'
-import { validateImageBuffer } from './upload-photo.js'
+import { validateMediaBuffer } from './upload-photo.js'
 
 export async function replacePhotoFile(container, photoId, { buffer, fileName }) {
   const photo = await container.photos.findById(photoId)
@@ -12,7 +12,7 @@ export async function replacePhotoFile(container, photoId, { buffer, fileName })
     throw notFound('Foto não encontrada.')
   }
 
-  const contentType = validateImageBuffer(buffer)
+  const contentType = validateMediaBuffer(buffer)
   const extension = extensionForContentType(contentType)
   const storageKey = `photos/${photoId}/${slugify(fileName || 'imagem')}.${extension}`
   const previousKey = photo.storage_key
@@ -35,7 +35,7 @@ export async function replacePhotoFile(container, photoId, { buffer, fileName })
     try {
       await container.media.remove(previousKey)
     } catch (error) {
-      console.warn('Não foi possível remover a imagem anterior do R2:', error?.message || error)
+      console.warn('Não foi possível remover o arquivo anterior do R2:', error?.message || error)
     }
   }
 

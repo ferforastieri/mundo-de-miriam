@@ -971,8 +971,10 @@ html[data-theme="dark"] #app .admin-shell .admin-alert .admin-link {
     align-items: stretch;
   }
 
-  .screen-share__row .admin-input {
-    flex: 1 1 100%;
+  .screen-share__row .admin-input,
+  .screen-share__row .admin-field {
+    flex: 0 0 auto;
+    width: 100%;
   }
 
   .screen-share__row .admin-btn {

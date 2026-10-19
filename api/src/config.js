@@ -1,5 +1,6 @@
 export const JSON_BODY_LIMIT = 1024 * 1024
 export const MAX_IMAGE_BYTES = 20 * 1024 * 1024
+export const MAX_VIDEO_BYTES = 50 * 1024 * 1024
 
 export const SESSION_TTL_SECONDS = 90 * 24 * 60 * 60
 export const SESSION_COOKIE_PRODUCTION = '__Host-mdm_session'
@@ -29,6 +30,8 @@ export const SCREEN_ICONS = [
 
 export const MAX_SCREEN_LABEL = 24
 export const MAX_SCREEN_CATEGORY = 24
+
+export const VIDEO_CONTENT_TYPES = ['video/mp4', 'video/webm', 'video/quicktime']
 
 export const IMAGE_CONTENT_TYPES = [
   'image/jpeg',

@@ -110,7 +110,7 @@ class AdminService {
   }
 
   replacePhotoFile(photoId, file) {
-    return http.upload(`/api/admin/photos/${encodeURIComponent(photoId)}/file`, file)
+    return http.upload(`/api/admin/photos/${encodeURIComponent(photoId)}/file`, file, 'PUT')
   }
 
   deletePhoto(photoId) {

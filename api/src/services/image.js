@@ -3,7 +3,10 @@ const CONTENT_TYPES = {
   'image/png': 'png',
   'image/webp': 'webp',
   'image/gif': 'gif',
-  'image/avif': 'avif'
+  'image/avif': 'avif',
+  'video/mp4': 'mp4',
+  'video/webm': 'webm',
+  'video/quicktime': 'mov'
 }
 
 function asBytes(value) {
@@ -57,4 +60,25 @@ export function detectImageContentType(value) {
 
 export function extensionForContentType(contentType) {
   return CONTENT_TYPES[contentType] || null
+}
+
+export function detectVideoContentType(value) {
+  const bytes = asBytes(value)
+  if (!bytes || bytes.length < 12) return null
+
+  if (matches(bytes, 4, ascii('ftyp'))) {
+    const brand = String.fromCharCode(...bytes.slice(8, 12))
+    return brand === 'qt  ' ? 'video/quicktime' : 'video/mp4'
+  }
+
+  if (matches(bytes, 0, [0x1a, 0x45, 0xdf, 0xa3])) {
+    return 'video/webm'
+  }
+
+  return null
+}
+
+/** Detecta imagem ou vídeo pelo conteúdo (magic bytes). */
+export function detectMediaContentType(value) {
+  return detectImageContentType(value) || detectVideoContentType(value)
 }

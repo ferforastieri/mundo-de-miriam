@@ -26,7 +26,13 @@
         />
 
         <figure v-else-if="screen.kind === 'single' && images.length > 0" class="single-photo">
-          <img :src="images[0].src" :alt="images[0].alt" />
+          <video
+            v-if="images[0].type.startsWith('video/')"
+            :src="images[0].src"
+            controls
+            playsinline
+          ></video>
+          <img v-else :src="images[0].src" :alt="images[0].alt" />
         </figure>
 
         <PortfolioGallery v-else-if="images.length > 0" :images="images" />
@@ -73,7 +79,8 @@ const images = computed(() =>
   (screen.value?.photos || []).map((photo) => ({
     id: photo.id,
     src: photo.url,
-    alt: photo.alt || ''
+    alt: photo.alt || '',
+    type: photo.contentType || 'image/jpeg'
   }))
 )
 
@@ -91,9 +98,11 @@ function buildPartnerships(current, expandedByName = new Map()) {
         images: group.photos.map((photo) => ({
           id: photo.id,
           src: photo.url,
-          alt: photo.alt || group.name
+          alt: photo.alt || group.name,
+          type: photo.contentType || 'image/jpeg'
         })),
         mainImage: cover.url,
+        mainType: cover.contentType || 'image/jpeg',
         isExpanded: expandedByName.get(group.name) ?? false
       }
     })
@@ -186,7 +195,8 @@ watch(
   place-items: center;
 }
 
-.single-photo img {
+.single-photo img,
+.single-photo video {
   max-width: min(560px, 100%);
   border-radius: 16px;
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);

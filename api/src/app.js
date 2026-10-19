@@ -2,7 +2,8 @@ import Fastify from 'fastify'
 import cookie from '@fastify/cookie'
 import {
   JSON_BODY_LIMIT,
-  MAX_IMAGE_BYTES
+  MAX_IMAGE_BYTES,
+  MAX_VIDEO_BYTES
 } from './config.js'
 import { toHttpError } from './http/errors.js'
 import { registerAuthRoutes } from './controllers/auth.controller.js'
@@ -29,8 +30,14 @@ export function buildServer() {
   )
 
   app.addContentTypeParser(
+    /^video\/.*/,
+    { parseAs: 'buffer', bodyLimit: MAX_VIDEO_BYTES },
+    (request, body, done) => done(null, body)
+  )
+
+  app.addContentTypeParser(
     'application/octet-stream',
-    { parseAs: 'buffer', bodyLimit: MAX_IMAGE_BYTES },
+    { parseAs: 'buffer', bodyLimit: MAX_VIDEO_BYTES },
     (request, body, done) => done(null, body)
   )
 

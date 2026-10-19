@@ -15,7 +15,7 @@
       ref="input"
       class="admin-sr-only"
       type="file"
-      accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+      accept="image/jpeg,image/png,image/webp,image/gif,image/avif,video/mp4,video/webm,video/quicktime"
       multiple
       :disabled="disabled"
       @change="handleChange"
@@ -53,7 +53,9 @@ function openPicker() {
 }
 
 function emitFiles(fileList) {
-  const files = Array.from(fileList || []).filter((file) => file.type.startsWith('image/'))
+  const files = Array.from(fileList || []).filter(
+    (file) => file.type.startsWith('image/') || file.type.startsWith('video/')
+  )
   if (files.length > 0) emit('files', files)
 }
 

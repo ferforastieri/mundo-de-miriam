@@ -1,4 +1,4 @@
-import { MAX_IMAGE_BYTES } from '../config.js'
+import { MAX_VIDEO_BYTES } from '../config.js'
 import { getContainer } from '../context.js'
 import { requireAdmin } from '../http/guards.js'
 import { deletePhoto } from '../usecases/photos/delete-photo.js'
@@ -87,7 +87,7 @@ export function registerPhotosRoutes(app) {
     {
       preHandler: requireAdmin,
       schema: uploadQuerySchema,
-      bodyLimit: MAX_IMAGE_BYTES
+      bodyLimit: MAX_VIDEO_BYTES
     },
     async (request) => {
       return uploadPhoto(getContainer(), {
@@ -126,7 +126,7 @@ export function registerPhotosRoutes(app) {
     '/api/admin/photos/:id/file',
     {
       preHandler: requireAdmin,
-      bodyLimit: MAX_IMAGE_BYTES
+      bodyLimit: MAX_VIDEO_BYTES
     },
     async (request) => {
       return replacePhotoFile(getContainer(), request.params.id, {

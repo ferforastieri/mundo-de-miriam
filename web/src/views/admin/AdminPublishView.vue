@@ -53,11 +53,19 @@
             :disabled="!isJpeg(photo) || (!isSelected(photo.id) && selectedIds.length >= MAX_ITEMS)"
             @click="toggle(photo)"
           >
-            <img :src="photo.url" :alt="photo.alt || ''" loading="lazy" />
+            <video
+              v-if="String(photo.contentType || '').startsWith('video/')"
+              :src="photo.url"
+              muted
+              playsinline
+              preload="metadata"
+            ></video>
+            <img v-else :src="photo.url" :alt="photo.alt || ''" loading="lazy" />
             <span v-if="isSelected(photo.id)" class="publish-thumb__order">
               {{ selectedIds.indexOf(photo.id) + 1 }}
             </span>
-            <span v-if="!isJpeg(photo)" class="publish-thumb__tag">não é JPEG</span>
+            <span v-if="String(photo.contentType || '').startsWith('video/')" class="publish-thumb__tag">vídeo</span>
+            <span v-else-if="!isJpeg(photo)" class="publish-thumb__tag">não é JPEG</span>
           </button>
         </div>
       </section>
@@ -351,7 +359,8 @@ async function publish() {
   overflow: hidden;
 }
 
-.publish-thumb img {
+.publish-thumb img,
+.publish-thumb video {
   width: 100%;
   height: 100%;
   object-fit: cover;

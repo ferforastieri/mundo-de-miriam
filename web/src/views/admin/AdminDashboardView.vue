@@ -95,7 +95,14 @@
 
         <div v-else class="recent-grid">
           <article v-for="photo in photos.recent" :key="photo.id" class="recent-item">
-            <img :src="photo.url" :alt="photo.alt || ''" loading="lazy" />
+            <video
+              v-if="String(photo.contentType || '').startsWith('video/')"
+              :src="photo.url"
+              muted
+              playsinline
+              preload="metadata"
+            ></video>
+            <img v-else :src="photo.url" :alt="photo.alt || ''" loading="lazy" />
             <div>
               <p class="recent-item__title">{{ photo.alt || 'Sem descrição' }}</p>
               <p class="recent-item__meta">
@@ -205,7 +212,8 @@ const photos = computed(() => data.value?.photos || {
   background: var(--surface-muted);
 }
 
-.recent-item img {
+.recent-item img,
+.recent-item video {
   width: 56px;
   height: 56px;
   border-radius: 8px;

@@ -86,11 +86,19 @@
             @dragend="dragIndex = null"
           >
             <div class="photo-card__media">
-              <img :src="photo.url" :alt="photo.alt || ''" loading="lazy" draggable="false" />
+              <video
+                v-if="isVideoPhoto(photo)"
+                :src="photo.url"
+                muted
+                playsinline
+                preload="metadata"
+              ></video>
+              <img v-else :src="photo.url" :alt="photo.alt || ''" loading="lazy" draggable="false" />
 
               <span class="photo-card__position" :title="`Posição ${index + 1}`">{{ index + 1 }}</span>
 
               <div class="photo-card__badges">
+                <span v-if="isVideoPhoto(photo)" class="photo-card__badge">Vídeo</span>
                 <span v-if="!photo.visible" class="photo-card__badge">Oculta</span>
                 <span v-if="photo.featured" class="photo-card__badge photo-card__badge--featured">Capa</span>
               </div>
@@ -159,7 +167,7 @@
       ref="replaceInput"
       class="admin-sr-only"
       type="file"
-      accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+      accept="image/jpeg,image/png,image/webp,image/gif,image/avif,video/mp4,video/webm,video/quicktime"
       @change="handleReplacement"
     />
   </div>
@@ -182,6 +190,15 @@ import { formatBytes } from '@/utils/format.js'
 import AdminInput from '@/components/admin/AdminInput.vue'
 
 const MAX_FILE_BYTES = 20 * 1024 * 1024
+const MAX_VIDEO_FILE_BYTES = 50 * 1024 * 1024
+
+function isVideoPhoto(photo) {
+  return String(photo?.contentType || '').startsWith('video/')
+}
+
+function fileSizeLimit(file) {
+  return String(file?.type || '').startsWith('video/') ? MAX_VIDEO_FILE_BYTES : MAX_FILE_BYTES
+}
 
 const route = useRoute()
 const router = useRouter()
@@ -314,10 +331,10 @@ const totalBytes = computed(() =>
 const uploadHint = computed(() => {
   if (isPartnerships.value && selectedGroupId.value) {
     const group = groups.value.find((item) => item.id === selectedGroupId.value)
-    return `Enviando para a marca ${group?.name || ''} · JPEG, PNG, WebP, GIF ou AVIF · até 20 MB`
+    return `Enviando para a marca ${group?.name || ''} · imagens até 20 MB ou vídeos até 50 MB`
   }
 
-  return 'JPEG, PNG, WebP, GIF ou AVIF · até 20 MB por foto'
+  return 'Imagens até 20 MB · vídeos (MP4, WebM, MOV) até 50 MB'
 })
 
 function selectScreen(screenId) {
@@ -343,8 +360,10 @@ async function handleFiles(files) {
   let successCount = 0
 
   for (const file of files) {
-    if (file.size > MAX_FILE_BYTES) {
-      toast.error(`${file.name}: a imagem deve ter no máximo 20 MB.`)
+    if (file.size > fileSizeLimit(file)) {
+      toast.error(
+        `${file.name}: ${String(file.type).startsWith('video/') ? 'o vídeo deve ter no máximo 50 MB.' : 'a imagem deve ter no máximo 20 MB.'}`
+      )
       continue
     }
 
@@ -487,8 +506,12 @@ async function handleReplacement(event) {
 
   if (!file || !photoToReplace.value) return
 
-  if (file.size > MAX_FILE_BYTES) {
-    toast.error('A imagem deve ter no máximo 20 MB.')
+  if (file.size > fileSizeLimit(file)) {
+    toast.error(
+      String(file.type).startsWith('video/')
+        ? 'O vídeo deve ter no máximo 50 MB.'
+        : 'A imagem deve ter no máximo 20 MB.'
+    )
     return
   }
 
@@ -604,10 +627,12 @@ async function createGroup() {
   background: var(--surface-muted);
 }
 
-.photo-card__media img {
+.photo-card__media img,
+.photo-card__media video {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
 .photo-card__position {
