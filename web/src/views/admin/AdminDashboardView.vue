@@ -8,11 +8,6 @@
         </p>
       </div>
 
-      <div class="admin-actions-row">
-        <span v-if="data?.generatedAt" class="admin-muted">
-          Atualizado {{ formatRelative(data.generatedAt) }}
-        </span>
-      </div>
     </header>
 
     <div v-if="isPending" class="admin-card">
@@ -67,7 +62,7 @@
               Gerenciar Instagram
             </RouterLink>
             <span v-if="instagram.state.lastSuccessAt" class="admin-muted">
-              Última coleta: {{ formatRelative(instagram.state.lastSuccessAt) }}
+              Última coleta: {{ formatDateTime(instagram.state.lastSuccessAt) }}
             </span>
           </div>
 
@@ -133,7 +128,7 @@
               <p class="recent-item__meta">
                 {{ photo.screenName || 'Tela' }}<template v-if="photo.groupName"> · {{ photo.groupName }}</template>
               </p>
-              <p class="recent-item__meta">{{ formatRelative(photo.createdAt) }}</p>
+              <p class="recent-item__meta">{{ formatDateTime(photo.createdAt) }}</p>
             </div>
           </article>
         </div>
@@ -148,7 +143,7 @@ import { useQuery } from '@tanstack/vue-query'
 import adminService from '@/api/admin/AdminService.js'
 import AdminStatCard from '@/components/admin/AdminStatCard.vue'
 import AdminSparkline from '@/components/admin/AdminSparkline.vue'
-import { formatBytes, formatNumber, formatRelative } from '@/utils/format.js'
+import { formatBytes, formatDateTime, formatNumber } from '@/utils/format.js'
 
 const { data, isPending, isError, error, refetch } = useQuery({
   queryKey: ['admin-dashboard'],

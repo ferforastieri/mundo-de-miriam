@@ -43,25 +43,3 @@ export function formatDate(value) {
 
   return new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short' }).format(date)
 }
-
-export function formatRelative(value) {
-  if (!value) return '—'
-
-  const date = new Date(value)
-
-  if (Number.isNaN(date.getTime())) return '—'
-
-  const diffMs = Date.now() - date.getTime()
-  const diffMinutes = Math.round(diffMs / 60000)
-
-  if (diffMinutes < 1) return 'agora mesmo'
-  if (diffMinutes < 60) return `há ${diffMinutes} min`
-
-  const diffHours = Math.round(diffMinutes / 60)
-  if (diffHours < 24) return `há ${diffHours} h`
-
-  const diffDays = Math.round(diffHours / 24)
-  if (diffDays < 30) return `há ${diffDays} dia${diffDays === 1 ? '' : 's'}`
-
-  return formatDateTime(value)
-}
