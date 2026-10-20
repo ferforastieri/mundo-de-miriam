@@ -27,26 +27,10 @@
   margin: 0 auto;
 }
 
-.layout-content :deep(.about-header) {
-  width: 100%;
-  box-sizing: border-box;
-  background: var(--surface);
-  border: 1px solid var(--border);
-}
-
 @media (max-width: 480px) {
   .about-layout {
     padding: 10px;
   }
 
-  .layout-content :deep(.about-header) {
-    padding: 1rem;
-    gap: 0.75rem;
-  }
-
-  .layout-content :deep(.about-header .header-content) {
-    padding-right: 0;
-    text-align: left;
-  }
 }
 </style>

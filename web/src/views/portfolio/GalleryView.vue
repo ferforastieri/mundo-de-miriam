@@ -2,22 +2,19 @@
   <component :is="layout">
     <div class="portfolio-container">
       <div v-if="isPending && !screen" class="gallery-pending">
-        <div class="portfolio-header">
-          <div class="header-content">
-            <SkeletonBlock width="min(280px, 70%)" height="2rem" />
-            <SkeletonBlock width="min(200px, 50%)" height="0.9rem" />
+        <div class="page-header-skeleton">
+          <SkeletonBlock width="110px" height="40px" radius="999px" />
+          <div class="page-header-skeleton__copy">
+            <SkeletonBlock width="min(240px, 60%)" height="1.6rem" />
+            <SkeletonBlock width="min(320px, 80%)" height="0.8rem" />
           </div>
         </div>
+
         <GallerySkeleton />
       </div>
 
       <template v-else-if="screen">
-        <div class="portfolio-header">
-          <div class="header-content">
-            <h1 class="portfolio-title">{{ screen.name }}</h1>
-            <p v-if="screen.description" class="portfolio-subtitle">{{ screen.description }}</p>
-          </div>
-        </div>
+        <PageHeaderCard :title="screen.name" :description="screen.description" />
 
         <PartnershipsGallery
           v-if="screen.kind === 'partnerships' && partnerships.length > 0"
@@ -60,6 +57,7 @@ import PartnershipsLayout from '@/layouts/portfolio/PartnershipsLayout.vue'
 import { TranslatableText } from '@/components/common'
 import { GallerySkeleton, PortfolioGallery, PartnershipsGallery } from '@/components/portfolio'
 import SkeletonBlock from '@/components/common/SkeletonBlock.vue'
+import PageHeaderCard from '@/components/common/PageHeaderCard.vue'
 import { usePublicGallery } from '@/composables/usePublicGallery'
 import { applySeo } from '@/seo'
 
@@ -145,48 +143,23 @@ watch(
   animation: fadeIn 0.8s ease;
 }
 
-.portfolio-header {
-  background: var(--surface);
+.page-header-skeleton {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 1.25rem;
+  padding: 0.9rem 1.1rem;
   border: 1px solid var(--border);
   border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-  padding: 2rem;
-  margin-bottom: 2rem;
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
+  background: var(--surface);
 }
 
-.header-content {
-  flex: 1;
+.page-header-skeleton__copy {
   display: grid;
-  justify-items: center;
-  gap: 0.6rem;
-  text-align: center;
-  padding-right: 7rem;
-}
-
-.gallery-pending .portfolio-header {
-  margin-bottom: 2rem;
-}
-
-.portfolio-title {
-  font-family: 'Gilda Display', serif;
-  font-size: clamp(2rem, 5vw, 2.5rem);
-  color: var(--primary);
-  margin: 0 0 0.5rem;
-  font-weight: normal;
-  letter-spacing: 2px;
-}
-
-.portfolio-subtitle {
-  font-family: 'Gilda Display', serif;
-  font-size: 1.1rem;
-  color: var(--muted);
-  margin: 0;
-  font-style: italic;
-  letter-spacing: 1px;
+  flex: 1;
+  gap: 0.4rem;
 }
 
 .single-photo {
@@ -222,28 +195,10 @@ watch(
   text-underline-offset: 3px;
 }
 
-@media (max-width: 768px) {
-  .header-content {
-    padding-right: 5rem;
-  }
-
-  .portfolio-header {
-    padding: 1.5rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .header-content {
-    padding-right: 0;
-    text-align: left;
-  }
-
-  .portfolio-header {
-    padding: 1rem;
-  }
-
-  .portfolio-title {
-    font-size: 1.5rem;
+@media (max-width: 560px) {
+  .page-header-skeleton {
+    gap: 0.7rem;
+    padding: 0.8rem 0.9rem;
   }
 }
 

@@ -18,28 +18,24 @@
       </div>
 
       <template v-else-if="screen">
-        <header class="private-header">
-          <p class="private-eyebrow">Fotos compartilhadas</p>
-          <h1 class="private-title">{{ screen.name }}</h1>
-          <p v-if="screen.description" class="private-description">{{ screen.description }}</p>
-          <p class="private-meta">
-            {{ photoCount }} foto{{ photoCount === 1 ? '' : 's' }}
-            <template v-if="expiresAt"> · disponível até {{ formatDate(expiresAt) }}</template>
-            <template v-else> · disponível para sempre</template>
-          </p>
+        <PageHeaderCard :title="screen.name" :description="screen.description">
+          <template #meta>
+            <p class="private-meta">
+              {{ photoCount }} foto{{ photoCount === 1 ? '' : 's' }}
+              <template v-if="expiresAt"> · disponível até {{ formatDate(expiresAt) }}</template>
+              <template v-else> · disponível para sempre</template>
+            </p>
+          </template>
+        </PageHeaderCard>
 
-          <button
-            v-if="allMedia.length > 0"
-            class="download-all"
-            type="button"
-            @click="downloadAll"
-          >
+        <div v-if="allMedia.length > 0" class="private-toolbar">
+          <button class="download-all" type="button" @click="downloadAll">
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M12 4v10m0 0 4-4m-4 4-4-4M5 20h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
             Baixar todas
           </button>
-        </header>
+        </div>
 
         <PartnershipsGallery
           v-if="screen.kind === 'partnerships' && partnerships.length > 0"
@@ -70,6 +66,7 @@ import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useQuery } from '@tanstack/vue-query'
 import PortfolioLayout from '@/layouts/portfolio/PortfolioLayout.vue'
+import PageHeaderCard from '@/components/common/PageHeaderCard.vue'
 import ProjectVideoPlayer from '@/components/common/ProjectVideoPlayer.vue'
 import { GallerySkeleton, PortfolioGallery, PartnershipsGallery } from '@/components/portfolio'
 import galleryService from '@/api/gallery/GalleryService.js'
@@ -178,72 +175,19 @@ watch(
   animation: fadeIn 0.8s ease;
 }
 
-.private-header {
-  display: grid;
-  justify-items: center;
-  gap: 0.35rem;
-  padding: 1.6rem 2rem;
-  margin-bottom: 2rem;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  background: var(--surface);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-  text-align: center;
-}
-
-.private-eyebrow {
-  margin: 0;
-  color: var(--muted);
-  font-family: system-ui, sans-serif;
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-}
-
-.private-title {
-  margin: 0;
-  color: var(--primary);
-  font-family: 'Gilda Display', serif;
-  font-size: clamp(1.45rem, 3.2vw, 1.8rem);
-  font-weight: normal;
-  letter-spacing: 0.02em;
-  line-height: 1.15;
-}
-
-.private-description {
-  margin: 0;
-  max-width: 620px;
-  color: var(--muted);
-  font-family: 'Gilda Display', serif;
-  font-size: 0.92rem;
-  line-height: 1.5;
-}
-
 .private-meta {
-  margin: 0.25rem 0 0;
-  padding-top: 0.55rem;
-  border-top: 1px solid var(--border);
-  width: min(320px, 100%);
+  margin: 0.15rem 0 0;
   color: var(--muted);
   font-family: system-ui, sans-serif;
   font-size: 0.74rem;
 }
 
-@media (max-width: 640px) {
-  .private-header {
-    padding: 1.15rem 1rem;
-    margin-bottom: 1.25rem;
-  }
-
-  .private-title {
-    font-size: 1.35rem;
-  }
-
-  .private-description {
-    font-size: 0.86rem;
-  }
+.private-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 1rem;
 }
+
 
 .download-all {
   display: inline-flex;
@@ -299,6 +243,14 @@ watch(
   color: var(--muted);
   font-family: 'Gilda Display', serif;
   text-align: center;
+}
+
+.private-title {
+  margin: 0 0 0.5rem;
+  color: var(--primary);
+  font-family: 'Gilda Display', serif;
+  font-size: 1.5rem;
+  font-weight: normal;
 }
 
 .back-home {

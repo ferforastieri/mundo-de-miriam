@@ -1,26 +1,24 @@
 <template>
   <div class="curriculum-profile">
     <!-- Header Section -->
-    <div class="curriculum-header">
-      <div class="header-content">
-        <h1 class="curriculum-title">
-          <TranslatableText text="Currículo" />
-        </h1>
-        <div class="buttons-group">
-          <button @click="downloadPDF" class="download-button" ref="downloadBtn">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-            </svg>
-            <span><TranslatableText text="Curriculo Moderno" /></span>
-          </button>
-          <button @click="downloadTraditionalPDF" class="download-traditional-button" ref="downloadTraditionalBtn">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
-            </svg>
-            <span><TranslatableText text="Currículo Tradicional" /></span>
-          </button>
-        </div>
-      </div>
+    <PageHeaderCard
+      title="Currículo"
+      description="Formação, experiência e competências profissionais."
+    />
+
+    <div class="curriculum-actions">
+      <button @click="downloadPDF" class="download-button" ref="downloadBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+        </svg>
+        <span><TranslatableText text="Curriculo Moderno" /></span>
+      </button>
+      <button @click="downloadTraditionalPDF" class="download-traditional-button" ref="downloadTraditionalBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+        </svg>
+        <span><TranslatableText text="Currículo Tradicional" /></span>
+      </button>
     </div>
 
     <!-- Curriculum Content -->
@@ -320,11 +318,13 @@ import { useI18n } from 'vue-i18n'
 import { TranslatableText } from '../common'
 import { useSitePhoto } from '@/composables/usePublicGallery'
 import html2pdf from 'html2pdf.js'
+import PageHeaderCard from '@/components/common/PageHeaderCard.vue'
 
 export default {
   name: 'CurriculumProfile',
   components: {
-    TranslatableText
+    TranslatableText,
+    PageHeaderCard
   },
   setup() {
     const { t } = useI18n()
@@ -600,67 +600,25 @@ export default {
 </script>
 
 <style scoped>
+.curriculum-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  width: 100%;
+  margin: 0 0 1.25rem;
+}
+
 .curriculum-profile {
   max-width: 100%;
   width: 100%;
   animation: fadeIn 0.8s ease;
 }
 
-.curriculum-header {
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-  padding: 2rem;
-  margin-bottom: 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
 
-.back-button {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: #f8f9fa;
-  border: none;
-  border-radius: 8px;
-  padding: 0.75rem 1rem;
-  color: #520;
-  font-family: 'Gilda Display', serif;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
 
-.back-button:hover {
-  background: #520;
-  color: white;
-  transform: translateY(-2px);
-}
 
-.header-content {
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-  flex-wrap: wrap;
-}
 
-.curriculum-title {
-  font-family: 'Gilda Display', serif;
-  font-size: 2.5rem;
-  color: #520;
-  margin: 0;
-  font-weight: normal;
-  letter-spacing: 2px;
-}
 
-.buttons-group {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
 
 .download-button,
 .download-traditional-button {
@@ -797,11 +755,6 @@ export default {
 .pdf-export .curriculum-content {
   padding-top: 0.5rem !important;
   margin-top: 0 !important;
-}
-
-.pdf-export .curriculum-header {
-  margin-bottom: 1rem !important;
-  padding: 1rem !important;
 }
 
 .pdf-export .section {
@@ -1019,31 +972,10 @@ export default {
 }
 
 @media (max-width: 768px) {
-  .curriculum-header {
-    display: block;
-    text-align: left;
-  }
-  
-  .header-content {
-    justify-content: flex-start;
-    align-items: stretch;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  .buttons-group {
-    flex-direction: column;
-    width: 100%;
-  }
-
   .download-button,
   .download-traditional-button {
     width: 100%;
     justify-content: center;
-  }
-  
-  .curriculum-title {
-    font-size: 2rem;
   }
   
   .profile-section {
@@ -1088,10 +1020,6 @@ export default {
 }
 
 @media (max-width: 480px) {
-  .curriculum-title {
-    font-size: 1.5rem;
-  }
-  
   .curriculum-content {
     padding: 1rem;
   }

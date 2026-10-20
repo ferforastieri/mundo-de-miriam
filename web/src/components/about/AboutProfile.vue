@@ -1,17 +1,10 @@
 <template>
   <div class="about-profile">
     <!-- Header Section -->
-    <div class="about-header">
-      <PageBackButton />
-      <div class="header-content">
-        <h1 class="about-title">
-          <TranslatableText text="Sobre Mim" />
-        </h1>
-        <p class="about-subtitle">
-          <TranslatableText text="Conheça minha história e paixão pela arte da maquiagem" />
-        </p>
-      </div>
-    </div>
+    <PageHeaderCard
+      title="Sobre Mim"
+      description="Conheça minha história e paixão pela arte da maquiagem"
+    />
 
     <!-- Profile Section -->
     <div class="profile-section">
@@ -89,14 +82,14 @@
 <script>
 import { useRouter } from 'vue-router'
 import { TranslatableText } from '../common'
-import PageBackButton from '@/components/common/PageBackButton.vue'
+import PageHeaderCard from '@/components/common/PageHeaderCard.vue'
 import { useSitePhoto } from '@/composables/usePublicGallery'
 
 export default {
   name: 'AboutProfile',
   components: {
     TranslatableText,
-    PageBackButton
+    PageHeaderCard
   },
   setup() {
     const router = useRouter()
@@ -120,64 +113,8 @@ export default {
   animation: fadeIn 0.8s ease;
 }
 
-.about-header {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-  padding: 2rem;
-  margin-bottom: 2rem;
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-}
 
-.back-button {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: var(--surface-muted);
-  border: none;
-  border-radius: 8px;
-  padding: 0.75rem 1rem;
-  color: var(--primary);
-  font-family: 'Gilda Display', serif;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  flex: 0 0 auto;
-}
 
-.back-button:hover {
-  background: var(--primary);
-  color: var(--on-primary);
-  transform: translateY(-2px);
-}
-
-.header-content {
-  flex: 1;
-  text-align: center;
-  padding-right: 7rem;
-}
-
-.about-title {
-  font-family: 'Gilda Display', serif;
-  font-size: 2.5rem;
-  color: var(--primary);
-  margin: 0 0 0.5rem 0;
-  font-weight: normal;
-  letter-spacing: 2px;
-}
-
-.about-subtitle {
-  font-family: 'Gilda Display', serif;
-  font-size: 1.2rem;
-  color: var(--muted);
-  margin: 0;
-  font-style: italic;
-  letter-spacing: 1px;
-}
 
 .profile-section {
   background: var(--surface);
@@ -363,23 +300,7 @@ export default {
 }
 
 @media (max-width: 768px) {
-  .about-header {
-    gap: 0.75rem;
-  }
-
-  .header-content {
-    padding-right: 5rem;
-  }
-
-  .about-title {
-    font-size: 2rem;
-  }
-  
-  .about-subtitle {
-    font-size: 1rem;
-  }
-  
-  .about-header, .profile-section {
+  .profile-section {
     padding: 1.5rem;
   }
   
@@ -394,20 +315,7 @@ export default {
 }
 
 @media (max-width: 480px) {
-  .header-content {
-    padding-right: 0;
-    text-align: left;
-  }
-
-  .about-title {
-    font-size: 1.5rem;
-  }
-  
-  .about-subtitle {
-    font-size: 0.9rem;
-  }
-  
-  .about-header, .profile-section {
+  .profile-section {
     padding: 1rem;
   }
   
