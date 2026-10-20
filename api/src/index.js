@@ -1,8 +1,10 @@
 import { handleAsNodeRequest } from 'cloudflare:node'
+import { Zip, ZipPassThrough } from 'fflate'
 import { buildServer } from './app.js'
 import { runWithContext } from './context.js'
 import { createContainer } from './repositories/index.js'
 import { isoDaysAgo, nowIso } from './utils/dates.js'
+import { slugify } from './utils/slug.js'
 import { refreshInstagramStats } from './usecases/instagram/refresh-instagram-stats.js'
 import { serveHtmlWithSeo } from './seo/render.js'
 import { SEO_ROUTES, SITE_URL } from './seo/pages.js'
@@ -47,6 +49,11 @@ async function serveMedia(request, env) {
   headers.set('cache-control', 'public, max-age=31536000, immutable')
   headers.set('x-content-type-options', 'nosniff')
   headers.set('accept-ranges', 'bytes')
+
+  if (new URL(request.url).searchParams.get('download') === '1') {
+    const fileName = key.split('/').pop().replace(/[^a-zA-Z0-9._-]/g, '_')
+    headers.set('content-disposition', `attachment; filename="${fileName}"`)
+  }
 
   if (request.headers.get('if-none-match') === head.httpEtag) {
     return new Response(null, { status: 304, headers })
@@ -104,6 +111,107 @@ async function serveMedia(request, env) {
   return new Response(object.body, { status: 200, headers })
 }
 
+
+async function serveSharedDownload(env, token) {
+  const screen = await env.DB.prepare(
+    'SELECT id, name, expires_at, kind FROM screens WHERE share_token = ?'
+  )
+    .bind(token)
+    .first()
+
+  if (!screen) {
+    return new Response('Not Found', { status: 404 })
+  }
+
+  if (screen.expires_at && new Date(screen.expires_at).getTime() <= Date.now()) {
+    return new Response('Link expirado', { status: 410 })
+  }
+
+  const result = await env.DB.prepare(
+    `SELECT storage_key, alt FROM photos
+     WHERE screen_id = ? AND is_visible = 1
+     ORDER BY sort_order ASC, created_at ASC`
+  )
+    .bind(screen.id)
+    .all()
+
+  const rows = result.results || []
+
+  if (rows.length === 0) {
+    return new Response('Not Found', { status: 404 })
+  }
+
+  const used = new Set()
+  const entries = rows.map((row, index) => {
+    const match = /\.([a-z0-9]+)$/i.exec(row.storage_key)
+    const extension = match ? match[1].toLowerCase() : 'bin'
+    const base = slugify(row.alt || 'arquivo') || 'arquivo'
+    let name = `${String(index + 1).padStart(2, '0')}-${base}.${extension}`
+    let suffix = 2
+
+    while (used.has(name)) {
+      name = `${String(index + 1).padStart(2, '0')}-${base}-${suffix}.${extension}`
+      suffix += 1
+    }
+
+    used.add(name)
+    return { name, key: row.storage_key }
+  })
+
+  const stream = new ReadableStream({
+    async start(controller) {
+      try {
+        const zip = new Zip((error, chunk, final) => {
+          if (error) {
+            controller.error(error)
+            return
+          }
+
+          controller.enqueue(chunk)
+
+          if (final) controller.close()
+        })
+
+        for (const entry of entries) {
+          const file = new ZipPassThrough(entry.name)
+          zip.add(file)
+
+          const object = await env.MEDIA.get(entry.key)
+
+          if (object) {
+            const reader = object.body.getReader()
+
+            while (true) {
+              const { done, value } = await reader.read()
+
+              if (done) break
+
+              file.push(value, false)
+            }
+          }
+
+          file.push(new Uint8Array(0), true)
+        }
+
+        zip.end()
+      } catch (error) {
+        controller.error(error)
+      }
+    }
+  })
+
+  const fileName = `${slugify(screen.name || 'fotos') || 'fotos'}.zip`
+
+  return new Response(stream, {
+    headers: {
+      'content-type': 'application/zip',
+      'content-disposition': `attachment; filename="${fileName}"`,
+      'cache-control': 'private, no-store',
+      'x-robots-tag': 'noindex'
+    }
+  })
+}
+
 async function serveSitemap(request, env) {
   try {
     const result = await env.DB.prepare(
@@ -153,6 +261,16 @@ export default {
 
     if (url.pathname === '/sitemap.xml') {
       return serveSitemap(request, env)
+    }
+
+    const downloadMatch = url.pathname.match(/^\/api\/public\/screens\/([^/]+)\/download$/)
+
+    if (downloadMatch) {
+      if (request.method !== 'GET') {
+        return new Response('Method Not Allowed', { status: 405 })
+      }
+
+      return serveSharedDownload(env, decodeURIComponent(downloadMatch[1]))
     }
 
     if (!url.pathname.startsWith('/api/')) {

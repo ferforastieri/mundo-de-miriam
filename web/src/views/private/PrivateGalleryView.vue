@@ -119,21 +119,10 @@ const allMedia = computed(() => {
   return images.value.map((image) => ({ src: image.src, alt: image.alt }))
 })
 
-function downloadItem(item) {
-  if (!item?.src) return
-
-  const link = document.createElement('a')
-  link.href = item.src
-  link.download = item.alt || 'arquivo'
-  document.body.appendChild(link)
-  link.click()
-  link.remove()
-}
-
 function downloadAll() {
-  allMedia.value.forEach((item, index) => {
-    setTimeout(() => downloadItem(item), index * 350)
-  })
+  if (!token.value) return
+
+  window.location.href = `/api/public/screens/${encodeURIComponent(token.value)}/download`
 }
 
 const partnerships = ref([])

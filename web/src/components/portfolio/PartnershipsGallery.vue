@@ -104,7 +104,7 @@
               type="button"
               aria-label="Baixar arquivo"
               title="Baixar arquivo"
-              @click="download(currentImage)"
+              @click.stop.prevent="download(currentImage)"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M12 4v10m0 0 4-4m-4 4-4-4M5 20h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
@@ -157,8 +157,11 @@ export default {
     download(image) {
       if (!image?.src) return
 
+      const url = new URL(image.src, window.location.origin)
+      url.searchParams.set('download', '1')
+
       const link = document.createElement('a')
-      link.href = image.src
+      link.href = url.toString()
       link.download = image.alt || 'arquivo'
       document.body.appendChild(link)
       link.click()

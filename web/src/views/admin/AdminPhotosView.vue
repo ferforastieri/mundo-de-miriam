@@ -219,40 +219,18 @@
     />
 
 
-    <Teleport to="body">
-      <div v-if="viewerPhoto" class="photo-viewer" @click.self="closeViewer">
-        <button class="photo-viewer__close" type="button" aria-label="Fechar" @click="closeViewer">×</button>
-
-        <div class="photo-viewer__stage">
-          <video
-            v-if="isVideoPhoto(viewerPhoto)"
-            :src="viewerPhoto.url"
-            controls
-            autoplay
-            playsinline
-          ></video>
-          <img v-else :src="viewerPhoto.url" :alt="viewerPhoto.alt || ''" />
-        </div>
-
-        <div class="photo-viewer__bar">
-          <button class="admin-btn admin-btn--small" type="button" :disabled="viewerIndex <= 0" @click="prevViewer">
-            ←
-          </button>
-          <span>
-            {{ viewerIndex + 1 }} / {{ localPhotos.length }}
-            <template v-if="viewerPhoto.alt"> · {{ viewerPhoto.alt }}</template>
-          </span>
-          <button
-            class="admin-btn admin-btn--small"
-            type="button"
-            :disabled="viewerIndex >= localPhotos.length - 1"
-            @click="nextViewer"
-          >
-            →
-          </button>
-        </div>
-      </div>
-    </Teleport>
+    <MediaLightbox
+      :open="Boolean(viewerPhoto)"
+      :src="viewerPhoto?.url || ''"
+      :type="viewerPhoto?.contentType || ''"
+      :alt="viewerPhoto?.alt || ''"
+      :counter="`${viewerIndex + 1} / ${localPhotos.length}`"
+      :has-prev="viewerIndex > 0"
+      :has-next="viewerIndex >= 0 && viewerIndex < localPhotos.length - 1"
+      @close="closeViewer"
+      @prev="prevViewer"
+      @next="nextViewer"
+    />
   </div>
 </template>
 
@@ -264,6 +242,7 @@ import adminService from '@/api/admin/AdminService.js'
 import { useAdminToast } from '@/composables/useAdminToast'
 import { useErrorToast } from '@/composables/useErrorToast'
 import { UploadDropzone } from '@/components/common'
+import MediaLightbox from '@/components/common/MediaLightbox.vue'
 import AdminSelect from '@/components/admin/AdminSelect.vue'
 import AdminSkeleton from '@/components/admin/AdminSkeleton.vue'
 import PaginationBar from '@/components/admin/PaginationBar.vue'
