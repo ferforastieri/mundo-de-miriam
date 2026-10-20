@@ -7,7 +7,7 @@
         </button>
 
         <div class="media-lightbox__stage">
-          <video v-if="isVideo" :src="src" controls autoplay playsinline></video>
+          <ProjectVideoPlayer v-if="isVideo" :src="src" />
           <img v-else :src="src" :alt="alt" />
         </div>
 
@@ -54,6 +54,7 @@
 
 <script setup>
 import { computed, onBeforeUnmount, watch } from 'vue'
+import ProjectVideoPlayer from './ProjectVideoPlayer.vue'
 
 const props = defineProps({
   open: { type: Boolean, default: false },

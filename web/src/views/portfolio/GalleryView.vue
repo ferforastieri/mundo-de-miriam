@@ -26,12 +26,11 @@
         />
 
         <figure v-else-if="screen.kind === 'single' && images.length > 0" class="single-photo">
-          <video
+          <ProjectVideoPlayer
             v-if="images[0].type.startsWith('video/')"
             :src="images[0].src"
-            controls
-            playsinline
-          ></video>
+            class="single-photo__player"
+          />
           <img v-else :src="images[0].src" :alt="images[0].alt" />
         </figure>
 
@@ -56,6 +55,7 @@
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import PortfolioLayout from '@/layouts/portfolio/PortfolioLayout.vue'
+import ProjectVideoPlayer from '@/components/common/ProjectVideoPlayer.vue'
 import PartnershipsLayout from '@/layouts/portfolio/PartnershipsLayout.vue'
 import { TranslatableText } from '@/components/common'
 import { GallerySkeleton, PortfolioGallery, PartnershipsGallery } from '@/components/portfolio'
@@ -193,6 +193,10 @@ watch(
   margin: 0;
   display: grid;
   place-items: center;
+}
+
+.single-photo__player {
+  max-width: min(560px, 100%);
 }
 
 .single-photo img,

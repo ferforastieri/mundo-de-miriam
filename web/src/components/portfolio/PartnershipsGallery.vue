@@ -93,6 +93,7 @@ import MediaLightbox from '@/components/common/MediaLightbox.vue'
 
 export default {
   name: 'PartnershipsGallery',
+  components: { MediaLightbox },
   props: {
     downloadable: {
       type: Boolean,

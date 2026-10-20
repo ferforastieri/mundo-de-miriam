@@ -266,15 +266,45 @@ const focusMobileClose = () => {
 const open = async () => {
   activePath.value = route.path
   isDraggingSheet.value = false
-  setSheetPosition(0)
+
+  if (isMobileViewport()) {
+    // começa fora da tela e sobe suavemente
+    const height = getSheetHeight()
+    sheetOffset.value = height
+    sheetProgress.value = 0
+  } else {
+    setSheetPosition(0)
+  }
+
   isOpen.value = true
   await nextTick()
+
+  if (isMobileViewport()) {
+    requestAnimationFrame(() => {
+      sheetOffset.value = 0
+      sheetProgress.value = 1
+    })
+  }
+
   const focusTarget = isMobileViewport() ? mobileCloseButton.value : closeButton.value
-  focusTarget?.focus()
+  focusTarget?.focus({ preventScroll: true })
 }
 
 const close = () => {
   isDraggingSheet.value = false
+
+  if (isMobileViewport()) {
+    // desce suavemente antes de desmontar
+    sheetOffset.value = getSheetHeight()
+    sheetProgress.value = 0
+    window.setTimeout(() => {
+      isOpen.value = false
+      setSheetPosition(0)
+    }, 280)
+    nextTick(() => triggerButton.value?.focus({ preventScroll: true }))
+    return
+  }
+
   isOpen.value = false
   setSheetPosition(0)
   nextTick(() => triggerButton.value?.focus())
@@ -732,6 +762,10 @@ html.menu-is-open body { overflow: hidden; }
   .editorial-menu__brand span { font-size: 1rem; }
   .editorial-menu__brand small,
   .editorial-menu__preview { display: none; }
+  .editorial-menu-enter-from .editorial-menu__body,
+  .editorial-menu-leave-to .editorial-menu__body {
+    transform: none;
+  }
   .editorial-menu__body {
     display: block;
     width: 100%;

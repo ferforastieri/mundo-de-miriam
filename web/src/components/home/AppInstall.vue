@@ -1,33 +1,23 @@
 <template>
-  <section v-if="visible" class="app-install">
-    <button class="app-install__close" type="button" aria-label="Fechar convite" @click="dismiss">
-      ×
-    </button>
+  <Transition name="pwa-toast">
+    <aside v-if="visible" class="pwa-toast" role="status">
+      <img class="pwa-toast__icon" src="/pwa-icon-192.png" alt="" />
 
-    <div class="app-install__brand">
-      <img src="/pwa-icon-192.png" alt="" />
-      <span class="app-install__name">Mundo de Miriam</span>
-    </div>
+      <div class="pwa-toast__copy">
+        <strong>Instale o Mundo de Miriam</strong>
+        <span v-if="isIos">No iPhone: Compartilhar → Adicionar à Tela de Início.</span>
+        <span v-else>Abra as galerias direto da tela inicial, em tela cheia.</span>
+      </div>
 
-    <div class="app-install__copy">
-      <span class="app-install__eyebrow">Aplicativo</span>
-      <h2 class="app-install__title">Leve o Mundo de Miriam com você</h2>
-      <p v-if="isIos" class="app-install__text">
-        No iPhone, toque em <strong>Compartilhar</strong> e depois em
-        <strong>Adicionar à Tela de Início</strong>.
-      </p>
-      <p v-else class="app-install__text">
-        Instale no seu celular e abra as galerias direto da tela inicial, em tela cheia.
-      </p>
-    </div>
+      <button v-if="!isIos" class="pwa-toast__action" type="button" @click="install">
+        Instalar
+      </button>
 
-    <button v-if="!isIos" class="app-install__button" type="button" @click="install">
-      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M12 4v10m0 0 4-4m-4 4-4-4M5 20h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
-      </svg>
-      Instalar aplicativo
-    </button>
-  </section>
+      <button class="pwa-toast__close" type="button" aria-label="Fechar convite" @click="dismiss">
+        ×
+      </button>
+    </aside>
+  </Transition>
 </template>
 
 <script setup>
@@ -44,7 +34,7 @@ const visible = computed(
   () => !installed.value && !dismissed.value && (Boolean(deferredPrompt.value) || isIos.value)
 )
 
-function onBeforeInstall() {
+function onInstallAvailable() {
   deferredPrompt.value = window.__mdmInstallPrompt || null
 }
 
@@ -57,17 +47,15 @@ onMounted(() => {
   dismissed.value = localStorage.getItem(DISMISS_KEY) === '1'
   installed.value =
     window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true
-  isIos.value =
-    /iPad|iPhone|iPod/.test(window.navigator.userAgent) &&
-    !window.MSStream
-
+  isIos.value = /iPad|iPhone|iPod/.test(window.navigator.userAgent)
   deferredPrompt.value = window.__mdmInstallPrompt || null
-  window.addEventListener('mdm-install-available', onBeforeInstall)
+
+  window.addEventListener('mdm-install-available', onInstallAvailable)
   window.addEventListener('appinstalled', onInstalled)
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('mdm-install-available', onBeforeInstall)
+  window.removeEventListener('mdm-install-available', onInstallAvailable)
   window.removeEventListener('appinstalled', onInstalled)
 })
 
@@ -88,113 +76,108 @@ function dismiss() {
 </script>
 
 <style scoped>
-.app-install {
-  position: relative;
-  display: grid;
-  gap: 0.75rem;
-  margin: 0 0 2rem;
-  padding: 1.25rem 1.4rem;
+.pwa-toast {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: min(400px, calc(100vw - 2rem));
+  padding: 0.7rem 0.8rem;
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 14px;
   background: var(--surface);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.18);
 }
 
-.app-install__close {
-  position: absolute;
-  top: 0.6rem;
-  right: 0.6rem;
+.pwa-toast__icon {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  border-radius: 10px;
+}
+
+.pwa-toast__copy {
+  display: grid;
+  gap: 0.1rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.pwa-toast__copy strong {
+  color: var(--primary);
+  font-family: 'Gilda Display', serif;
+  font-size: 0.98rem;
+  font-weight: normal;
+}
+
+.pwa-toast__copy span {
+  color: var(--muted);
+  font-family: system-ui, sans-serif;
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
+.pwa-toast__action {
+  flex: 0 0 auto;
+  min-height: 34px;
+  padding: 0.35rem 0.8rem;
+  border: 2px solid var(--primary);
+  border-radius: 9px;
+  background: var(--primary);
+  color: var(--on-primary);
+  font-family: 'Gilda Display', serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.pwa-toast__action:hover {
+  filter: brightness(0.94);
+}
+
+.pwa-toast__close {
   display: grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+  padding: 0;
+  border: 0;
+  border-radius: 7px;
   background: transparent;
   color: var(--muted);
-  font-size: 1rem;
+  font-size: 1.05rem;
   line-height: 1;
   cursor: pointer;
 }
 
-.app-install__brand {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
+.pwa-toast__close:hover {
+  background: var(--surface-muted);
 }
 
-.app-install__brand img {
-  width: 40px;
-  height: 40px;
-  border-radius: 9px;
-}
-
-.app-install__name {
-  color: var(--primary);
-  font-family: 'Gilda Display', serif;
-  font-size: 1rem;
-}
-
-.app-install__eyebrow {
-  color: var(--muted);
-  font-family: system-ui, sans-serif;
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-}
-
-.app-install__title {
-  margin: 0.2rem 0 0.35rem;
-  color: var(--primary);
-  font-family: 'Gilda Display', serif;
-  font-size: clamp(1.25rem, 3vw, 1.5rem);
-  font-weight: normal;
-}
-
-.app-install__text {
-  margin: 0;
-  max-width: 560px;
-  color: var(--muted);
-  font-family: system-ui, sans-serif;
-  font-size: 0.88rem;
-  line-height: 1.5;
-}
-
-.app-install__button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  justify-self: start;
-  min-height: 40px;
-  padding: 0.55rem 1.1rem;
-  border: 2px solid var(--primary);
-  border-radius: 10px;
-  background: var(--primary);
-  color: var(--on-primary);
-  font-family: 'Gilda Display', serif;
-  font-size: 0.92rem;
-  letter-spacing: 0.03em;
-  cursor: pointer;
-}
-
-.app-install__button svg {
-  width: 17px;
-  height: 17px;
-}
-
-.app-install__button:hover {
-  filter: brightness(0.94);
-}
-
-@media (max-width: 560px) {
-  .app-install {
-    padding: 1rem;
+@media (max-width: 720px) {
+  .pwa-toast {
+    top: 0.75rem;
+    right: 0.75rem;
+    left: 0.75rem;
+    width: auto;
   }
 
-  .app-install__button {
-    width: 100%;
+  .pwa-toast__copy strong {
+    font-size: 0.92rem;
   }
+}
+
+.pwa-toast-enter-active,
+.pwa-toast-leave-active {
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.pwa-toast-enter-from,
+.pwa-toast-leave-to {
+  opacity: 0;
+  transform: translateY(-12px);
 }
 </style>

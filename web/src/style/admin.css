@@ -602,12 +602,21 @@ html[data-theme="dark"] #app .admin-shell .admin-theme-toggle:hover {
 
 .admin-toasts {
   position: fixed;
+  top: 1rem;
   right: 1rem;
-  bottom: 1rem;
   z-index: 3000;
   display: grid;
   gap: 0.55rem;
   width: min(380px, calc(100vw - 2rem));
+}
+
+@media (max-width: 720px) {
+  .admin-toasts {
+    top: 0.75rem;
+    right: 0.75rem;
+    left: 0.75rem;
+    width: auto;
+  }
 }
 
 .admin-toast {
@@ -696,7 +705,7 @@ html[data-theme="dark"] #app .admin-shell .admin-theme-toggle:hover {
 .admin-toast-enter-from,
 .admin-toast-leave-to {
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(-10px);
 }
 
 html[data-theme="dark"] #app .admin-toast--success .admin-toast__icon {

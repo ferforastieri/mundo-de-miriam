@@ -68,6 +68,7 @@ import MediaLightbox from '@/components/common/MediaLightbox.vue'
 
 export default {
   name: 'PortfolioGallery',
+  components: { MediaLightbox },
   props: {
     images: {
       type: Array,
