@@ -249,6 +249,13 @@ export default {
 @media (hover: hover) {
   .gallery-item:hover .gallery-overlay {
     opacity: 1;
+  }
+}
+
+@media (hover: none) {
+  .gallery-item .gallery-overlay {
+    display: none;
+  }
 }
 
 .modal {
