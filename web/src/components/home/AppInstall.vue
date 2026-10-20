@@ -122,19 +122,33 @@ function dismiss() {
 
 .pwa-toast__action {
   flex: 0 0 auto;
-  min-height: 34px;
-  padding: 0.35rem 0.8rem;
+  min-height: 36px;
+  padding: 0.4rem 0.9rem;
   border: 2px solid var(--primary);
   border-radius: 9px;
-  background: var(--primary);
-  color: var(--on-primary);
+  background: transparent;
+  color: var(--primary);
   font-family: 'Gilda Display', serif;
   font-size: 0.85rem;
+  font-weight: normal;
+  line-height: 1.1;
+  white-space: nowrap;
   cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 .pwa-toast__action:hover {
-  filter: brightness(0.94);
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.pwa-toast__action:active {
+  transform: translateY(1px);
+}
+
+.pwa-toast__action:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
 .pwa-toast__close {
