@@ -71,60 +71,26 @@
       </div>
     </div>
 
-    <Teleport to="body">
-      <div v-if="modalOpen" class="modal" role="dialog" aria-modal="true" aria-label="Visualizador de fotos da parceria" @click="closeModal">
-        <div class="modal-content" @click.stop>
-          <button class="modal-close" type="button" aria-label="Fechar foto" @click="closeModal">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-          </svg>
-          </button>
-        
-          <div class="modal-image-container">
-            <video
-              v-if="isVideoType(currentImage.type)"
-              :src="currentImage.src"
-              controls
-              autoplay
-              playsinline
-            ></video>
-            <img v-else :src="currentImage.src" :alt="currentImage.alt" />
-          </div>
-        
-          <div class="modal-navigation">
-            <button type="button" class="nav-button prev" :disabled="currentIndex === 0" aria-label="Foto anterior" @click="previousImage">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
-              </svg>
-            </button>
-          
-            <button
-              v-if="downloadable"
-              class="nav-button"
-              type="button"
-              aria-label="Baixar arquivo"
-              title="Baixar arquivo"
-              @click.stop.prevent="download(currentImage)"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M12 4v10m0 0 4-4m-4 4-4-4M5 20h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-            <span class="image-counter">{{ currentIndex + 1 }} / {{ currentImages.length }}</span>
-          
-            <button type="button" class="nav-button next" :disabled="currentIndex === currentImages.length - 1" aria-label="Próxima foto" @click="nextImage">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-    </Teleport>
+    <MediaLightbox
+      :open="modalOpen"
+      :src="currentImage.src || ''"
+      :type="currentImage.type || ''"
+      :alt="currentImage.alt || ''"
+      :counter="`${currentIndex + 1} / ${currentImages.length}`"
+      :has-prev="currentIndex > 0"
+      :has-next="currentIndex < currentImages.length - 1"
+      :downloadable="downloadable"
+      @close="closeModal"
+      @prev="previousImage"
+      @next="nextImage"
+      @download="download(currentImage)"
+    />
   </div>
 </template>
 
 <script>
+import MediaLightbox from '@/components/common/MediaLightbox.vue'
+
 export default {
   name: 'PartnershipsGallery',
   props: {

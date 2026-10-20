@@ -46,48 +46,26 @@
       </div>
     </div>
 
-    <Teleport to="body">
-      <div v-if="modalOpen" class="modal" role="dialog" aria-modal="true" aria-label="Visualizador de fotos" @click="closeModal">
-        <div class="modal-content" @click.stop>
-          <button class="modal-close" type="button" aria-label="Fechar foto" @click="closeModal">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-          </svg>
-          </button>
-        
-          <div class="modal-image-container">
-            <video
-              v-if="isVideo(currentImage)"
-              :src="currentImage.src"
-              controls
-              autoplay
-              playsinline
-            ></video>
-            <img v-else :src="currentImage.src" :alt="currentImage.alt" />
-          </div>
-        
-          <div class="modal-navigation">
-            <button type="button" class="nav-button prev" :disabled="currentIndex === 0" aria-label="Foto anterior" @click="previousImage">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
-              </svg>
-            </button>
-          
-            <span class="image-counter">{{ currentIndex + 1 }} / {{ visibleImages.length }}</span>
-          
-            <button type="button" class="nav-button next" :disabled="currentIndex === visibleImages.length - 1" aria-label="Próxima foto" @click="nextImage">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-    </Teleport>
+    <MediaLightbox
+      :open="modalOpen"
+      :src="currentImage.src || ''"
+      :type="currentImage.type || ''"
+      :alt="currentImage.alt || ''"
+      :counter="`${currentIndex + 1} / ${visibleImages.length}`"
+      :has-prev="currentIndex > 0"
+      :has-next="currentIndex < visibleImages.length - 1"
+      :downloadable="downloadable"
+      @close="closeModal"
+      @prev="previousImage"
+      @next="nextImage"
+      @download="download(currentImage)"
+    />
   </div>
 </template>
 
 <script>
+import MediaLightbox from '@/components/common/MediaLightbox.vue'
+
 export default {
   name: 'PortfolioGallery',
   props: {
@@ -167,6 +145,7 @@ export default {
 }
 
 .gallery-item {
+  -webkit-tap-highlight-color: transparent;
   position: relative;
   border-radius: 16px;
   overflow: hidden;
@@ -203,6 +182,9 @@ export default {
 }
 
 .gallery-download {
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  outline: none;
   position: absolute;
   top: 0.7rem;
   right: 0.7rem;
@@ -220,8 +202,15 @@ export default {
   backdrop-filter: blur(2px);
 }
 
-.gallery-download:hover {
-  background: rgba(24, 14, 9, 0.8);
+@media (hover: hover) {
+  .gallery-download:hover {
+    background: rgba(24, 14, 9, 0.8);
+  }
+}
+
+.gallery-download:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
 }
 
 .gallery-download svg {
@@ -257,8 +246,9 @@ export default {
   color: white;
 }
 
-.gallery-item:hover .gallery-overlay {
-  opacity: 1;
+@media (hover: hover) {
+  .gallery-item:hover .gallery-overlay {
+    opacity: 1;
 }
 
 .modal {

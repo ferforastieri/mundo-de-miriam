@@ -3,6 +3,7 @@ import { useRouter } from 'vue-router'
 import HomeLayout from '@/layouts/HomeLayout.vue'
 import HomeProfile from '@/components/home/HomeProfile.vue'
 import InstagramStats from '@/components/home/InstagramStats.vue'
+import AppInstall from '@/components/home/AppInstall.vue'
 import HomeNavigation from '@/components/home/HomeNavigation.vue'
 import ServicesSection from '@/components/home/ServicesSection.vue'
 import MimelieHighlight from '@/components/home/MimelieHighlight.vue'
@@ -15,6 +16,7 @@ const router = useRouter()
     <div class="profile-section">
       <HomeProfile />
       <InstagramStats />
+      <AppInstall />
       <MimelieHighlight />
       <HomeNavigation />
       <ServicesSection class="home-contact-card" />
