@@ -1,58 +1,25 @@
 <template>
-  <section
-    v-if="isPending && !stats"
-    class="instagram-stats instagram-stats--skeleton"
-    aria-hidden="true"
-  >
-    <header class="stats-header">
-      <SkeletonBlock width="200px" height="1.7rem" />
-      <SkeletonBlock width="120px" height="2rem" radius="8px" />
-    </header>
-    <div class="stats-grid">
-      <SkeletonBlock v-for="n in 4" :key="n" height="86px" radius="12px" />
+  <section v-if="isPending && !stats" class="instagram-card" aria-hidden="true">
+    <div class="instagram-stat">
+      <SkeletonBlock width="110px" height="2.2rem" />
+      <SkeletonBlock width="90px" height="0.7rem" />
+    </div>
+    <div class="instagram-stat">
+      <SkeletonBlock width="110px" height="2.2rem" />
+      <SkeletonBlock width="90px" height="0.7rem" />
     </div>
   </section>
 
-  <section v-else-if="stats" class="instagram-stats" aria-labelledby="instagram-stats-title">
-    <header class="stats-header">
-      <div class="instagram-brand">
-        <span class="instagram-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none">
-            <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.8" />
-            <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.8" />
-            <circle cx="17.4" cy="6.7" r="1.1" fill="currentColor" />
-          </svg>
-        </span>
-
-        <div>
-          <p class="eyebrow">@mihforastieri</p>
-          <h2 id="instagram-stats-title">
-            <TranslatableText text="Instagram em números" />
-          </h2>
-        </div>
-      </div>
-
-      <a
-        class="profile-link"
-        href="https://www.instagram.com/mihforastieri/"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <TranslatableText text="Ver perfil" />
-        <span aria-hidden="true">↗</span>
-      </a>
-    </header>
-
-    <div class="stats-grid" aria-live="polite">
-      <div v-for="metric in metrics" :key="metric.label" class="stat-item">
-        <strong>{{ formatNumber(metric.value) }}</strong>
-        <span><TranslatableText :text="metric.label" /></span>
-      </div>
+  <section v-else-if="stats" class="instagram-card" aria-label="Instagram">
+    <div class="instagram-stat">
+      <strong>{{ formatNumber(stats.followers) }}</strong>
+      <span><TranslatableText text="Seguidores" /></span>
     </div>
 
-    <p class="stats-note">
-      <TranslatableText text="Visualizações e interações consideram o conteúdo público recente." />
-    </p>
+    <div class="instagram-stat">
+      <strong>{{ formatNumber(stats.recentViews) }}</strong>
+      <span><TranslatableText text="Visualizações" /></span>
+    </div>
   </section>
 </template>
 
@@ -112,13 +79,6 @@ watch(
   { immediate: true }
 )
 
-const metrics = computed(() => [
-  { label: 'Seguidores', value: stats.value?.followers },
-  { label: 'Publicações', value: stats.value?.posts },
-  { label: 'Visualizações recentes', value: stats.value?.recentViews },
-  { label: 'Interações recentes', value: stats.value?.recentInteractions }
-])
-
 function formatNumber(value) {
   if (!Number.isFinite(value)) return '—'
 
@@ -130,130 +90,52 @@ function formatNumber(value) {
 </script>
 
 <style scoped>
-.instagram-stats {
+.instagram-card {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   margin: 0 0 2rem;
-  padding: 1.1rem 1.25rem;
-  color: #552200;
-  background: #fff;
-  border: 1px solid rgba(85, 34, 0, 0.16);
-  box-shadow: 0 14px 35px rgba(85, 34, 0, 0.08);
+  padding: 1.2rem 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
   animation: revealStats 0.55s ease 0.15s backwards;
 }
 
-.stats-header {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 1rem;
-  padding-bottom: 0.8rem;
-  border-bottom: 1px solid rgba(85, 34, 0, 0.22);
-}
-
-.instagram-brand {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  min-width: 0;
-}
-
-.instagram-icon {
-  display: inline-flex;
-  flex: 0 0 auto;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  color: #fff;
-  background: #552200;
-  border-radius: 10px;
-  box-shadow: 0 5px 12px rgba(85, 34, 0, 0.2);
-}
-
-.instagram-icon svg {
-  width: 23px;
-  height: 23px;
-}
-
-.eyebrow {
-  margin: 0 0 0.2rem;
-  font-size: 0.66rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-
-h2 {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: normal;
-  letter-spacing: 0.04em;
-}
-
-.profile-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.3rem 0;
-  color: #552200;
-  font-size: 0.76rem;
-  letter-spacing: 0.08em;
-  text-decoration: none;
-  border-bottom: 1px solid currentColor;
-}
-
-.profile-link:hover {
-  color: #8a4a24;
-}
-
-.profile-link:focus-visible {
-  outline: 2px solid #552200;
-  outline-offset: 4px;
-}
-
-.stats-grid {
+.instagram-stat {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  padding: 0.9rem 0 0.75rem;
-}
-
-.stat-item {
+  justify-items: center;
+  gap: 0.35rem;
   min-width: 0;
-  padding: 0 0.7rem;
-  border-left: 1px solid rgba(85, 34, 0, 0.16);
+  padding: 0.2rem 0.75rem;
 }
 
-.stat-item:first-child {
-  padding-left: 0;
-  border-left: 0;
+.instagram-stat + .instagram-stat {
+  border-left: 1px solid var(--border);
 }
 
-.stat-item strong {
-  display: block;
-  font-size: clamp(1.25rem, 3.5vw, 1.7rem);
+.instagram-stat strong {
+  color: var(--primary);
+  font-family: 'Gilda Display', serif;
+  font-size: clamp(1.8rem, 5vw, 2.4rem);
   font-weight: normal;
   line-height: 1;
-  letter-spacing: -0.03em;
+  letter-spacing: 0.02em;
 }
 
-.stat-item span {
-  display: block;
-  margin-top: 0.4rem;
-  color: #765b4c;
-  font-size: 0.64rem;
-  line-height: 1.25;
-  letter-spacing: 0.06em;
-}
-
-.stats-note {
-  margin: 0;
-  color: #8b7569;
-  font-size: 0.66rem;
-  line-height: 1.45;
+.instagram-stat span {
+  color: var(--muted);
+  font-family: system-ui, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 @keyframes revealStats {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -261,69 +143,13 @@ h2 {
   }
 }
 
-@media (max-width: 560px) {
-  .instagram-stats {
+@media (max-width: 480px) {
+  .instagram-card {
     padding: 1rem;
   }
 
-  .stats-header {
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .instagram-brand {
-    gap: 0.6rem;
-  }
-
-  .instagram-icon {
-    width: 34px;
-    height: 34px;
-  }
-
-  h2 {
-    font-size: 1.08rem;
-  }
-
-  .profile-link {
-    flex: 0 0 auto;
-    padding: 0.45rem 0;
-    font-size: 0.7rem;
-  }
-
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-    padding-top: 0.55rem;
-    row-gap: 0;
-  }
-
-  .stat-item {
-    padding: 0.8rem 0.7rem;
-  }
-
-  .stat-item:first-child,
-  .stat-item:nth-child(2) {
-    padding-top: 0.35rem;
-  }
-
-  .stat-item:nth-child(3) {
-    padding-left: 0;
-    border-left: 0;
-    border-top: 1px solid rgba(85, 34, 0, 0.16);
-  }
-
-  .stat-item:nth-child(4) {
-    padding-right: 0;
-    border-top: 1px solid rgba(85, 34, 0, 0.16);
-  }
-
-  .stat-item:nth-child(even) {
-    padding-right: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .instagram-stats {
-    animation: none;
+  .instagram-stat {
+    padding: 0.15rem 0.5rem;
   }
 }
 </style>
