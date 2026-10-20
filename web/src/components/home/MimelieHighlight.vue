@@ -1,7 +1,7 @@
 <template>
   <a
     href="https://mimelie.com"
-    class="mimelie-card"
+    class="home-card mimelie-card"
     target="_blank"
     rel="noopener noreferrer"
     aria-label="Visitar o site oficial da Mimelie"
@@ -37,17 +37,10 @@ const { isPending } = usePublicGallery()
 <style scoped>
 .mimelie-card {
   display: grid;
-  grid-template-columns: 64px minmax(0, 1fr) auto;
-  gap: 1rem;
+  grid-template-columns: 56px minmax(0, 1fr) auto;
+  gap: 0.9rem;
   align-items: center;
-  margin: 0 0 2rem;
-  padding: 1.2rem 1.25rem;
-  overflow: hidden;
-  color: #542a30;
-  background: #fbebdc;
-  border: 1px solid rgba(84, 42, 48, 0.16);
-  border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  color: inherit;
   text-decoration: none;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
@@ -60,13 +53,12 @@ const { isPending } = usePublicGallery()
 .mimelie-card__logo {
   display: grid;
   place-items: center;
-  width: 64px;
-  height: 64px;
-  padding: 0.55rem;
-  border: 1px solid rgba(84, 42, 48, 0.2);
+  width: 56px;
+  height: 56px;
+  padding: 0.5rem;
+  border: 1px solid var(--border);
   border-radius: 50%;
   background: #fff7ef;
-  box-shadow: 0 8px 18px rgba(84, 42, 48, 0.12);
 }
 
 .mimelie-card__logo img {
@@ -77,7 +69,7 @@ const { isPending } = usePublicGallery()
 
 .mimelie-card__copy {
   display: grid;
-  gap: 0.12rem;
+  gap: 0.1rem;
   min-width: 0;
 }
 
@@ -91,17 +83,17 @@ const { isPending } = usePublicGallery()
 }
 
 .mimelie-card__title {
-  color: #542a30;
+  color: var(--primary);
   font-family: 'Gilda Display', serif;
-  font-size: 1.45rem;
+  font-size: 1.3rem;
   line-height: 1.1;
   letter-spacing: 0.04em;
 }
 
 .mimelie-card__text {
-  color: #765052;
+  color: var(--muted);
   font-family: system-ui, sans-serif;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   line-height: 1.45;
 }
 
@@ -109,9 +101,9 @@ const { isPending } = usePublicGallery()
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  color: #542a30;
+  color: var(--primary);
   font-family: system-ui, sans-serif;
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -128,50 +120,30 @@ const { isPending } = usePublicGallery()
   transform: translate(3px, -3px);
 }
 
-:global(html[data-theme="dark"] .mimelie-card) {
-  color: #fff8f3;
-  background: #3a2227;
-  border-color: rgba(241, 184, 134, 0.3);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.24);
-}
-
-:global(html[data-theme="dark"] .mimelie-card__title) {
-  color: #ffffff;
-}
-
-:global(html[data-theme="dark"] .mimelie-card__text) {
-  color: #f7ded4;
-}
-
 :global(html[data-theme="dark"] .mimelie-card__eyebrow) {
   color: #ffc7a5;
 }
 
-:global(html[data-theme="dark"] .mimelie-card__action) {
-  color: #ffffff;
-}
-
 @media (max-width: 560px) {
   .mimelie-card {
-    grid-template-columns: 52px minmax(0, 1fr) auto;
-    gap: 0.8rem;
-    padding: 1rem;
+    grid-template-columns: 48px minmax(0, 1fr) auto;
+    gap: 0.75rem;
   }
 
   .mimelie-card__logo {
-    width: 52px;
-    height: 52px;
-    padding: 0.45rem;
+    width: 48px;
+    height: 48px;
+    padding: 0.42rem;
   }
 
   .mimelie-card__title {
-    font-size: 1.25rem;
+    font-size: 1.18rem;
   }
 
   .mimelie-card__text {
     display: -webkit-box;
     overflow: hidden;
-    font-size: 0.78rem;
+    font-size: 0.76rem;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
   }

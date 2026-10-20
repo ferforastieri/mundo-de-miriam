@@ -281,3 +281,19 @@ html[data-theme="dark"] #app :is(.site-mobile-links, .site-desktop-links) :is(a.
     box-shadow: none !important;
   }
 }
+
+/* Card padrão da home (Instagram, Mimelie e afins) */
+.home-card {
+  margin: 0 0 2rem;
+  padding: 1.2rem 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+@media (max-width: 480px) {
+  .home-card {
+    padding: 1rem;
+  }
+}

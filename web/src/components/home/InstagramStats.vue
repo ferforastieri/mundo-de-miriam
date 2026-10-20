@@ -1,5 +1,5 @@
 <template>
-  <section v-if="isPending && !stats" class="instagram-card" aria-hidden="true">
+  <section v-if="isPending && !stats" class="home-card instagram-card" aria-hidden="true">
     <div class="instagram-stat">
       <SkeletonBlock width="110px" height="2.2rem" />
       <SkeletonBlock width="90px" height="0.7rem" />
@@ -10,7 +10,7 @@
     </div>
   </section>
 
-  <section v-else-if="stats" class="instagram-card" aria-label="Instagram">
+  <section v-else-if="stats" class="home-card instagram-card" aria-label="Instagram">
     <div class="instagram-stat">
       <strong>{{ formatNumber(stats.followers) }}</strong>
       <span class="instagram-stat__label"><TranslatableText text="Seguidores" /></span>
@@ -25,15 +25,14 @@
       title="Abrir o Instagram"
     >
       <strong>{{ formatNumber(stats.recentViews) }}</strong>
-      <span class="instagram-stat__label"><TranslatableText text="Visualizações" /></span>
-      <span class="instagram-stat__hint">
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <span class="instagram-stat__label">
+        <svg class="instagram-stat__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.8" />
           <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.8" />
           <circle cx="17.4" cy="6.7" r="1.1" fill="currentColor" />
         </svg>
-        Ver no Instagram
-        <i aria-hidden="true">↗</i>
+        <TranslatableText text="Visualizações" />
+        <i class="instagram-stat__arrow" aria-hidden="true">↗</i>
       </span>
     </a>
   </section>
@@ -109,12 +108,6 @@ function formatNumber(value) {
 .instagram-card {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin: 0 0 2rem;
-  padding: 1.2rem 1.25rem;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  background: var(--surface);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
   animation: revealStats 0.55s ease 0.15s backwards;
 }
 
@@ -140,6 +133,9 @@ function formatNumber(value) {
 }
 
 .instagram-stat__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
   color: var(--muted);
   font-family: system-ui, sans-serif;
   font-size: 0.68rem;
@@ -148,43 +144,30 @@ function formatNumber(value) {
   text-transform: uppercase;
 }
 
+.instagram-stat__icon {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+}
+
 .instagram-stat--link {
   color: inherit;
   text-decoration: none;
-  border-radius: 12px;
-  transition: background-color 0.2s ease;
 }
 
-.instagram-stat--link:hover,
-.instagram-stat--link:focus-visible {
-  background: var(--surface-muted);
-  outline: none;
-}
-
-.instagram-stat__hint {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
+.instagram-stat--link:hover .instagram-stat__label {
   color: var(--primary);
-  font-family: system-ui, sans-serif;
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
-.instagram-stat__hint svg {
-  width: 13px;
-  height: 13px;
-}
-
-.instagram-stat__hint i {
-  font-size: 0.85rem;
+.instagram-stat__arrow {
+  font-size: 0.82rem;
   font-style: normal;
   transition: transform 0.2s ease;
 }
 
-.instagram-stat--link:hover .instagram-stat__hint i {
+.instagram-stat--link:hover .instagram-stat__arrow {
   transform: translate(2px, -2px);
 }
 
@@ -200,12 +183,15 @@ function formatNumber(value) {
 }
 
 @media (max-width: 480px) {
-  .instagram-card {
-    padding: 1rem;
-  }
-
   .instagram-stat {
     padding: 0.15rem 0.5rem;
+  }
+
+  .instagram-stat__label {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.2rem;
+    font-size: 0.62rem;
   }
 }
 </style>
