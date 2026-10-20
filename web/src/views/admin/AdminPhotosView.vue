@@ -110,18 +110,21 @@
           <article
             v-for="(photo, index) in localPhotos"
             :key="photo.id"
+            :data-photo-id="photo.id"
             class="photo-card"
             :class="{
-              'photo-card--dragging': dragIndex === index,
-              'photo-card--hidden': !photo.visible
+              'photo-card--hidden': !photo.visible,
+              'photo-card--new': newPhotoIds.includes(photo.id)
             }"
-            draggable="true"
-            @dragstart="dragIndex = index"
-            @dragover.prevent
-            @drop.prevent="handleDrop(index)"
-            @dragend="dragIndex = null"
           >
-            <div class="photo-card__media">
+            <div
+              class="photo-card__media"
+              role="button"
+              tabindex="0"
+              :aria-label="`Abrir ${photo.alt || 'arquivo'}`"
+              @click="openViewer(photo)"
+              @keydown.enter.prevent="openViewer(photo)"
+            >
               <video
                 v-if="isVideoPhoto(photo)"
                 :src="photo.url"
@@ -139,7 +142,6 @@
                 <span v-if="photo.featured" class="photo-card__badge photo-card__badge--featured">Capa</span>
               </div>
 
-              <span class="photo-card__handle" title="Arraste para reordenar" aria-hidden="true">⠿</span>
             </div>
 
             <div class="photo-card__body">
@@ -147,6 +149,26 @@
               <p class="photo-card__meta">{{ formatBytes(photo.bytes) }}</p>
 
               <div class="photo-card__actions">
+                <div class="photo-card__movers">
+                  <button
+                    class="admin-btn admin-btn--small"
+                    type="button"
+                    :disabled="index === 0"
+                    title="Mover para cima"
+                    @click="movePhoto(index, -1)"
+                  >
+                    ↑
+                  </button>
+                  <button
+                    class="admin-btn admin-btn--small"
+                    type="button"
+                    :disabled="index === localPhotos.length - 1"
+                    title="Mover para baixo"
+                    @click="movePhoto(index, 1)"
+                  >
+                    ↓
+                  </button>
+                </div>
                 <button class="admin-btn admin-btn--small" type="button" @click="openEdit(photo)">
                   Editar
                 </button>
@@ -196,13 +218,48 @@
       @cancel="photoToDelete = null"
     />
 
+
+    <Teleport to="body">
+      <div v-if="viewerPhoto" class="photo-viewer" @click.self="closeViewer">
+        <button class="photo-viewer__close" type="button" aria-label="Fechar" @click="closeViewer">×</button>
+
+        <div class="photo-viewer__stage">
+          <video
+            v-if="isVideoPhoto(viewerPhoto)"
+            :src="viewerPhoto.url"
+            controls
+            autoplay
+            playsinline
+          ></video>
+          <img v-else :src="viewerPhoto.url" :alt="viewerPhoto.alt || ''" />
+        </div>
+
+        <div class="photo-viewer__bar">
+          <button class="admin-btn admin-btn--small" type="button" :disabled="viewerIndex <= 0" @click="prevViewer">
+            ←
+          </button>
+          <span>
+            {{ viewerIndex + 1 }} / {{ localPhotos.length }}
+            <template v-if="viewerPhoto.alt"> · {{ viewerPhoto.alt }}</template>
+          </span>
+          <button
+            class="admin-btn admin-btn--small"
+            type="button"
+            :disabled="viewerIndex >= localPhotos.length - 1"
+            @click="nextViewer"
+          >
+            →
+          </button>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useQuery } from '@tanstack/vue-query'
+import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import adminService from '@/api/admin/AdminService.js'
 import { useAdminToast } from '@/composables/useAdminToast'
 import { useErrorToast } from '@/composables/useErrorToast'
@@ -229,6 +286,7 @@ function fileSizeLimit(file) {
 const route = useRoute()
 const router = useRouter()
 const toast = useAdminToast()
+const queryClient = useQueryClient()
 
 const {
   data: screensData,
@@ -420,6 +478,7 @@ async function handleFiles(files) {
   uploads.value = queue
   const targetScreenId = selectedScreenId.value
   const targetGroupId = selectedGroupId.value || null
+  const createdIds = []
   let successCount = 0
   let cursor = 0
 
@@ -430,7 +489,7 @@ async function handleFiles(files) {
       item.status = 'uploading'
 
       try {
-        await adminService.uploadPhoto({
+        const created = await adminService.uploadPhoto({
           screenId: targetScreenId,
           groupId: targetGroupId,
           file: item.file,
@@ -438,6 +497,7 @@ async function handleFiles(files) {
             item.progress = Math.max(1, Math.min(99, Math.round(fraction * 100)))
           }
         })
+        if (created?.id) createdIds.push(created.id)
         item.progress = 100
         item.status = 'done'
         successCount += 1
@@ -457,7 +517,23 @@ async function handleFiles(files) {
     toast.success(
       `${successCount} arquivo${successCount === 1 ? '' : 's'} enviado${successCount === 1 ? '' : 's'}.`
     )
+
+    queryClient.invalidateQueries({ queryKey: ['admin-photos'] })
     await Promise.all([refetchPhotos(), refetchScreens()])
+    await nextTick()
+
+    newPhotoIds.value = createdIds
+    const firstId = createdIds[0]
+
+    if (firstId) {
+      document
+        .querySelector(`[data-photo-id="${firstId}"]`)
+        ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+
+    setTimeout(() => {
+      newPhotoIds.value = []
+    }, 5000)
   }
 
   const failures = queue.filter((item) => item.status === 'error')
@@ -469,17 +545,38 @@ async function handleFiles(files) {
   }
 }
 
-const dragIndex = ref(null)
 const orderSaving = ref(false)
+const newPhotoIds = ref([])
+const viewerPhoto = ref(null)
+const viewerIndex = computed(() =>
+  localPhotos.value.findIndex((photo) => photo.id === viewerPhoto.value?.id)
+)
 
-async function handleDrop(targetIndex) {
-  const sourceIndex = dragIndex.value
-  dragIndex.value = null
+function openViewer(photo) {
+  viewerPhoto.value = photo
+}
 
-  if (sourceIndex === null || sourceIndex === targetIndex) return
+function closeViewer() {
+  viewerPhoto.value = null
+}
+
+function prevViewer() {
+  if (viewerIndex.value > 0) viewerPhoto.value = localPhotos.value[viewerIndex.value - 1]
+}
+
+function nextViewer() {
+  if (viewerIndex.value >= 0 && viewerIndex.value < localPhotos.value.length - 1) {
+    viewerPhoto.value = localPhotos.value[viewerIndex.value + 1]
+  }
+}
+
+async function movePhoto(index, direction) {
+  const targetIndex = index + direction
+
+  if (targetIndex < 0 || targetIndex >= localPhotos.value.length) return
 
   const items = [...localPhotos.value]
-  const [moved] = items.splice(sourceIndex, 1)
+  const [moved] = items.splice(index, 1)
   items.splice(targetIndex, 0, moved)
   localPhotos.value = items
 

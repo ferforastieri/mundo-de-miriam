@@ -19,6 +19,23 @@
         :alt="image.alt"
         loading="lazy"
       />
+      <span v-if="isVideo(image)" class="video-badge" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+      </span>
+
+      <button
+        v-if="downloadable"
+        class="gallery-download"
+        type="button"
+        aria-label="Baixar arquivo"
+        title="Baixar arquivo"
+        @click.stop="download(image)"
+      >
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 4v10m0 0 4-4m-4 4-4-4M5 20h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
       <div class="gallery-overlay">
         <svg v-if="isVideo(image)" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
           <path d="M8 5v14l11-7z"/>
@@ -78,6 +95,10 @@ export default {
       type: Array,
       required: true,
       default: () => []
+    },
+    downloadable: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -97,6 +118,16 @@ export default {
   methods: {
     isVideo(image) {
       return String(image?.type || '').startsWith('video/')
+    },
+    download(image) {
+      if (!image?.src) return
+
+      const link = document.createElement('a')
+      link.href = image.src
+      link.download = image.alt || 'arquivo'
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
     },
     openModal(index) {
       this.currentIndex = index
@@ -146,6 +177,53 @@ export default {
 .gallery-item:hover {
   transform: translateY(-8px);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.video-badge {
+  position: absolute;
+  top: 0.7rem;
+  left: 0.7rem;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: rgba(24, 14, 9, 0.55);
+  color: #fff;
+  backdrop-filter: blur(2px);
+}
+
+.video-badge svg {
+  width: 18px;
+  height: 18px;
+}
+
+.gallery-download {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.7rem;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 10px;
+  background: rgba(24, 14, 9, 0.55);
+  color: #fff;
+  cursor: pointer;
+  backdrop-filter: blur(2px);
+}
+
+.gallery-download:hover {
+  background: rgba(24, 14, 9, 0.8);
+}
+
+.gallery-download svg {
+  width: 18px;
+  height: 18px;
 }
 
 .gallery-item img,

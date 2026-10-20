@@ -23,6 +23,10 @@
             :alt="partnership.name"
             loading="lazy"
           />
+          <span v-if="isVideoType(partnership.mainType)" class="video-badge" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          </span>
+
           <div class="image-overlay">
             <h3 class="partnership-name">{{ partnership.name }}</h3>
             <p class="partnership-count">{{ partnership.images.length }} fotos</p>
@@ -52,6 +56,9 @@
               :alt="image.alt"
               loading="lazy"
             />
+            <span v-if="isVideoType(image.type)" class="video-badge" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            </span>
           </div>
         </div>
       </div>
@@ -91,6 +98,18 @@
               </svg>
             </button>
           
+            <button
+              v-if="downloadable"
+              class="nav-button"
+              type="button"
+              aria-label="Baixar arquivo"
+              title="Baixar arquivo"
+              @click="download(currentImage)"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 4v10m0 0 4-4m-4 4-4-4M5 20h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
             <span class="image-counter">{{ currentIndex + 1 }} / {{ currentImages.length }}</span>
           
             <button type="button" class="nav-button next" :disabled="currentIndex === currentImages.length - 1" aria-label="Próxima foto" @click="nextImage">
@@ -109,6 +128,10 @@
 export default {
   name: 'PartnershipsGallery',
   props: {
+    downloadable: {
+      type: Boolean,
+      default: false
+    },
     partnerships: {
       type: Array,
       required: true,
@@ -130,6 +153,16 @@ export default {
   methods: {
     isVideoType(type) {
       return String(type || '').startsWith('video/')
+    },
+    download(image) {
+      if (!image?.src) return
+
+      const link = document.createElement('a')
+      link.href = image.src
+      link.download = image.alt || 'arquivo'
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
     },
     togglePartnership(index) {
       this.$emit('toggle-partnership', index)
@@ -194,6 +227,25 @@ export default {
   position: relative;
   aspect-ratio: 16/9;
   overflow: hidden;
+}
+
+.video-badge {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.6rem;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: rgba(24, 14, 9, 0.55);
+  color: #fff;
+}
+
+.video-badge svg {
+  width: 16px;
+  height: 16px;
 }
 
 .main-image img,
