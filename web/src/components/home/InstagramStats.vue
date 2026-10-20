@@ -13,13 +13,29 @@
   <section v-else-if="stats" class="instagram-card" aria-label="Instagram">
     <div class="instagram-stat">
       <strong>{{ formatNumber(stats.followers) }}</strong>
-      <span><TranslatableText text="Seguidores" /></span>
+      <span class="instagram-stat__label"><TranslatableText text="Seguidores" /></span>
     </div>
 
-    <div class="instagram-stat">
+    <a
+      class="instagram-stat instagram-stat--link"
+      href="https://www.instagram.com/mihforastieri/"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Abrir o Instagram de Miriam"
+      title="Abrir o Instagram"
+    >
       <strong>{{ formatNumber(stats.recentViews) }}</strong>
-      <span><TranslatableText text="Visualizações" /></span>
-    </div>
+      <span class="instagram-stat__label"><TranslatableText text="Visualizações" /></span>
+      <span class="instagram-stat__hint">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.8" />
+          <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.8" />
+          <circle cx="17.4" cy="6.7" r="1.1" fill="currentColor" />
+        </svg>
+        Ver no Instagram
+        <i aria-hidden="true">↗</i>
+      </span>
+    </a>
   </section>
 </template>
 
@@ -123,13 +139,53 @@ function formatNumber(value) {
   letter-spacing: 0.02em;
 }
 
-.instagram-stat span {
+.instagram-stat__label {
   color: var(--muted);
   font-family: system-ui, sans-serif;
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+}
+
+.instagram-stat--link {
+  color: inherit;
+  text-decoration: none;
+  border-radius: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.instagram-stat--link:hover,
+.instagram-stat--link:focus-visible {
+  background: var(--surface-muted);
+  outline: none;
+}
+
+.instagram-stat__hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--primary);
+  font-family: system-ui, sans-serif;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.instagram-stat__hint svg {
+  width: 13px;
+  height: 13px;
+}
+
+.instagram-stat__hint i {
+  font-size: 0.85rem;
+  font-style: normal;
+  transition: transform 0.2s ease;
+}
+
+.instagram-stat--link:hover .instagram-stat__hint i {
+  transform: translate(2px, -2px);
 }
 
 @keyframes revealStats {

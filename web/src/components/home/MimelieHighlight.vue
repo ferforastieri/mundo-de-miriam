@@ -43,11 +43,11 @@ const { isPending } = usePublicGallery()
   margin: 0 0 2rem;
   padding: 1.2rem 1.25rem;
   overflow: hidden;
-  color: #fff8f3;
-  background: #351b20;
-  border: 1px solid rgba(255, 248, 243, 0.18);
+  color: #542a30;
+  background: #fbebdc;
+  border: 1px solid rgba(84, 42, 48, 0.16);
   border-radius: 16px;
-  box-shadow: 0 14px 32px rgba(53, 27, 32, 0.18);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
   text-decoration: none;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
@@ -63,10 +63,10 @@ const { isPending } = usePublicGallery()
   width: 64px;
   height: 64px;
   padding: 0.55rem;
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(84, 42, 48, 0.2);
   border-radius: 50%;
   background: #fff7ef;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 8px 18px rgba(84, 42, 48, 0.12);
 }
 
 .mimelie-card__logo img {
@@ -82,7 +82,7 @@ const { isPending } = usePublicGallery()
 }
 
 .mimelie-card__eyebrow {
-  color: #ffc7a5;
+  color: #9f4d4d;
   font-family: system-ui, sans-serif;
   font-size: 0.6rem;
   font-weight: 750;
@@ -91,7 +91,7 @@ const { isPending } = usePublicGallery()
 }
 
 .mimelie-card__title {
-  color: #ffffff;
+  color: #542a30;
   font-family: 'Gilda Display', serif;
   font-size: 1.45rem;
   line-height: 1.1;
@@ -99,7 +99,7 @@ const { isPending } = usePublicGallery()
 }
 
 .mimelie-card__text {
-  color: #f7ded4;
+  color: #765052;
   font-family: system-ui, sans-serif;
   font-size: 0.82rem;
   line-height: 1.45;
@@ -109,7 +109,7 @@ const { isPending } = usePublicGallery()
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  color: #ffffff;
+  color: #542a30;
   font-family: system-ui, sans-serif;
   font-size: 0.68rem;
   font-weight: 700;
@@ -129,8 +129,26 @@ const { isPending } = usePublicGallery()
 }
 
 :global(html[data-theme="dark"] .mimelie-card) {
+  color: #fff8f3;
   background: #3a2227;
   border-color: rgba(241, 184, 134, 0.3);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.24);
+}
+
+:global(html[data-theme="dark"] .mimelie-card__title) {
+  color: #ffffff;
+}
+
+:global(html[data-theme="dark"] .mimelie-card__text) {
+  color: #f7ded4;
+}
+
+:global(html[data-theme="dark"] .mimelie-card__eyebrow) {
+  color: #ffc7a5;
+}
+
+:global(html[data-theme="dark"] .mimelie-card__action) {
+  color: #ffffff;
 }
 
 @media (max-width: 560px) {
