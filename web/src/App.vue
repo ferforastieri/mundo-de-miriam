@@ -399,10 +399,10 @@ watch(() => route.fullPath, async () => {
     width: 100%;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 0;
+    justify-content: flex-start;
+    gap: 0.15rem;
     height: calc(76px + env(safe-area-inset-bottom));
-    padding: 7px max(12px, env(safe-area-inset-right)) max(7px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+    padding: 7px max(8px, env(safe-area-inset-right)) max(7px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
     border-width: 1px 0 0;
     border-radius: 0;
     box-shadow: none;
@@ -413,74 +413,46 @@ watch(() => route.fullPath, async () => {
     display: contents;
   }
   .site-mobile-links {
-    display: contents;
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    align-items: center;
+    justify-content: space-between;
+    overflow-x: auto;
+    scrollbar-width: none;
   }
+  .site-mobile-links::-webkit-scrollbar { display: none; }
   .site-mobile-links a {
     display: grid;
-    grid-template-rows: 24px 10px;
-    flex: 0 0 50px;
-    width: 50px;
+    grid-template-rows: 22px 12px;
+    flex: 1 1 0;
+    width: auto;
     height: 50px;
-    min-width: 50px;
+    min-width: 38px;
     place-items: center;
     align-content: center;
-    gap: 0.15rem;
+    gap: 0.12rem;
+    padding: 0 1px;
     color: var(--muted);
     font-family: system-ui, sans-serif;
-    font-size: 0.6rem;
-    line-height: 10px;
-    letter-spacing: 0.04em;
+    font-size: 0.54rem;
+    line-height: 11px;
+    letter-spacing: 0.01em;
     text-decoration: none;
   }
-  .site-mobile-links svg { width: 24px; height: 24px; }
+  .site-mobile-links a span {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .site-mobile-links svg { width: 22px; height: 22px; }
   .site-mobile-links a.router-link-exact-active,
   .site-mobile-links a.router-link-active { color: var(--primary); }
-  .site-mobile-links a:nth-child(n + 2) { display: none; }
   .site-desktop-links { display: none; }
   .site-desktop-socials { display: none; }
-  .site-dock__right {
-    display: contents;
-  }
-
-  .site-dock__right > * { flex: 0 0 50px; }
-
-  .header-icon-button {
-    display: grid;
-    grid-template-rows: 24px 10px;
-    width: 50px;
-    height: 50px;
-    padding: 0;
-    place-items: center;
-    align-content: center;
-    gap: 0.15rem;
-    color: var(--muted);
-    background: transparent;
-    border: 0;
-    border-radius: 0;
-  }
-
-  .header-icon-button:hover {
-    color: var(--primary);
-    background: transparent;
-  }
-
-  .header-icon-button__label {
-    display: block;
-    font-family: system-ui, sans-serif;
-    font-size: 0.6rem;
-    font-weight: 400;
-    line-height: 10px;
-    letter-spacing: 0.04em;
-  }
-
-  .header-icon-button__icon { width: 24px; height: 24px; }
-
-  :global(html[data-theme="dark"] #app .header-icon-button),
-  :global(html[data-theme="dark"] #app .language-switcher--embedded .styled-select__trigger) {
-    color: var(--muted) !important;
-    background: transparent !important;
-    border-color: transparent !important;
-  }
+  .site-dock__right { display: none; }
 
   .site-page { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
 
@@ -515,30 +487,6 @@ watch(() => route.fullPath, async () => {
     0%, 100% { opacity: 0.4; transform: translate(50%, -2px); }
     50% { opacity: 1; transform: translate(50%, 3px); }
   }
-}
-
-@media (min-width: 340px) and (max-width: 768px) {
-  .site-mobile-links a:nth-child(2) { display: grid; }
-}
-
-@media (min-width: 400px) and (max-width: 768px) {
-  .site-mobile-links a:nth-child(3) { display: grid; }
-}
-
-@media (min-width: 465px) and (max-width: 768px) {
-  .site-mobile-links a:nth-child(4) { display: grid; }
-}
-
-@media (min-width: 525px) and (max-width: 768px) {
-  .site-mobile-links a:nth-child(5) { display: grid; }
-}
-
-@media (min-width: 590px) and (max-width: 768px) {
-  .site-mobile-links a:nth-child(6) { display: grid; }
-}
-
-@media (min-width: 660px) and (max-width: 768px) {
-  .site-mobile-links a:nth-child(7) { display: grid; }
 }
 
 @media (min-width: 1000px) {
