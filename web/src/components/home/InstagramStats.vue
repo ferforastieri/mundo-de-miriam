@@ -1,12 +1,18 @@
 <template>
   <div v-if="isPending && !stats" class="home-card instagram-card" aria-hidden="true">
-    <div class="instagram-stat">
-      <SkeletonBlock width="110px" height="2.2rem" />
-      <SkeletonBlock width="90px" height="0.7rem" />
+    <div class="instagram-card__head">
+      <SkeletonBlock width="140px" height="1.4rem" />
+      <SkeletonBlock width="110px" height="0.8rem" />
     </div>
-    <div class="instagram-stat">
-      <SkeletonBlock width="110px" height="2.2rem" />
-      <SkeletonBlock width="90px" height="0.7rem" />
+    <div class="instagram-card__stats">
+      <div class="instagram-stat">
+        <SkeletonBlock width="110px" height="2.2rem" />
+        <SkeletonBlock width="90px" height="0.7rem" />
+      </div>
+      <div class="instagram-stat">
+        <SkeletonBlock width="110px" height="2.2rem" />
+        <SkeletonBlock width="90px" height="0.7rem" />
+      </div>
     </div>
   </div>
 
@@ -19,14 +25,34 @@
     aria-label="Abrir o Instagram de Miriam"
     title="Abrir o Instagram"
   >
-    <span class="instagram-stat">
-      <strong>{{ formatNumber(stats.followers) }}</strong>
-      <span class="instagram-stat__label"><TranslatableText text="Seguidores" /></span>
+    <span class="instagram-card__head">
+      <span class="instagram-card__brand">
+        <span class="instagram-card__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.8" />
+            <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.8" />
+            <circle cx="17.4" cy="6.7" r="1.1" fill="currentColor" />
+          </svg>
+        </span>
+        <span class="instagram-card__handle">@mihforastieri</span>
+      </span>
+
+      <span class="instagram-card__action">
+        <span>Abrir no Instagram</span>
+        <i aria-hidden="true">↗</i>
+      </span>
     </span>
 
-    <span class="instagram-stat">
-      <strong>{{ formatNumber(stats.recentViews) }}</strong>
-      <span class="instagram-stat__label"><TranslatableText text="Visualizações" /></span>
+    <span class="instagram-card__stats">
+      <span class="instagram-stat">
+        <strong>{{ formatNumber(stats.followers) }}</strong>
+        <span class="instagram-stat__label"><TranslatableText text="Seguidores" /></span>
+      </span>
+
+      <span class="instagram-stat">
+        <strong>{{ formatNumber(stats.recentViews) }}</strong>
+        <span class="instagram-stat__label"><TranslatableText text="Visualizações" /></span>
+      </span>
     </span>
   </a>
 </template>
@@ -100,11 +126,79 @@ function formatNumber(value) {
 <style scoped>
 .instagram-card {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
   color: inherit;
   text-decoration: none;
   animation: revealStats 0.55s ease 0.15s backwards;
   transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.instagram-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 0.75rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.instagram-card__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.instagram-card__icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  border-radius: 9px;
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.instagram-card__icon svg {
+  width: 19px;
+  height: 19px;
+}
+
+.instagram-card__handle {
+  color: var(--muted);
+  font-family: system-ui, sans-serif;
+  font-size: 0.74rem;
+  letter-spacing: 0.02em;
+}
+
+.instagram-card__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--primary);
+  font-family: system-ui, sans-serif;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.instagram-card__action i {
+  font-size: 0.9rem;
+  font-style: normal;
+  transition: transform 0.2s ease;
+}
+
+a.instagram-card:hover .instagram-card__action i {
+  transform: translate(2px, -2px);
+}
+
+.instagram-card__stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 a.instagram-card:hover {
