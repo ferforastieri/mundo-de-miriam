@@ -84,7 +84,7 @@ export default {
 .services-section {
   width: 100%;
   margin: 1rem 0;
-  background: white;
+  background: var(--surface);
   border-radius: 16px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
   padding: 1rem;
@@ -117,7 +117,7 @@ export default {
 .subtitle-inline {
   font-family: 'Gilda Display', serif;
   font-size: 1.2rem;
-  color: #666;
+  color: var(--muted);
   font-style: italic;
   letter-spacing: 1.5px;
 }
@@ -127,9 +127,9 @@ export default {
   height: 200px;
   border-radius: 16px;
   overflow: hidden;
-  border: 3px solid #520;
+  border: 3px solid var(--primary);
   padding: 3px;
-  background: white;
+  background: var(--surface);
   flex-shrink: 0;
 }
 
@@ -143,7 +143,7 @@ export default {
 .title {
   font-family: 'Gilda Display', serif;
   font-size: 2rem;
-  color: #520;
+  color: var(--primary);
   margin: 0;
   font-weight: normal;
   letter-spacing: 2px;
@@ -172,7 +172,7 @@ export default {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: #f8f9fa;
+  background: var(--surface-muted);
   transition: all 0.3s ease;
 }
 
@@ -193,7 +193,7 @@ export default {
 
 .contact-link {
   font-family: 'Gilda Display', serif;
-  color: #520;
+  color: var(--primary);
   text-decoration: none;
   font-size: 0.95rem;
   letter-spacing: 0.5px;
@@ -201,7 +201,7 @@ export default {
 }
 
 .contact-link:hover {
-  color: #333;
+  color: var(--text);
   text-decoration: underline;
 }
 
