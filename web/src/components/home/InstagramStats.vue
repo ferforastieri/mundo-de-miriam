@@ -1,5 +1,5 @@
 <template>
-  <section v-if="isPending && !stats" class="home-card instagram-card" aria-hidden="true">
+  <div v-if="isPending && !stats" class="home-card instagram-card" aria-hidden="true">
     <div class="instagram-stat">
       <SkeletonBlock width="110px" height="2.2rem" />
       <SkeletonBlock width="90px" height="0.7rem" />
@@ -8,34 +8,27 @@
       <SkeletonBlock width="110px" height="2.2rem" />
       <SkeletonBlock width="90px" height="0.7rem" />
     </div>
-  </section>
+  </div>
 
-  <section v-else-if="stats" class="home-card instagram-card" aria-label="Instagram">
-    <div class="instagram-stat">
+  <a
+    v-else-if="stats"
+    class="home-card instagram-card"
+    href="https://www.instagram.com/mihforastieri/"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Abrir o Instagram de Miriam"
+    title="Abrir o Instagram"
+  >
+    <span class="instagram-stat">
       <strong>{{ formatNumber(stats.followers) }}</strong>
       <span class="instagram-stat__label"><TranslatableText text="Seguidores" /></span>
-    </div>
+    </span>
 
-    <a
-      class="instagram-stat instagram-stat--link"
-      href="https://www.instagram.com/mihforastieri/"
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label="Abrir o Instagram de Miriam"
-      title="Abrir o Instagram"
-    >
+    <span class="instagram-stat">
       <strong>{{ formatNumber(stats.recentViews) }}</strong>
-      <span class="instagram-stat__label">
-        <svg class="instagram-stat__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.8" />
-          <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.8" />
-          <circle cx="17.4" cy="6.7" r="1.1" fill="currentColor" />
-        </svg>
-        <TranslatableText text="Visualizações" />
-        <i class="instagram-stat__arrow" aria-hidden="true">↗</i>
-      </span>
-    </a>
-  </section>
+      <span class="instagram-stat__label"><TranslatableText text="Visualizações" /></span>
+    </span>
+  </a>
 </template>
 
 <script setup>
@@ -108,7 +101,16 @@ function formatNumber(value) {
 .instagram-card {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  color: inherit;
+  text-decoration: none;
   animation: revealStats 0.55s ease 0.15s backwards;
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+a.instagram-card:hover {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: var(--interactive-shadow);
 }
 
 .instagram-stat {
@@ -133,42 +135,12 @@ function formatNumber(value) {
 }
 
 .instagram-stat__label {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
   color: var(--muted);
   font-family: system-ui, sans-serif;
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-}
-
-.instagram-stat__icon {
-  width: 14px;
-  height: 14px;
-  flex: 0 0 auto;
-}
-
-.instagram-stat--link {
-  color: inherit;
-  text-decoration: none;
-}
-
-.instagram-stat--link:hover .instagram-stat__label {
-  color: var(--primary);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.instagram-stat__arrow {
-  font-size: 0.82rem;
-  font-style: normal;
-  transition: transform 0.2s ease;
-}
-
-.instagram-stat--link:hover .instagram-stat__arrow {
-  transform: translate(2px, -2px);
 }
 
 @keyframes revealStats {
@@ -188,9 +160,6 @@ function formatNumber(value) {
   }
 
   .instagram-stat__label {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.2rem;
     font-size: 0.62rem;
   }
 }
