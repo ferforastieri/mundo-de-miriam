@@ -25,10 +25,8 @@ api/
 │   ├── app.js               # Montagem do Fastify
 │   ├── config.js
 │   ├── context.js
-│   ├── index.js             # Entry point (fetch + cron)
-│   └── redirect.js          # Worker que redireciona o domínio raiz para www
-├── wrangler.jsonc           # Config do Worker principal (D1, R2, assets, cron)
-└── wrangler.redirect.jsonc  # Config do Worker de redirecionamento
+│   └── index.js             # Entry point (fetch + cron + redirect raiz → www)
+├── wrangler.jsonc           # Config do Worker principal (D1, R2, assets, cron, rotas)
 ```
 
 Fluxo: `controller → usecase → repository → D1/R2`, com `mappers` na volta.
@@ -131,15 +129,9 @@ Configuração (uma única vez, no painel da Cloudflare):
 | Deploy command | `npx wrangler d1 migrations apply mundo-de-miriam --remote --config api/wrangler.jsonc && npx wrangler deploy --config api/wrangler.jsonc` |
 
 O primeiro comando aplica as migrations do D1 (é idempotente) e o segundo publica o
-Worker principal (`mundo-de-miriam`, com o site, a API e a rota do `www`).
-
-> **Importante:** cada Build publica **apenas o Worker ao qual está conectado** — o
-> Workers Builds força o nome do Worker do build (`WRANGLER_CI_OVERRIDE_NAME`), então
-> **não** inclua o deploy do redirect no mesmo comando (isso sobrescreveria o site).
->
-> O Worker de redirecionamento (`mundo-de-miriam-redirect`, raiz → www) é publicado
-> manualmente com `npx wrangler deploy --config api/wrangler.redirect.jsonc`. Ele só muda
-> se você rodar esse comando.
+Worker principal (`mundo-de-miriam`), que atende o site, a API e as duas rotas do domínio
+(`www` e raiz). A raiz responde com um redirecionamento permanente (`308`) para o `www`
+dentro do próprio Worker, sem um segundo Worker.
 
 ### Álbuns de branding
 
@@ -167,7 +159,7 @@ Estado atual (2026-10-18): a zona `mundodemiriam.com.br` está **ativa** na Clou
 (nameservers `anderson`/`ashley` no Registro.br) e os domínios já respondem:
 
 - `https://www.mundodemiriam.com.br` → Worker `mundo-de-miriam` (site + API);
-- `https://mundodemiriam.com.br/*` → Worker `mundo-de-miriam-redirect` (301 para o `www`).
+- `https://mundodemiriam.com.br/*` → mesmo Worker `mundo-de-miriam`, que redireciona a raiz para o `www` (`308`).
 
 O apontamento é feito por **rotas de zona** (`zone_name`), e não por domínios
 personalizados, porque a zona ainda contém os registros importados do Vercel (`www` CNAME
@@ -175,13 +167,11 @@ e a raiz A, ambos proxied). As rotas de zona interceptam esse tráfego e não pr
 trocar os registros:
 
 ```jsonc
-// api/wrangler.jsonc (site + API) — publicado pelo Workers Builds
-"routes": [{ "pattern": "www.mundodemiriam.com.br/*", "zone_name": "mundodemiriam.com.br" }]
-```
-
-```jsonc
-// api/wrangler.redirect.jsonc (raiz → www) — publicado manualmente (não entra no build)
-"routes": [{ "pattern": "mundodemiriam.com.br/*", "zone_name": "mundodemiriam.com.br" }]
+// api/wrangler.jsonc (site + API + redirect da raiz) — publicado pelo Workers Builds
+"routes": [
+  { "pattern": "mundodemiriam.com.br/*", "zone_name": "mundodemiriam.com.br" },
+  { "pattern": "www.mundodemiriam.com.br/*", "zone_name": "mundodemiriam.com.br" }
+]
 ```
 
 Para migrar futuramente para domínios personalizados (`custom_domain: true`), apague

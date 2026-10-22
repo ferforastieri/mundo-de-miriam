@@ -11,6 +11,8 @@ import { SEO_ROUTES, SITE_URL } from './seo/pages.js'
 
 const PORT = 8787
 const MEDIA_KEY_PATTERN = /^(photos|albums|avatars)\/[a-zA-Z0-9-]+\/[a-zA-Z0-9._-]+$/
+const CANONICAL_HOST = new URL(SITE_URL).host
+const APEX_HOST = CANONICAL_HOST.replace(/^www\./, '')
 
 const server = buildServer()
 await server.ready()
@@ -251,8 +253,28 @@ async function runMaintenance(container) {
   ])
 }
 
+function redirectApexToCanonical(request) {
+  if (request.method !== 'GET' && request.method !== 'HEAD') return null
+
+  const url = new URL(request.url)
+
+  if (url.hostname.toLowerCase() !== APEX_HOST) return null
+
+  url.protocol = 'https:'
+  url.hostname = CANONICAL_HOST
+  url.port = ''
+
+  return Response.redirect(url.toString(), 308)
+}
+
 export default {
   async fetch(request, env, ctx) {
+    const apexRedirect = redirectApexToCanonical(request)
+
+    if (apexRedirect) {
+      return apexRedirect
+    }
+
     const url = new URL(request.url)
 
     if (url.pathname.startsWith('/media/')) {
