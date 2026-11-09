@@ -14,6 +14,7 @@ export async function updateGroup(container, groupId, patch = {}) {
   const name = patch.name === undefined ? current.name : String(patch.name).trim()
   const sortOrder =
     patch.sortOrder === undefined ? current.sort_order : Number(patch.sortOrder)
+  const closed = patch.closed === undefined ? Boolean(current.is_closed) : Boolean(patch.closed)
 
   if (!name || name.length > MAX_NAME_LENGTH) {
     throw badRequest('invalid_name', `O nome do grupo deve ter entre 1 e ${MAX_NAME_LENGTH} caracteres.`)

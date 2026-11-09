@@ -12,9 +12,6 @@
         </div>
 
         <div class="dashboard-header__actions">
-          <p class="dashboard-pdf-hint">
-            PDF com parcerias, propostas, perfil e insights.
-          </p>
           <button
             class="admin-btn admin-btn--primary"
             type="button"
@@ -33,11 +30,15 @@
         <div class="admin-card__header">
           <div class="dashboard-instagram__identity">
             <img
-              v-if="instagram.state.profilePictureUrl"
+              v-if="instagram.state.profilePictureUrl && !avatarFailed"
               class="dashboard-instagram__avatar"
               :src="instagram.state.profilePictureUrl"
               alt=""
+              @error="avatarFailed = true"
             />
+            <span v-else class="dashboard-instagram__avatar dashboard-instagram__avatar--fallback">
+              <AdminIcon name="instagram" />
+            </span>
             <div>
               <h2 class="admin-card__title"><AdminIcon name="instagram" /> Instagram</h2>
               <p v-if="instagram.state.username" class="admin-card__hint">
@@ -97,7 +98,12 @@
           </div>
           <div v-if="instagramWebsite">
             <span>Site</span>
-            <a :href="instagramWebsite" target="_blank" rel="noopener noreferrer">
+            <a
+              :href="instagramWebsite"
+              :title="instagram.state.website"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               {{ instagram.state.website }}
             </a>
           </div>
@@ -149,7 +155,7 @@
 </template>
 
 <script setup>
-import { computed, nextTick, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import adminService from '@/api/admin/AdminService.js'
 import AdminSkeleton from '@/components/admin/AdminSkeleton.vue'
@@ -192,6 +198,16 @@ const instagramWebsite = computed(() => {
   if (!value) return null
   return /^https?:\/\//i.test(value) ? value : `https://${value}`
 })
+
+// A URL da foto de perfil do Instagram expira; quando falha, mostramos o selo.
+const avatarFailed = ref(false)
+
+watch(
+  () => instagram.value.state?.profilePictureUrl,
+  () => {
+    avatarFailed.value = false
+  }
+)
 
 useErrorToast(error, 'Não foi possível carregar o painel.')
 
@@ -251,12 +267,26 @@ async function generatePdf() {
 }
 
 .dashboard-instagram__avatar {
+  display: grid;
   width: 46px;
   height: 46px;
   flex: 0 0 auto;
+  place-items: center;
   border: 1px solid var(--border);
   border-radius: 50%;
+  background: var(--surface-muted);
+  color: var(--muted);
   object-fit: cover;
+}
+
+.dashboard-instagram__avatar--fallback svg {
+  width: 20px;
+  height: 20px;
+}
+
+.dashboard-instagram .admin-card__header {
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
 .dashboard-sparklines {
@@ -274,14 +304,15 @@ async function generatePdf() {
 }
 
 .dashboard-instagram__meta {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.75rem;
   margin-top: 1rem;
 }
 
 .dashboard-instagram__meta > div {
   min-width: 0;
+  flex: 1 1 240px;
   padding: 0.7rem 0.85rem;
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -308,11 +339,16 @@ async function generatePdf() {
 }
 
 .dashboard-instagram__meta a {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
   text-decoration: underline;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.dashboard-instagram__bio {
-  grid-column: 1 / -1;
+.dashboard-instagram__meta > .dashboard-instagram__bio {
+  flex: 1 1 100%;
 }
 
 .dashboard-instagram__bio p {
@@ -340,16 +376,6 @@ async function generatePdf() {
   gap: 0.75rem;
 }
 
-.dashboard-pdf-hint {
-  max-width: 220px;
-  margin: 0;
-  color: var(--muted);
-  font-family: system-ui, sans-serif;
-  font-size: 0.72rem;
-  line-height: 1.4;
-  text-align: right;
-}
-
 @media (max-width: 640px) {
   .dashboard-header {
     align-items: flex-start;
@@ -357,12 +383,7 @@ async function generatePdf() {
 
   .dashboard-header__actions {
     width: 100%;
-    justify-content: space-between;
-    text-align: left;
-  }
-
-  .dashboard-pdf-hint {
-    max-width: none;
+    justify-content: flex-start;
     text-align: left;
   }
 

@@ -56,9 +56,13 @@
           v-for="group in partnerTiles"
           :key="group.id"
           class="mk-brand-tile"
-          :class="`mk-brand-tile--${brandLayout(group)}`"
+          :class="
+            brandPhotos(group).length
+              ? `mk-brand-tile--${brandLayout(group)}`
+              : 'mk-brand-tile--text'
+          "
         >
-          <div class="mk-brand-tile__photos">
+          <div v-if="brandPhotos(group).length" class="mk-brand-tile__photos">
             <div
               v-for="(photo, photoIndex) in brandPhotos(group)"
               :key="`${group.id}-${photoIndex}`"
@@ -67,7 +71,12 @@
               :style="photoStyle(photo)"
             ></div>
           </div>
-          <p class="mk-brand-tile__label">{{ group.name }}</p>
+          <div v-else class="mk-brand-tile__text">
+            <span class="mk-brand-tile__text-mark">✦</span>
+            <strong>{{ group.name }}</strong>
+            <small>parceria</small>
+          </div>
+          <p v-if="brandPhotos(group).length" class="mk-brand-tile__label">{{ group.name }}</p>
         </article>
 
         <article v-if="collageFillers.includes('brand')" class="mk-brand-tile mk-collage-note mk-collage-note--brand">
@@ -312,8 +321,10 @@ const bioParagraphs = computed(() => [
 
 const partnerTiles = computed(() =>
   (partnerships.value.groups || [])
-    .filter((group) => brandPhotos(group).length > 0)
-    .slice(0, 7)
+    // Entram na colagem as marcas com fotos e também as parcerias fechadas,
+    // mesmo quando ainda não têm foto cadastrada.
+    .filter((group) => brandPhotos(group).length > 0 || group.closed)
+    .slice(0, 9)
 )
 
 function brandPhotos(group) {
@@ -850,6 +861,45 @@ defineExpose({ generate })
 
 .mk-brand-tile--two .mk-brand-tile__photo--hero {
   grid-row: auto;
+}
+
+/* Marca sem foto: bloco tipografico no mesmo formato dos demais. */
+.mk-brand-tile--text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-color: rgba(85, 34, 0, 0.18);
+  background: linear-gradient(160deg, #f8e9da 0%, #e7cdb4 100%);
+}
+
+.mk-brand-tile__text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2mm;
+  padding: 6mm 4mm;
+  text-align: center;
+}
+
+.mk-brand-tile__text-mark {
+  color: #b9805a;
+  font-size: 3.6mm;
+}
+
+.mk-brand-tile__text strong {
+  color: #552200;
+  font-size: 4.4mm;
+  font-weight: 400;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.mk-brand-tile__text small {
+  color: #8a6a58;
+  font-family: system-ui, sans-serif;
+  font-size: 2.1mm;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 .mk-brand-tile__label {

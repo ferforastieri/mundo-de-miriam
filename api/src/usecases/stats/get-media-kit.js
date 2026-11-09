@@ -184,13 +184,19 @@ export async function getMediaKit(container) {
           const visibleGroupPhotos = photos.filter(
             (photo) => photo.screen_id === partnershipScreen.id && photo.group_id === group.id
           )
-          const groupImages = sortPhotos(visibleGroupPhotos.filter(isImage))
+          const visibleImages = sortPhotos(visibleGroupPhotos.filter(isImage))
+          const allImages = sortPhotos(allGroupPhotos.filter(isImage))
+
+          // A colagem do material usa as fotos visíveis. Se a marca só tiver
+          // fotos ocultas (albuns privados), ela ainda aparece no PDF, para
+          // nao desaparecer da apresentacao.
+          const groupImages = visibleImages.length > 0 ? visibleImages : allImages
 
           return {
             id: group.id,
             name: group.name,
             closed: Boolean(group.is_closed),
-            photoCount: allGroupPhotos.length,
+            photoCount: allImages.length,
             coverUrl: groupImages[0] ? toPublicPhoto(groupImages[0]).url : null,
             photos: groupImages.slice(0, 4).map(toPublicPhoto)
           }
