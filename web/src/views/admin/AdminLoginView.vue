@@ -151,23 +151,4 @@ async function submit() {
 .admin-login__back:hover {
   color: #552200;
 }
-
-:global(html[data-theme="dark"] .admin-login) {
-  background: var(--page-bg);
-}
-
-:global(html[data-theme="dark"] .admin-login__card) {
-  background: var(--surface);
-  border-color: var(--border);
-}
-
-:global(html[data-theme="dark"] .admin-login__title) {
-  color: var(--primary);
-}
-
-:global(html[data-theme="dark"] .admin-login__hint),
-:global(html[data-theme="dark"] .admin-login__back),
-:global(html[data-theme="dark"] .admin-login__eyebrow) {
-  color: var(--muted);
-}
 </style>

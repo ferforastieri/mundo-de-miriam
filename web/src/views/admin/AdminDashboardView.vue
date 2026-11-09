@@ -25,83 +25,84 @@
         </div>
       </section>
 
-      <div class="admin-grid-2">
-        <section class="admin-card">
-          <div class="admin-card__header">
+      <section class="admin-card dashboard-instagram">
+        <div class="admin-card__header">
+          <div class="dashboard-instagram__identity">
+            <img
+              v-if="instagram.state.profilePictureUrl"
+              class="dashboard-instagram__avatar"
+              :src="instagram.state.profilePictureUrl"
+              alt=""
+            />
             <div>
               <h2 class="admin-card__title"><AdminIcon name="instagram" /> Instagram</h2>
               <p v-if="instagram.state.username" class="admin-card__hint">
                 @{{ instagram.state.username }}
+                <template v-if="instagram.state.fullName"> · {{ instagram.state.fullName }}</template>
               </p>
             </div>
-
-            <div class="admin-actions-row">
-              <span v-if="!instagram.state.configured" class="admin-tag admin-tag--warning">Token não configurado</span>
-              <span v-else-if="instagram.state.lastError" class="admin-tag admin-tag--danger">Última coleta falhou</span>
-            </div>
           </div>
 
-          <div v-if="instagram.latest" class="admin-stats" :style="statsStyle(4)">
-            <AdminStatCard icon="users" label="Seguidores" :value="formatNumber(instagram.latest.followers)" />
-            <AdminStatCard icon="image" label="Publicações" :value="formatNumber(instagram.latest.posts)" />
-            <AdminStatCard icon="eye" label="Views recentes" :value="formatNumber(instagram.latest.recentViews)" />
-            <AdminStatCard icon="activity" label="Interações" :value="formatNumber(instagram.latest.recentInteractions)" />
-          </div>
-
-          <p v-else class="admin-empty">
-            Nenhuma coleta bem-sucedida ainda. Configure o token do Instagram para começar o histórico.
-          </p>
-
-          <AdminSparkline
-            v-if="instagram.latest"
-            class="dashboard-sparkline"
-            label="Seguidores nos últimos 30 dias"
-            :values="instagram.history.map((point) => point.followers)"
-          />
-
-          <div class="admin-actions-row dashboard-links">
+          <div class="admin-actions-row">
+            <span v-if="!instagram.state.configured" class="admin-tag admin-tag--warning">Token não configurado</span>
+            <span v-else-if="instagram.state.lastError" class="admin-tag admin-tag--danger">Última coleta falhou</span>
             <RouterLink class="admin-btn admin-btn--small" :to="{ name: 'AdminInstagram' }">
               Gerenciar Instagram
             </RouterLink>
           </div>
+        </div>
 
-        </section>
+        <div v-if="instagram.latest" class="admin-stats" :style="statsStyle(6)">
+          <AdminStatCard icon="users" label="Seguidores" :value="formatNumber(instagram.latest.followers)" />
+          <AdminStatCard
+            icon="userPlus"
+            label="Seguindo"
+            :value="formatNumber(instagram.state.followsCount)"
+          />
+          <AdminStatCard icon="image" label="Publicações" :value="formatNumber(instagram.latest.posts)" />
+          <AdminStatCard icon="eye" label="Views recentes" :value="formatNumber(instagram.latest.recentViews)" />
+          <AdminStatCard icon="activity" label="Interações" :value="formatNumber(instagram.latest.recentInteractions)" />
+          <AdminStatCard
+            icon="heart"
+            label="Novos seguidores"
+            :value="formatSigned(instagram.latest.newFollowers)"
+          />
+        </div>
 
-        <section class="admin-card">
-          <div class="admin-card__header">
-            <div>
-              <h2 class="admin-card__title"><AdminIcon name="archive" /> Acervo de fotos</h2>
-            </div>
-            <RouterLink class="admin-btn admin-btn--small" :to="{ name: 'AdminPhotos' }">
-              Gerenciar fotos
-            </RouterLink>
+        <p v-else class="admin-empty">
+          Nenhuma coleta bem-sucedida ainda. Configure o token do Instagram para começar o histórico.
+        </p>
+
+        <div v-if="instagram.latest" class="dashboard-sparklines">
+          <AdminSparkline
+            class="dashboard-sparkline"
+            label="Seguidores nos últimos 30 dias"
+            :values="instagram.history.map((point) => point.followers)"
+          />
+          <AdminSparkline
+            class="dashboard-sparkline"
+            label="Views nos últimos 30 dias"
+            :values="instagram.history.map((point) => point.recentViews)"
+          />
+        </div>
+
+        <div v-if="instagram.latest" class="dashboard-instagram__meta">
+          <div>
+            <span>Última coleta</span>
+            <strong>{{ formatDateTime(instagram.latest.capturedAt) }}</strong>
           </div>
-
-          <div class="admin-stats" :style="statsStyle(4)">
-            <AdminStatCard icon="archive" label="Total" :value="photos.totals.total" />
-            <AdminStatCard icon="eye" label="Visíveis" :value="photos.totals.visible" />
-            <AdminStatCard icon="eyeOff" label="Ocultas" :value="photos.totals.hidden" />
-            <AdminStatCard icon="database" label="Armazenamento" :value="formatBytes(photos.totals.bytes)" />
+          <div v-if="instagramWebsite">
+            <span>Site</span>
+            <a :href="instagramWebsite" target="_blank" rel="noopener noreferrer">
+              {{ instagram.state.website }}
+            </a>
           </div>
-
-          <table class="admin-table dashboard-table">
-            <thead>
-              <tr>
-                <th>Tela</th>
-                <th>Fotos</th>
-                <th>Tamanho</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="screen in photos.byScreen" :key="screen.screenId">
-                <td>{{ screen.name }}</td>
-                <td>{{ screen.total }}</td>
-                <td>{{ formatBytes(screen.bytes) }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </section>
-      </div>
+          <div v-if="instagram.state.biography" class="dashboard-instagram__bio">
+            <span>Bio</span>
+            <p>{{ instagram.state.biography }}</p>
+          </div>
+        </div>
+      </section>
 
       <section class="admin-card dashboard-recent">
         <div class="admin-card__header">
@@ -152,16 +153,26 @@ import AdminIcon from '@/components/admin/AdminIcon.vue'
 import AdminStatCard from '@/components/admin/AdminStatCard.vue'
 import AdminSparkline from '@/components/admin/AdminSparkline.vue'
 import MediaKitDocument from '@/components/admin/MediaKitDocument.vue'
-import { formatBytes, formatDateTime, formatNumber } from '@/utils/format.js'
+import { formatDateTime, formatNumber } from '@/utils/format.js'
 import { statColumns } from '@/utils/grid.js'
 import { useErrorToast } from '@/composables/useErrorToast'
 import { useAdminToast } from '@/composables/useAdminToast'
 
 function statsStyle(count) {
   return {
-    '--stat-cols': statColumns(count, 5),
+    '--stat-cols': statColumns(count, 6),
     '--stat-cols-sm': statColumns(count, 2)
   }
+}
+
+function formatSigned(value) {
+  if (value == null || value === '') return '—'
+
+  const numeric = Number(value)
+
+  if (!Number.isFinite(numeric)) return '—'
+
+  return `${numeric >= 0 ? '+' : ''}${formatNumber(numeric)}`
 }
 
 const { data, isPending, isError, error, refetch } = useQuery({
@@ -171,6 +182,12 @@ const { data, isPending, isError, error, refetch } = useQuery({
 })
 
 const instagram = computed(() => data.value?.instagram || { state: {}, latest: null, history: [] })
+
+const instagramWebsite = computed(() => {
+  const value = instagram.value.state?.website
+  if (!value) return null
+  return /^https?:\/\//i.test(value) ? value : `https://${value}`
+})
 
 useErrorToast(error, 'Não foi possível carregar o painel.')
 
@@ -218,38 +235,93 @@ async function generatePdf() {
 </script>
 
 <style scoped>
-.admin-grid-2 > .admin-card {
-  display: flex;
-  flex-direction: column;
+.dashboard-instagram {
+  margin-bottom: 1rem;
 }
 
-.dashboard-links {
-  margin-top: auto;
+.dashboard-instagram__identity {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-width: 0;
+}
+
+.dashboard-instagram__avatar {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 auto;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.dashboard-sparklines {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
 }
 
 .dashboard-sparkline {
-  margin-top: 1rem;
   padding: 0.8rem;
   border: 1px solid var(--border);
   border-radius: 12px;
   background: var(--surface-muted);
 }
 
-.dashboard-links {
+.dashboard-instagram__meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
   margin-top: 1rem;
 }
 
-.dashboard-error {
-  margin: 0.8rem 0 0;
+.dashboard-instagram__meta > div {
+  min-width: 0;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-muted);
+}
+
+.dashboard-instagram__meta span {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: var(--muted);
+  font-family: system-ui, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.dashboard-instagram__meta strong,
+.dashboard-instagram__meta a {
+  color: var(--text);
+  font-family: system-ui, sans-serif;
+  font-size: 0.84rem;
   word-break: break-word;
 }
 
-.dashboard-table {
-  margin-top: 1rem;
+.dashboard-instagram__meta a {
+  text-decoration: underline;
+}
+
+.dashboard-instagram__bio {
+  grid-column: 1 / -1;
+}
+
+.dashboard-instagram__bio p {
+  margin: 0;
+  color: var(--text);
+  font-family: system-ui, sans-serif;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  white-space: pre-line;
 }
 
 .dashboard-recent {
-  margin-top: 1rem;
+  margin-top: 0;
 }
 
 .dashboard-media-kit {
@@ -265,59 +337,9 @@ async function generatePdf() {
     flex-direction: column;
     align-items: flex-start;
   }
-}
 
-.pdf-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: grid;
-  place-items: center;
-  padding: 1.5rem;
-  background: rgba(20, 12, 8, 0.55);
-  backdrop-filter: blur(3px);
-}
-
-.pdf-overlay__card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.6rem;
-  max-width: 340px;
-  padding: 1.6rem 1.8rem;
-  border-radius: 16px;
-  background: var(--surface);
-  color: var(--text);
-  text-align: center;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
-}
-
-.pdf-overlay__card strong {
-  font-family: 'Gilda Display', serif;
-  font-size: 1.15rem;
-  font-weight: 400;
-}
-
-.pdf-overlay__card p {
-  margin: 0;
-  color: var(--muted);
-  font-family: system-ui, sans-serif;
-  font-size: 0.82rem;
-  line-height: 1.45;
-}
-
-.pdf-overlay__spinner {
-  width: 34px;
-  height: 34px;
-  border: 3px solid var(--border);
-  border-top-color: var(--primary);
-  border-radius: 50%;
-  animation: pdf-spin 0.8s linear infinite;
-}
-
-@keyframes pdf-spin {
-  to {
-    transform: rotate(360deg);
+  .dashboard-sparklines {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 

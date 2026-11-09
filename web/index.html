@@ -3,26 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script>
-      (() => {
-        let savedTheme = null
-        try { savedTheme = localStorage.getItem('themePreference') } catch {}
-        const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches
-        const isDark = savedTheme ? savedTheme === 'dark' : prefersDark
-        document.documentElement.dataset.theme = isDark ? 'dark' : 'light'
-        document.documentElement.style.colorScheme = isDark ? 'dark' : 'light'
-      })()
-    </script>
+    <meta name="color-scheme" content="light" />
     <style>
       html, body, #app { min-height: 100%; background: #fff; }
-      html[data-theme="dark"],
-      html[data-theme="dark"] body,
-      html[data-theme="dark"] #app { background: #13100f; }
-      @media (min-width: 769px) {
-        html[data-theme="dark"],
-        html[data-theme="dark"] body,
-        html[data-theme="dark"] #app { background: #101010; }
-      }
       #seo-fallback {
         position: fixed !important;
         width: 1px !important;

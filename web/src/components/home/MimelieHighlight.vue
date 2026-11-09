@@ -71,18 +71,6 @@ const { isPending } = usePublicGallery()
   line-height: 1;
 }
 
-:global(html[data-theme="dark"] .mimelie-button) {
-  border-color: rgba(241, 184, 134, 0.5);
-  background: #3a2227;
-  color: #fff8f3;
-}
-
-:global(html[data-theme="dark"] .mimelie-button:hover) {
-  border-color: #ffc7a5;
-  background: #ffc7a5;
-  color: #26140a;
-}
-
 @media (max-width: 480px) {
   .mimelie-button {
     padding: 10px 16px;

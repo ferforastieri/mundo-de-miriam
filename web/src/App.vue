@@ -4,10 +4,8 @@ import { useRoute } from 'vue-router'
 import LanguageSwitcher from './components/common/LanguageSwitcher.vue'
 import NavigationDrawer from './components/common/NavigationDrawer.vue'
 import ScreenIcon from './components/common/ScreenIcon.vue'
-import { useTheme } from './composables/useTheme'
 import { screenPath, usePublicScreens } from './composables/usePublicGallery'
 
-const { isDark, initTheme, toggleTheme } = useTheme()
 const { screens: menuScreens } = usePublicScreens()
 const showScrollCue = ref(false)
 const currentYear = new Date().getFullYear()
@@ -56,8 +54,6 @@ const scrollForward = () => {
 }
 
 onMounted(() => {
-  initTheme()
-
   window.addEventListener('scroll', updateScrollCue, true)
   window.addEventListener('resize', updateScrollCue)
   document.addEventListener('load', updateScrollCue, true)
@@ -81,10 +77,7 @@ watch(() => route.fullPath, async () => {
   <div class="app">
     <footer v-if="!isImmersive" class="site-dock" aria-label="Navegação e preferências">
       <div class="site-dock__left">
-        <NavigationDrawer
-          :is-dark="isDark"
-          @toggle-theme="toggleTheme"
-        />
+        <NavigationDrawer />
       </div>
             <nav class="site-mobile-links" aria-label="Atalhos principais">
         <RouterLink to="/" aria-label="Início">
@@ -168,16 +161,6 @@ watch(() => route.fullPath, async () => {
             </svg>
           </a>
         </div>
-        <button class="header-icon-button" type="button" :aria-label="isDark ? 'Ativar modo claro' : 'Ativar modo escuro'" @click="toggleTheme">
-          <svg v-if="isDark" class="header-icon-button__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="12" cy="12" r="3.5" stroke="currentColor" stroke-width="1.7" />
-            <path d="M12 2.8v2M12 19.2v2M21.2 12h-2M4.8 12h-2M18.5 5.5l-1.4 1.4M6.9 17.1l-1.4 1.4M18.5 18.5l-1.4-1.4M6.9 6.9 5.5 5.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
-          </svg>
-          <svg v-else class="header-icon-button__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M20.3 15.4A8.5 8.5 0 0 1 8.6 3.7 8.5 8.5 0 1 0 20.3 15.4Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-          <span class="header-icon-button__label">{{ isDark ? 'Claro' : 'Escuro' }}</span>
-        </button>
         <LanguageSwitcher embedded />
       </div>
     </footer>
@@ -282,14 +265,6 @@ watch(() => route.fullPath, async () => {
   color: inherit;
 }
 
-:global(html[data-theme="dark"] .site-desktop-socials__prompt) {
-  --contact-card-pulse: rgba(225, 161, 127, 0.16);
-}
-
-:global(html[data-theme="dark"] .site-desktop-socials__prompt-arrow) {
-  color: #e1a17f;
-}
-
 .site-desktop-socials > a:not(.site-desktop-socials__prompt) {
   display: grid;
   width: 36px;
@@ -358,27 +333,6 @@ watch(() => route.fullPath, async () => {
   white-space: nowrap;
 }
 .site-desktop-copyright__mark { height: 21px; font-size: 1.15rem; line-height: 21px; }
-
-.header-icon-button {
-  display: grid;
-  width: 42px;
-  height: 42px;
-  place-items: center;
-  border: 1px solid rgba(85, 34, 0, 0.2);
-  border-radius: 50%;
-  background: var(--surface);
-  color: var(--primary);
-  font-size: 1.35rem;
-  cursor: pointer;
-}
-
-.header-icon-button:hover {
-  background: var(--primary);
-  color: var(--on-primary);
-}
-
-.header-icon-button__icon { width: 22px; height: 22px; }
-.header-icon-button__label { display: none; }
 
 .site-page {
   min-height: 100vh;

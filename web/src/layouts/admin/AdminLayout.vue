@@ -33,16 +33,6 @@
         </nav>
 
         <div class="admin-header__actions">
-          <button
-            class="admin-theme-toggle"
-            type="button"
-            :aria-label="isDark ? 'Ativar modo claro' : 'Ativar modo escuro'"
-            :title="isDark ? 'Ativar modo claro' : 'Ativar modo escuro'"
-            @click="toggleTheme"
-          >
-            <AdminIcon :name="isDark ? 'sun' : 'moon'" />
-          </button>
-
           <div ref="userMenuRef" class="admin-user">
             <button
               class="admin-user__trigger"
@@ -150,7 +140,6 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAdminAuth } from '@/composables/useAdminAuth'
-import { useTheme } from '@/composables/useTheme'
 import BrandMark from '@/components/common/BrandMark.vue'
 import AdminIcon from '@/components/admin/AdminIcon.vue'
 import AdminToasts from '@/components/admin/AdminToasts.vue'
@@ -166,7 +155,6 @@ const navItems = [
 const router = useRouter()
 const route = useRoute()
 const { state: authState, logout, loadMe } = useAdminAuth()
-const { isDark, toggleTheme } = useTheme()
 
 const admin = computed(() => authState.admin)
 const initials = computed(() => (admin.value?.email || 'M').slice(0, 1).toUpperCase())

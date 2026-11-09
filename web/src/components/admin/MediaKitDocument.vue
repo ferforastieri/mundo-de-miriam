@@ -431,8 +431,7 @@ async function generate() {
       windowWidth: page.offsetWidth,
       windowHeight: page.offsetHeight,
       onclone: (clonedDoc) => {
-        // O material tem paleta própria: não herda o tema (claro/escuro) do painel.
-        clonedDoc.documentElement.removeAttribute('data-theme')
+        // O material tem paleta própria; garante as cores no PDF.
         const style = clonedDoc.createElement('style')
         style.textContent =
           'html, body { background: #f0ddca !important; }' +
@@ -475,7 +474,7 @@ defineExpose({ generate })
   flex-direction: column;
   width: 210mm;
   height: 297mm;
-  padding: 14mm 13mm 11mm;
+  padding: 10mm 11mm 8mm;
   overflow: hidden;
   background:
     radial-gradient(120% 75% at 100% 0%, rgba(214, 154, 111, 0.28) 0%, rgba(214, 154, 111, 0) 58%),
@@ -542,7 +541,7 @@ defineExpose({ generate })
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 5mm;
+  padding-bottom: 2.5mm;
   border-bottom: 1px solid rgba(85, 34, 0, 0.24);
 }
 
@@ -599,15 +598,15 @@ defineExpose({ generate })
 .mk-hero {
   position: relative;
   z-index: 1;
-  margin-top: 11mm;
+  margin-top: 6mm;
 }
 
 .mk-hero--compact {
-  margin-top: 8mm;
+  margin-top: 4mm;
 }
 
 .mk-eyebrow {
-  margin: 0 0 2mm;
+  margin: 0 0 1.2mm;
   color: #a06a4d;
   font-family: system-ui, sans-serif;
   font-size: 2.3mm;
@@ -619,19 +618,19 @@ defineExpose({ generate })
 .mk-hero h1 {
   margin: 0;
   color: #552200;
-  font-size: 18mm;
+  font-size: 15mm;
   font-weight: 400;
   letter-spacing: -0.03em;
   line-height: 0.95;
 }
 
 .mk-hero--compact h1 {
-  font-size: 15mm;
+  font-size: 13mm;
 }
 
 .mk-hero__lead {
   max-width: 138mm;
-  margin: 4mm 0 0;
+  margin: 2.5mm 0 0;
   color: #6b4a38;
   font-family: system-ui, sans-serif;
   font-size: 3mm;
@@ -643,18 +642,24 @@ defineExpose({ generate })
   z-index: 1;
   display: grid;
   grid-template-columns: repeat(var(--partner-cols, 3), 1fr);
-  gap: 4mm;
-  margin-top: 8mm;
+  grid-auto-rows: minmax(0, 1fr);
+  flex: 1 1 auto;
+  min-height: 0;
+  gap: 3mm;
+  margin-top: 5mm;
 }
 
 .mk-partner {
   display: flex;
   flex-direction: column;
-  gap: 2mm;
+  min-height: 0;
+  gap: 1.5mm;
 }
 
 .mk-photo {
-  height: 43mm;
+  flex: 1 1 auto;
+  min-height: 30mm;
+  height: auto;
   border: 1px solid rgba(85, 34, 0, 0.1);
   border-radius: 3mm;
   background-color: #e6d6c6;
@@ -678,13 +683,13 @@ defineExpose({ generate })
   z-index: 1;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 4.5mm;
-  margin-top: auto;
+  gap: 3.5mm;
+  margin-top: 5mm;
 }
 
 .mk-list-card {
-  min-height: 50mm;
-  padding: 5mm 5.5mm;
+  min-height: 38mm;
+  padding: 4mm 4.5mm;
   border: 1px solid rgba(85, 34, 0, 0.12);
   border-radius: 4mm;
   background: #fff8f1;
@@ -699,8 +704,8 @@ defineExpose({ generate })
 .mk-list-card__head {
   display: flex;
   align-items: center;
-  gap: 2mm;
-  margin-bottom: 3.5mm;
+  gap: 1.5mm;
+  margin-bottom: 2.5mm;
 }
 
 .mk-list-card__icon {
@@ -714,7 +719,7 @@ defineExpose({ generate })
 
 .mk-list-card h2 {
   margin: 0;
-  font-size: 4.6mm;
+  font-size: 4.2mm;
   font-weight: 400;
   line-height: 1.1;
 }
@@ -722,20 +727,20 @@ defineExpose({ generate })
 .mk-list-card ul {
   display: flex;
   flex-wrap: wrap;
-  gap: 1.4mm 2mm;
+  gap: 1.1mm 1.6mm;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .mk-list-card li {
-  padding: 1mm 2.2mm;
+  padding: 0.7mm 1.9mm;
   border-radius: 99px;
   background: rgba(85, 34, 0, 0.07);
   color: #5a3a28;
   font-family: system-ui, sans-serif;
-  font-size: 2.5mm;
-  line-height: 1.4;
+  font-size: 2.4mm;
+  line-height: 1.35;
 }
 
 .mk-list-card--accent li {
@@ -759,8 +764,8 @@ defineExpose({ generate })
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 6mm;
-  padding-top: 3mm;
+  margin-top: 3.5mm;
+  padding-top: 2.2mm;
   border-top: 1px solid rgba(85, 34, 0, 0.14);
   color: #8a6a58;
   font-family: system-ui, sans-serif;
@@ -769,7 +774,7 @@ defineExpose({ generate })
 }
 
 .mk-empty {
-  margin: 6mm 0;
+  margin: 4mm 0;
   color: #8a6a58;
   font-family: system-ui, sans-serif;
   font-size: 2.8mm;
@@ -786,21 +791,23 @@ defineExpose({ generate })
   z-index: 1;
   display: grid;
   grid-template-columns: 44mm 1fr;
-  gap: 6mm;
-  margin-top: 8mm;
-  align-items: start;
+  gap: 4.5mm;
+  flex: 1 1 0;
+  min-height: 0;
+  margin-top: 5mm;
+  align-items: stretch;
 }
 
 .mk-proposal__head h2 {
   margin: 0;
   color: #552200;
-  font-size: 7.2mm;
+  font-size: 6.4mm;
   font-weight: 400;
   line-height: 1;
 }
 
 .mk-proposal__head p:last-child {
-  margin: 3mm 0 0;
+  margin: 2mm 0 0;
   color: #6b4a38;
   font-family: system-ui, sans-serif;
   font-size: 2.7mm;
@@ -810,8 +817,9 @@ defineExpose({ generate })
 .mk-mosaic {
   display: grid;
   grid-template-columns: 1.35fr 1fr;
-  gap: 2.5mm;
-  height: 80mm;
+  gap: 2mm;
+  height: 100%;
+  min-height: 52mm;
 }
 
 .mk-mosaic--single {
@@ -836,7 +844,7 @@ defineExpose({ generate })
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
-  gap: 2.5mm;
+  gap: 2mm;
 }
 
 .mk-mosaic__cell {
@@ -846,15 +854,20 @@ defineExpose({ generate })
   background-size: cover;
 }
 
+.mk-page--profile .mk-profile-card {
+  flex: 1 1 0;
+  min-height: 0;
+}
+
 .mk-profile-card {
   position: relative;
   z-index: 1;
   display: grid;
   grid-template-columns: 40mm 1fr;
-  gap: 7mm;
+  gap: 6mm;
   align-items: center;
-  margin-top: 8mm;
-  padding: 7mm;
+  margin-top: 5mm;
+  padding: 6mm;
   border: 1px solid rgba(85, 34, 0, 0.12);
   border-radius: 5mm;
   background: #fff8f1;
@@ -874,7 +887,7 @@ defineExpose({ generate })
 .mk-profile-card h1 {
   margin: 0;
   color: #552200;
-  font-size: 9mm;
+  font-size: 8mm;
   font-weight: 400;
   letter-spacing: -0.02em;
   line-height: 1;
@@ -889,8 +902,8 @@ defineExpose({ generate })
 
 .mk-profile-stats {
   display: flex;
-  gap: 10mm;
-  margin-top: 4.5mm;
+  gap: 8mm;
+  margin-top: 3mm;
 }
 
 .mk-profile-stats div {
@@ -916,7 +929,7 @@ defineExpose({ generate })
 
 .mk-profile-card__bio {
   max-height: 12mm;
-  margin: 3.5mm 0 0;
+  margin: 2.5mm 0 0;
   overflow: hidden;
   color: #6b4a38;
   font-family: system-ui, sans-serif;
@@ -934,7 +947,7 @@ defineExpose({ generate })
 .mk-section-head {
   position: relative;
   z-index: 1;
-  margin-top: 9mm;
+  margin-top: 6mm;
 }
 
 .mk-section-head h2 {
@@ -945,17 +958,25 @@ defineExpose({ generate })
   line-height: 1;
 }
 
+.mk-page--profile .mk-insights {
+  flex: 1.35 1 0;
+  min-height: 0;
+}
+
 .mk-insights {
   position: relative;
   z-index: 1;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 4mm;
-  margin-top: 4mm;
+  gap: 3mm;
+  margin-top: 3mm;
 }
 
 .mk-insight-card {
-  padding: 5mm;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4mm;
   border: 1px solid rgba(85, 34, 0, 0.16);
   border-radius: 4mm;
   background: linear-gradient(160deg, #fffdf9 0%, #f8ecdf 100%);
@@ -973,8 +994,8 @@ defineExpose({ generate })
 .mk-insight-values {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 3.5mm;
-  margin-top: 4.5mm;
+  gap: 3mm;
+  margin-top: 3mm;
 }
 
 .mk-insight-value--wide {
@@ -1001,7 +1022,7 @@ defineExpose({ generate })
 }
 
 .mk-audience {
-  margin-top: 4.5mm;
+  margin-top: 3mm;
 }
 
 .mk-audience__bar {
@@ -1030,8 +1051,13 @@ defineExpose({ generate })
 .mk-about {
   position: relative;
   z-index: 1;
-  margin-top: auto;
-  padding-top: 6mm;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 0.9 1 0;
+  min-height: 0;
+  margin-top: 5mm;
+  padding-top: 4mm;
   border-top: 1px solid rgba(85, 34, 0, 0.14);
 }
 
@@ -1044,7 +1070,7 @@ defineExpose({ generate })
 }
 
 .mk-about p {
-  margin: 2mm 0 0;
+  margin: 1.5mm 0 0;
   color: #6b4a38;
   font-family: system-ui, sans-serif;
   font-size: 2.6mm;

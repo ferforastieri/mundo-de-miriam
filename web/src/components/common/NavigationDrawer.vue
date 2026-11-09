@@ -148,10 +148,6 @@
             </span>
           </button>
           <div class="editorial-menu__preferences">
-            <label>
-              <span>Tema</span>
-              <StyledSelect v-model="selectedTheme" :options="themeOptions" aria-label="Selecionar tema" />
-            </label>
             <div class="editorial-menu__language">
               <span>Idioma</span>
               <LanguageSwitcher drawer />
@@ -168,18 +164,9 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import LanguageSwitcher from './LanguageSwitcher.vue'
-import StyledSelect from './StyledSelect.vue'
 import SkeletonBlock from '@/components/common/SkeletonBlock.vue'
 import { screenCover, screenPath, usePublicGallery } from '@/composables/usePublicGallery'
 
-const props = defineProps({
-  isDark: {
-    type: Boolean,
-    default: false
-  }
-})
-
-const emit = defineEmits(['toggle-theme'])
 const route = useRoute()
 const isOpen = ref(false)
 const activePath = ref(route.path)
@@ -230,19 +217,6 @@ watch(
     activePath.value = path
   }
 )
-
-const themeOptions = [
-  { value: 'light', label: 'Claro' },
-  { value: 'dark', label: 'Escuro' }
-]
-
-const selectedTheme = computed({
-  get: () => props.isDark ? 'dark' : 'light',
-  set: (value) => {
-    const wantsDark = value === 'dark'
-    if (wantsDark !== props.isDark) emit('toggle-theme')
-  }
-})
 
 const activeItem = computed(() => links.value.find((item) => item.to === activePath.value) || links.value[0])
 const isMobileViewport = () => window.matchMedia('(max-width: 768px)').matches
@@ -841,45 +815,23 @@ html.menu-is-open body { overflow: hidden; }
     font-style: normal;
     line-height: 1;
   }
-  html[data-theme="dark"] .editorial-menu__conversation {
-    --drawer-contact-pulse: rgb(225 161 127 / 0.17);
-  }
-  html[data-theme="dark"] .editorial-menu__conversation i { color: #e1a17f; }
   .editorial-menu__preferences {
     grid-column: 2;
     grid-row: 2;
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
     align-items: center;
     width: 100%;
     gap: 0.5rem;
   }
-  .editorial-menu__preferences label,
   .editorial-menu__language {
     display: block;
     min-width: 0;
   }
-  .editorial-menu__preferences > label > span,
   .editorial-menu__language > span { display: none; }
-  .editorial-menu__preferences :deep(.styled-select),
   .editorial-menu__preferences :deep(.language-switcher--drawer) {
     width: 100%;
     min-width: 0;
-  }
-  .editorial-menu__preferences :deep(.styled-select__trigger) {
-    min-width: 0;
-    padding-right: 0.5rem;
-    padding-left: 0.5rem;
-  }
-  .editorial-menu__preferences :deep(.styled-select__trigger span) {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .editorial-menu__preferences > label :deep(.styled-select__menu) {
-    right: auto;
-    left: 0;
   }
   .editorial-menu__mobile-close {
     position: static;
@@ -974,7 +926,7 @@ html.menu-is-open body { overflow: hidden; }
 }
 
 @media (max-width: 520px) {
-  .editorial-menu__preferences { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .editorial-menu__preferences { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (max-height: 700px) and (max-width: 768px) {
