@@ -32,7 +32,7 @@
             <img
               v-if="instagram.state.profilePictureUrl && !avatarFailed"
               class="dashboard-instagram__avatar"
-              :src="instagram.state.profilePictureUrl"
+              :src="avatarUrl"
               alt=""
               @error="avatarFailed = true"
             />
