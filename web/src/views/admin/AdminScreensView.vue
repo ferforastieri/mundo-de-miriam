@@ -181,6 +181,7 @@
               <h3 class="screen-card__subtitle">Marcas e parcerias</h3>
               <p class="admin-card__hint">
                 Cada marca vira um cartão no site. A capa é definida na tela de Fotos.
+                Marque “Parceria fechada” para destacar a marca no PDF.
               </p>
             </div>
 
@@ -221,6 +222,10 @@
               <div class="group-row__main">
                 <AdminInput v-model="groupDrafts[group.id].name"  maxlength="60" />
                 <span class="admin-tag">{{ group.photoCount }} foto{{ group.photoCount === 1 ? '' : 's' }}</span>
+                <AdminCheckbox
+                  v-model="groupDrafts[group.id].closed"
+                  label="Parceria fechada"
+                />
               </div>
 
               <div class="admin-actions-row">
@@ -583,7 +588,7 @@ watch(
       shareExpiry[screen.id] = '0'
 
       for (const group of screen.groups || []) {
-        groupDrafts[group.id] = { name: group.name }
+        groupDrafts[group.id] = { name: group.name, closed: Boolean(group.closed) }
       }
     }
   },

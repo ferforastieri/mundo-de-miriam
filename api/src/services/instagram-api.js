@@ -84,12 +84,23 @@ function graphUrl(path, query = {}) {
 }
 
 export async function fetchProfile(token) {
-  return requestJson(
-    graphUrl('me', {
-      fields: 'id,username,followers_count,media_count',
-      access_token: token
-    })
-  )
+  try {
+    return await requestJson(
+      graphUrl('me', {
+        fields:
+          'id,username,name,biography,website,followers_count,follows_count,media_count,profile_picture_url',
+        access_token: token
+      })
+    )
+  } catch (error) {
+    // Contas/versões antigas podem não expor todos os campos extras.
+    return requestJson(
+      graphUrl('me', {
+        fields: 'id,username,followers_count,media_count',
+        access_token: token
+      })
+    )
+  }
 }
 
 export async function fetchRecentMedia(token, userId) {
@@ -217,6 +228,28 @@ export async function fetchAccountInsights(token, userId) {
   }
 
   return map
+}
+
+/**
+ * Views separadas entre seguidores e não seguidores. Alguns tipos de conta
+ * não expõem esse detalhamento; quem chama deve tratar a falha como opcional.
+ */
+export async function fetchViewsByFollowType(token, userId) {
+  const payload = await requestJson(
+    graphUrl(`${userId}/insights`, {
+      metric: 'views',
+      period: 'day',
+      metric_type: 'total_value',
+      breakdown: 'follow_type',
+      access_token: token
+    })
+  )
+
+  const values = payload?.data?.[0]?.total_value?.breakdowns?.[0]?.results || []
+  return values.map((item) => ({
+    key: item.dimension_values?.[0] ?? item.dimension_values?.join(' / ') ?? '',
+    value: item.value
+  }))
 }
 
 export async function fetchMediaInsights(token, mediaId) {

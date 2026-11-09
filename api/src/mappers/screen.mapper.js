@@ -17,6 +17,7 @@ export function toGroup(row) {
     id: row.id,
     screenId: row.screen_id,
     name: row.name,
-    position: row.sort_order
+    position: row.sort_order,
+    closed: Boolean(row.is_closed)
   }
 }

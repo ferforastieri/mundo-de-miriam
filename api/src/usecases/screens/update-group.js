@@ -26,6 +26,7 @@ export async function updateGroup(container, groupId, patch = {}) {
   await container.groups.update(groupId, {
     name,
     sortOrder,
+    closed,
     updatedAt: nowIso()
   })
 

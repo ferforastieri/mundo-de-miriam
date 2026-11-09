@@ -10,6 +10,7 @@ import {
   fetchProfile,
   fetchRecentMedia,
   fetchRecentViews,
+  fetchViewsByFollowType,
   refreshLongLivedToken
 } from '../../services/instagram-api.js'
 import { addSecondsIso, nowIso } from '../../utils/dates.js'
@@ -24,7 +25,12 @@ function mapState(state) {
     username: state?.username ?? null,
     lastAttemptAt: state?.last_attempt_at ?? null,
     lastSuccessAt: state?.last_success_at ?? null,
-    lastError: state?.last_error ?? null
+    lastError: state?.last_error ?? null,
+    fullName: state?.full_name ?? null,
+    biography: state?.biography ?? null,
+    website: state?.website ?? null,
+    followsCount: state?.follows_count ?? null,
+    profilePictureUrl: state?.profile_picture_url ?? null
   }
 }
 
@@ -99,6 +105,21 @@ async function syncDemographics(container, token, userId, capturedAt) {
     } catch (error) {
       // Demografia exige 100+ seguidores e nem sempre está disponível.
     }
+  }
+
+  try {
+    const results = await fetchViewsByFollowType(token, userId)
+
+    if (results.length > 0) {
+      entries.push({
+        capturedAt,
+        metric: 'views',
+        breakdown: 'follow_type',
+        payload: results
+      })
+    }
+  } catch (error) {
+    // O detalhamento por seguidor/não seguidor não está disponível em todas as contas.
   }
 
   if (entries.length > 0) {
@@ -183,6 +204,7 @@ export async function refreshInstagramStats(container, { source = 'manual' } = {
       saves: insights.saves ?? null,
       newFollowers: insights.follower_count ?? null,
       websiteClicks: insights.website_clicks ?? null,
+      views: insights.views ?? null,
       capturedAt: now,
       source,
       success: true
@@ -199,7 +221,12 @@ export async function refreshInstagramStats(container, { source = 'manual' } = {
       username: profile.username || state?.username || container.env.INSTAGRAM_USERNAME || null,
       lastAttemptAt: now,
       lastSuccessAt: now,
-      lastError: null
+      lastError: null,
+      fullName: profile.name || state?.full_name || null,
+      biography: profile.biography || state?.biography || null,
+      website: profile.website || state?.website || null,
+      followsCount: profile.follows_count ?? state?.follows_count ?? null,
+      profilePictureUrl: profile.profile_picture_url || state?.profile_picture_url || null
     })
 
     await syncRecentMedia(container, token, media, now)

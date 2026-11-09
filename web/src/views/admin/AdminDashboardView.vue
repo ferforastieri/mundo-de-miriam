@@ -3,6 +3,28 @@
     <AdminSkeleton v-if="isPending" variant="dashboard" />
 
     <template v-else>
+      <section class="admin-card dashboard-media-kit">
+        <div class="admin-card__header">
+          <div>
+            <h2 class="admin-card__title"><AdminIcon name="download" /> Material de apresentação</h2>
+            <p class="admin-card__hint">
+              PDF com parcerias, propostas, perfil e insights do Instagram — tudo gerado com os dados do painel.
+            </p>
+          </div>
+
+          <button
+            class="admin-btn admin-btn--primary"
+            type="button"
+            :disabled="generatingPdf"
+            aria-label="Gerar PDF do material de apresentação"
+            @click="generatePdf"
+          >
+            <AdminIcon name="download" />
+            {{ generatingPdf ? 'Gerando PDF…' : 'Gerar PDF' }}
+          </button>
+        </div>
+      </section>
+
       <div class="admin-grid-2">
         <section class="admin-card">
           <div class="admin-card__header">
@@ -114,20 +136,26 @@
         </div>
       </section>
     </template>
+
+    <Teleport to="body">
+      <MediaKitDocument v-if="mediaKit" ref="mediaKitRef" :data="mediaKit" />
+    </Teleport>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import adminService from '@/api/admin/AdminService.js'
 import AdminSkeleton from '@/components/admin/AdminSkeleton.vue'
 import AdminIcon from '@/components/admin/AdminIcon.vue'
 import AdminStatCard from '@/components/admin/AdminStatCard.vue'
 import AdminSparkline from '@/components/admin/AdminSparkline.vue'
+import MediaKitDocument from '@/components/admin/MediaKitDocument.vue'
 import { formatBytes, formatDateTime, formatNumber } from '@/utils/format.js'
 import { statColumns } from '@/utils/grid.js'
 import { useErrorToast } from '@/composables/useErrorToast'
+import { useAdminToast } from '@/composables/useAdminToast'
 
 function statsStyle(count) {
   return {
@@ -158,6 +186,35 @@ const photos = computed(() => data.value?.photos || {
   byScreen: [],
   recent: []
 })
+
+const mediaKit = ref(null)
+const mediaKitRef = ref(null)
+const generatingPdf = ref(false)
+const toast = useAdminToast()
+
+async function generatePdf() {
+  if (generatingPdf.value) return
+
+  generatingPdf.value = true
+  mediaKit.value = null
+
+  try {
+    mediaKit.value = await adminService.getMediaKit()
+    await nextTick()
+
+    if (!mediaKitRef.value) {
+      throw new Error('Não foi possível montar o material do PDF.')
+    }
+
+    await mediaKitRef.value.generate()
+    toast.success('PDF gerado com sucesso.')
+  } catch (requestError) {
+    toast.error(requestError.message || 'Não foi possível gerar o PDF.')
+  } finally {
+    generatingPdf.value = false
+    mediaKit.value = null
+  }
+}
 </script>
 
 <style scoped>
@@ -193,6 +250,75 @@ const photos = computed(() => data.value?.photos || {
 
 .dashboard-recent {
   margin-top: 1rem;
+}
+
+.dashboard-media-kit {
+  margin-bottom: 1rem;
+}
+
+.dashboard-media-kit .admin-card__header {
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .dashboard-media-kit .admin-card__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.pdf-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: rgba(20, 12, 8, 0.55);
+  backdrop-filter: blur(3px);
+}
+
+.pdf-overlay__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  max-width: 340px;
+  padding: 1.6rem 1.8rem;
+  border-radius: 16px;
+  background: var(--surface);
+  color: var(--text);
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+}
+
+.pdf-overlay__card strong {
+  font-family: 'Gilda Display', serif;
+  font-size: 1.15rem;
+  font-weight: 400;
+}
+
+.pdf-overlay__card p {
+  margin: 0;
+  color: var(--muted);
+  font-family: system-ui, sans-serif;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.pdf-overlay__spinner {
+  width: 34px;
+  height: 34px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: pdf-spin 0.8s linear infinite;
+}
+
+@keyframes pdf-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .recent-grid {

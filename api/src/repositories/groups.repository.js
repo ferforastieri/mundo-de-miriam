@@ -40,10 +40,12 @@ export function createGroupsRepository(db) {
         .run()
     },
 
-    async update(id, { name, sortOrder, updatedAt }) {
+    async update(id, { name, sortOrder, closed, updatedAt }) {
       await db
-        .prepare('UPDATE photo_groups SET name = ?, sort_order = ?, updated_at = ? WHERE id = ?')
-        .bind(name, sortOrder, updatedAt, id)
+        .prepare(
+          'UPDATE photo_groups SET name = ?, sort_order = ?, is_closed = ?, updated_at = ? WHERE id = ?'
+        )
+        .bind(name, sortOrder, closed ? 1 : 0, updatedAt, id)
         .run()
     },
 

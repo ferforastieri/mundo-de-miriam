@@ -34,6 +34,10 @@ class AdminService {
     return http.get('/api/admin/dashboard')
   }
 
+  getMediaKit() {
+    return http.get('/api/admin/media-kit')
+  }
+
   getScreens(params = {}) {
     return http.get(`/api/admin/screens${queryString(params)}`)
   }

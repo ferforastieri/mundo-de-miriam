@@ -9,8 +9,9 @@ export function createInstagramRepository(db) {
         .prepare(
           `INSERT INTO instagram_state
             (id, encrypted_token, token_iv, token_expires_at, token_updated_at,
-             instagram_user_id, username, last_attempt_at, last_success_at, last_error)
-           VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+             instagram_user_id, username, last_attempt_at, last_success_at, last_error,
+             full_name, biography, website, follows_count, profile_picture_url)
+           VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
            ON CONFLICT(id) DO UPDATE SET
              encrypted_token = excluded.encrypted_token,
              token_iv = excluded.token_iv,
@@ -20,7 +21,12 @@ export function createInstagramRepository(db) {
              username = excluded.username,
              last_attempt_at = excluded.last_attempt_at,
              last_success_at = excluded.last_success_at,
-             last_error = excluded.last_error`
+             last_error = excluded.last_error,
+             full_name = excluded.full_name,
+             biography = excluded.biography,
+             website = excluded.website,
+             follows_count = excluded.follows_count,
+             profile_picture_url = excluded.profile_picture_url`
         )
         .bind(
           state.encryptedToken ?? null,
@@ -31,7 +37,12 @@ export function createInstagramRepository(db) {
           state.username ?? null,
           state.lastAttemptAt ?? null,
           state.lastSuccessAt ?? null,
-          state.lastError ?? null
+          state.lastError ?? null,
+          state.fullName ?? null,
+          state.biography ?? null,
+          state.website ?? null,
+          state.followsCount ?? null,
+          state.profilePictureUrl ?? null
         )
         .run()
     },
@@ -43,8 +54,8 @@ export function createInstagramRepository(db) {
             (followers, posts, recent_views, recent_interactions, recent_items,
              captured_at, source, success, error,
              reach, profile_views, accounts_engaged, total_interactions,
-             likes, comments, shares, saves, new_followers, website_clicks)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+             likes, comments, shares, saves, new_followers, website_clicks, views)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
         )
         .bind(
           snapshot.followers ?? null,
@@ -65,7 +76,8 @@ export function createInstagramRepository(db) {
           snapshot.shares ?? null,
           snapshot.saves ?? null,
           snapshot.newFollowers ?? null,
-          snapshot.websiteClicks ?? null
+          snapshot.websiteClicks ?? null,
+          snapshot.views ?? null
         )
         .run()
     },

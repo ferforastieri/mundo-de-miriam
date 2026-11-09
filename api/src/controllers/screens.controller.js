@@ -93,7 +93,8 @@ const updateGroupSchema = {
     additionalProperties: false,
     properties: {
       name: { type: 'string', maxLength: 60 },
-      sortOrder: { type: 'integer', minimum: 0, maximum: 9999 }
+      sortOrder: { type: 'integer', minimum: 0, maximum: 9999 },
+      closed: { type: 'boolean' }
     }
   }
 }
