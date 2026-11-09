@@ -5,17 +5,26 @@ import {
   toInstagramState
 } from '../../mappers/instagram.mapper.js'
 import { toScreen } from '../../mappers/screen.mapper.js'
+import { buildInsightPeriods } from './instagram-insights.js'
 
-export async function getDashboard(container) {
-  const [latest, state, history, totals, counts, recent, screens] = await Promise.all([
-    container.instagram.latestSuccessful(),
-    container.instagram.getState(),
-    container.instagram.listSuccessfulSince(isoDaysAgo(30)),
-    container.photos.totals(),
-    container.photos.countsByScreen(),
-    container.photos.recent(8),
-    container.screens.listAll()
-  ])
+export async function getDashboard(container, options = {}) {
+  const [latest, state, historyRows, demographics, totals, counts, recent, screens] =
+    await Promise.all([
+      container.instagram.latestSuccessful(),
+      container.instagram.getState(),
+      container.instagram.listSuccessfulSince(isoDaysAgo(90)),
+      container.instagram.listDemographics(),
+      container.photos.totals(),
+      container.photos.countsByScreen(),
+      container.photos.recent(8),
+      container.screens.listAll()
+    ])
+
+  // Os gráficos rápidos continuam mostrando a janela de 30 dias.
+  const sparklineCutoff = Date.now() - 30 * 24 * 60 * 60 * 1000
+  const history = historyRows.filter(
+    (row) => new Date(row.captured_at).getTime() >= sparklineCutoff
+  )
 
   const screensById = new Map(screens.map((screen) => [screen.id, screen]))
   const countsByScreen = new Map(
@@ -29,7 +38,8 @@ export async function getDashboard(container) {
     instagram: {
       state: toInstagramState(state),
       latest: latest ? toInstagramHistoryPoint(latest) : null,
-      history: history.map(toInstagramHistoryPoint)
+      history: history.map(toInstagramHistoryPoint),
+      insights: buildInsightPeriods(historyRows, demographics, options.days)
     },
     photos: {
       totals,

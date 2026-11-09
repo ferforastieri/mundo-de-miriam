@@ -8,8 +8,9 @@ import {
   toInstagramState
 } from '../../mappers/instagram.mapper.js'
 import { isoDaysAgo, nowIso } from '../../utils/dates.js'
+import { buildInsightPeriods } from '../stats/instagram-insights.js'
 
-export async function getInstagramPanel(container) {
+export async function getInstagramPanel(container, options = {}) {
   const [state, latest, history, demographics] = await Promise.all([
     container.instagram.getState(),
     container.instagram.latestSuccessful(),
@@ -31,6 +32,7 @@ export async function getInstagramPanel(container) {
         }
       : null,
     history: dailyHistory,
+    insights: buildInsightPeriods(history, demographics, options.days),
     demographics: toInstagramDemographics(demographics),
     publishedLast24h: await container.instagram.countPublicationsSince(isoDaysAgo(1)),
     generatedAt: nowIso(),

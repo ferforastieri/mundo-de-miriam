@@ -38,8 +38,8 @@ const publishSchema = {
 }
 
 export function registerInstagramRoutes(app) {
-  app.get('/api/admin/instagram', { preHandler: requireAdmin }, async () => {
-    return getInstagramPanel(getContainer())
+  app.get('/api/admin/instagram', { preHandler: requireAdmin }, async (request) => {
+    return getInstagramPanel(getContainer(), { days: request.query?.days })
   })
 
   app.get('/api/admin/instagram/media', { preHandler: requireAdmin }, async (request) => {

@@ -228,12 +228,14 @@
               <span>visualizações</span>
             </div>
             <div class="mk-insight-value">
-              <strong>+{{ number(period.newFollowers) }}</strong>
-              <span>seguidores</span>
-            </div>
-            <div class="mk-insight-value">
               <strong>{{ compact(period.interactions) }}</strong>
               <span>interações</span>
+            </div>
+            <div class="mk-insight-value">
+              <strong>
+                {{ period.netFollowers != null ? signed(period.netFollowers) : signed(period.newFollowers) }}
+              </strong>
+              <span>{{ period.netFollowers != null ? 'seguidores líquidos' : 'novos seguidores' }}</span>
             </div>
           </div>
 
@@ -376,9 +378,14 @@ const proposalSections = computed(() => [
   }
 ])
 
-const insightPeriods = computed(() =>
-  [insights.value.last90Days, insights.value.last30Days].filter(Boolean)
-)
+// O PDF reproduz exatamente o período escolhido no filtro do painel.
+const insightPeriods = computed(() => {
+  const selected = insights.value.selected
+
+  if (selected) return [selected]
+
+  return [insights.value.last90Days, insights.value.last30Days].filter(Boolean)
+})
 
 function number(value) {
   const numeric = Number(value)
@@ -386,6 +393,14 @@ function number(value) {
   if (!Number.isFinite(numeric)) return '—'
 
   return new Intl.NumberFormat('pt-BR').format(numeric)
+}
+
+function signed(value) {
+  const numeric = Number(value)
+
+  if (!Number.isFinite(numeric)) return '—'
+
+  return `${numeric >= 0 ? '+' : ''}${new Intl.NumberFormat('pt-BR').format(numeric)}`
 }
 
 function compact(value) {
@@ -1221,6 +1236,10 @@ defineExpose({ generate })
   border-radius: 4mm;
   background: linear-gradient(160deg, #fffdf9 0%, #f8ecdf 100%);
   box-shadow: 0 2.5mm 6mm rgba(85, 34, 0, 0.1);
+}
+
+.mk-insight-card:only-child {
+  grid-column: 1 / -1;
 }
 
 .mk-insight-card header h3 {

@@ -57,6 +57,26 @@
           </div>
         </div>
 
+        <div class="dashboard-filters">
+          <span class="dashboard-filters__label">Período</span>
+          <div class="dashboard-filters__group" role="group" aria-label="Filtrar Instagram por período">
+            <button
+              v-for="option in insightDayOptions"
+              :key="option"
+              type="button"
+              class="dashboard-filters__button"
+              :class="{ 'dashboard-filters__button--active': option === selectedDays }"
+              :aria-pressed="option === selectedDays"
+              @click="selectedDays = option"
+            >
+              {{ option }} dias
+            </button>
+          </div>
+          <span v-if="period?.to" class="dashboard-filters__range">
+            {{ formatDate(period.from) }} a {{ formatDate(period.to) }} · {{ formatNumber(period.samples) }} coletas
+          </span>
+        </div>
+
         <div v-if="instagram.latest" class="admin-stats" :style="statsStyle(6)">
           <AdminStatCard icon="users" label="Seguidores" :value="formatNumber(instagram.latest.followers)" />
           <AdminStatCard
@@ -65,12 +85,23 @@
             :value="formatNumber(instagram.state.followsCount)"
           />
           <AdminStatCard icon="image" label="Publicações" :value="formatNumber(instagram.latest.posts)" />
-          <AdminStatCard icon="eye" label="Views recentes" :value="formatNumber(instagram.latest.recentViews)" />
-          <AdminStatCard icon="activity" label="Interações" :value="formatNumber(instagram.latest.recentInteractions)" />
+          <AdminStatCard
+            icon="eye"
+            label="Visualizações"
+            :value="formatNumber(period?.views)"
+            :hint="`últimos ${selectedDays} dias`"
+          />
+          <AdminStatCard
+            icon="activity"
+            label="Interações"
+            :value="formatNumber(period?.interactions)"
+            :hint="`últimos ${selectedDays} dias`"
+          />
           <AdminStatCard
             icon="heart"
-            label="Novos seguidores"
-            :value="formatSigned(instagram.latest.newFollowers)"
+            label="Seguidores líquidos"
+            :value="formatSigned(period?.netFollowers)"
+            :hint="`últimos ${selectedDays} dias`"
           />
         </div>
 
@@ -87,31 +118,71 @@
           <AdminSparkline
             class="dashboard-sparkline"
             label="Views nos últimos 30 dias"
-            :values="instagram.history.map((point) => point.recentViews)"
+            :values="instagram.history.map((point) => point.views ?? point.recentViews)"
           />
         </div>
 
-        <div v-if="instagram.latest" class="dashboard-instagram__meta">
-          <div>
-            <span>Última coleta</span>
-            <strong>{{ formatDateTime(instagram.latest.capturedAt) }}</strong>
-          </div>
-          <div v-if="instagramWebsite">
-            <span>Site</span>
-            <a
-              :href="instagramWebsite"
-              :title="instagram.state.website"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {{ instagram.state.website }}
-            </a>
-          </div>
-          <div v-if="instagram.state.biography" class="dashboard-instagram__bio">
-            <span>Bio</span>
-            <p>{{ instagram.state.biography }}</p>
-          </div>
+        <div v-if="instagram.latest" class="dashboard-insights">
+          <article class="dashboard-insight">
+            <span class="dashboard-insight__icon"><AdminIcon name="clock" /></span>
+            <div>
+              <span class="dashboard-insight__label">Última coleta</span>
+              <strong class="dashboard-insight__value">{{ formatDateTime(instagram.latest.capturedAt) }}</strong>
+              <p class="dashboard-insight__hint">Atualizada automaticamente a cada hora</p>
+            </div>
+          </article>
+
+          <article v-if="engagementRate !== null" class="dashboard-insight">
+            <span class="dashboard-insight__icon"><AdminIcon name="zap" /></span>
+            <div>
+              <span class="dashboard-insight__label">Engajamento · {{ selectedDays }} dias</span>
+              <strong class="dashboard-insight__value">{{ formatPercent(engagementRate) }}</strong>
+              <p class="dashboard-insight__hint">Interações sobre as visualizações do período</p>
+            </div>
+          </article>
+
+          <article v-if="period && period.samples > 0" class="dashboard-insight">
+            <span class="dashboard-insight__icon"><AdminIcon name="trendingUp" /></span>
+            <div>
+              <span class="dashboard-insight__label">Novos seguidores · {{ selectedDays }} dias</span>
+              <strong class="dashboard-insight__value dashboard-insight__value--up">
+                {{ formatSigned(period.newFollowers) }}
+              </strong>
+              <p class="dashboard-insight__hint">
+                <template v-if="period.netFollowers !== null">
+                  saldo de {{ formatSigned(period.netFollowers) }} seguidores no período
+                </template>
+                <template v-else>soma das coletas do período</template>
+              </p>
+            </div>
+          </article>
+
+          <article v-if="period && period.samples > 0 && period.viewsSource === 'media'" class="dashboard-insight">
+            <span class="dashboard-insight__icon"><AdminIcon name="eye" /></span>
+            <div>
+              <span class="dashboard-insight__label">Origem das views</span>
+              <strong class="dashboard-insight__value">Publicações</strong>
+              <p class="dashboard-insight__hint">
+                histórico de visualizações da conta ainda incompleto; soma das views das publicações recentes
+              </p>
+            </div>
+          </article>
         </div>
+
+        <article v-if="period?.followers != null" class="dashboard-audience">
+          <div class="dashboard-audience__head">
+            <div>
+              <span class="dashboard-insight__label">Audiência · últimos {{ selectedDays }} dias</span>
+              <strong class="dashboard-audience__value">
+                {{ formatPercent(period.followers) }} seguidores
+                <span>· {{ formatPercent(period.nonFollowers) }} não seguidores</span>
+              </strong>
+            </div>
+          </div>
+          <div class="dashboard-audience__bar" role="img" :aria-label="`${period.followers}% seguidores e ${period.nonFollowers}% não seguidores`">
+            <span :style="{ width: `${period.followers}%` }"></span>
+          </div>
+        </article>
       </section>
 
       <section class="admin-card dashboard-recent">
@@ -163,7 +234,7 @@ import AdminIcon from '@/components/admin/AdminIcon.vue'
 import AdminStatCard from '@/components/admin/AdminStatCard.vue'
 import AdminSparkline from '@/components/admin/AdminSparkline.vue'
 import MediaKitDocument from '@/components/admin/MediaKitDocument.vue'
-import { formatDateTime, formatNumber } from '@/utils/format.js'
+import { formatDate, formatDateTime, formatNumber } from '@/utils/format.js'
 import { statColumns } from '@/utils/grid.js'
 import { useErrorToast } from '@/composables/useErrorToast'
 import { useAdminToast } from '@/composables/useAdminToast'
@@ -185,19 +256,33 @@ function formatSigned(value) {
   return `${numeric >= 0 ? '+' : ''}${formatNumber(numeric)}`
 }
 
+// O filtro de período é o mesmo recorte usado no PDF.
+const insightDayOptions = [7, 30, 90]
+const selectedDays = ref(90)
+
 const { data, isPending, isError, error, refetch } = useQuery({
-  queryKey: ['admin-dashboard'],
-  queryFn: () => adminService.getDashboard(),
+  queryKey: ['admin-dashboard', selectedDays],
+  queryFn: () => adminService.getDashboard(selectedDays.value),
   refetchInterval: 60_000
 })
 
 const instagram = computed(() => data.value?.instagram || { state: {}, latest: null, history: [] })
 
-const instagramWebsite = computed(() => {
-  const value = instagram.value.state?.website
-  if (!value) return null
-  return /^https?:\/\//i.test(value) ? value : `https://${value}`
+const insights = computed(() => instagram.value.insights || {})
+const period = computed(() => insights.value.selected || null)
+
+const engagementRate = computed(() => {
+  const views = Number(period.value?.views)
+  const interactions = Number(period.value?.interactions)
+
+  if (!Number.isFinite(views) || views <= 0 || !Number.isFinite(interactions)) return null
+
+  return (interactions / views) * 100
 })
+
+function formatPercent(value) {
+  return `${new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 }).format(value)}%`
+}
 
 // A URL da foto de perfil do Instagram expira; quando falha, mostramos o selo.
 const avatarFailed = ref(false)
@@ -236,7 +321,7 @@ async function generatePdf() {
   mediaKit.value = null
 
   try {
-    mediaKit.value = await adminService.getMediaKit()
+    mediaKit.value = await adminService.getMediaKit(selectedDays.value)
     await nextTick()
 
     if (!mediaKitRef.value) {
@@ -289,6 +374,59 @@ async function generatePdf() {
   gap: 0.75rem;
 }
 
+.dashboard-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.dashboard-filters__label {
+  color: var(--muted);
+  font-family: system-ui, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.dashboard-filters__group {
+  display: inline-flex;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-muted);
+}
+
+.dashboard-filters__button {
+  padding: 0.35rem 0.75rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-family: system-ui, sans-serif;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.dashboard-filters__button:hover {
+  color: var(--text);
+}
+
+.dashboard-filters__button--active {
+  background: var(--primary);
+  color: #fff;
+}
+
+.dashboard-filters__range {
+  color: var(--muted);
+  font-family: system-ui, sans-serif;
+  font-size: 0.72rem;
+}
+
 .dashboard-sparklines {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -303,61 +441,138 @@ async function generatePdf() {
   background: var(--surface-muted);
 }
 
-.dashboard-instagram__meta {
-  display: flex;
-  flex-wrap: wrap;
+.dashboard-insights {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.75rem;
   margin-top: 1rem;
 }
 
-.dashboard-instagram__meta > div {
+.dashboard-insight {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  align-items: start;
+  gap: 0.65rem;
   min-width: 0;
-  flex: 1 1 240px;
-  padding: 0.7rem 0.85rem;
+  padding: 0.8rem 0.9rem;
   border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--surface-muted);
+  border-radius: 14px;
+  background:
+    linear-gradient(
+      150deg,
+      color-mix(in srgb, var(--primary) 8%, var(--surface-muted)) 0%,
+      var(--surface-muted) 70%
+    );
 }
 
-.dashboard-instagram__meta span {
+.dashboard-insight > div {
+  min-width: 0;
+}
+
+.dashboard-insight__icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--primary) 14%, transparent);
+  color: var(--primary);
+}
+
+.dashboard-insight__icon svg {
+  width: 17px;
+  height: 17px;
+}
+
+.dashboard-insight__label {
   display: block;
-  margin-bottom: 0.2rem;
   color: var(--muted);
   font-family: system-ui, sans-serif;
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.11em;
   text-transform: uppercase;
 }
 
-.dashboard-instagram__meta strong,
-.dashboard-instagram__meta a {
-  color: var(--text);
-  font-family: system-ui, sans-serif;
-  font-size: 0.84rem;
-  word-break: break-word;
-}
-
-.dashboard-instagram__meta a {
+.dashboard-insight__value {
   display: block;
-  max-width: 100%;
-  overflow: hidden;
-  text-decoration: underline;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.dashboard-instagram__meta > .dashboard-instagram__bio {
-  flex: 1 1 100%;
-}
-
-.dashboard-instagram__bio p {
-  margin: 0;
+  margin-top: 0.15rem;
   color: var(--text);
+  font-family: 'Gilda Display', serif;
+  font-size: 1.05rem;
+  font-weight: normal;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.dashboard-insight__value--up {
+  color: #067647;
+}
+
+.dashboard-insight__value--date {
   font-family: system-ui, sans-serif;
-  font-size: 0.84rem;
-  line-height: 1.5;
-  white-space: pre-line;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.dashboard-insight__value--down {
+  color: #b42318;
+}
+
+.dashboard-insight__hint {
+  margin: 0.15rem 0 0;
+  color: var(--muted);
+  font-family: system-ui, sans-serif;
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+.dashboard-audience {
+  margin-top: 0.75rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface-muted);
+}
+
+.dashboard-audience__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.dashboard-audience__value {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--text);
+  font-family: 'Gilda Display', serif;
+  font-size: 1.05rem;
+  font-weight: normal;
+}
+
+.dashboard-audience__value span {
+  color: var(--muted);
+  font-family: system-ui, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.dashboard-audience__bar {
+  height: 10px;
+  margin-top: 0.6rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary) 12%, var(--surface));
+}
+
+.dashboard-audience__bar span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--primary), color-mix(in srgb, var(--primary) 60%, #f0a05a));
 }
 
 .dashboard-recent {
@@ -374,6 +589,18 @@ async function generatePdf() {
   align-items: center;
   justify-content: flex-end;
   gap: 0.75rem;
+}
+
+@media (max-width: 900px) {
+  .dashboard-insights {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .dashboard-insights {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 @media (max-width: 640px) {

@@ -30,12 +30,12 @@ class AdminService {
     return http.post('/api/admin/auth/password', { currentPassword, newPassword })
   }
 
-  getDashboard() {
-    return http.get('/api/admin/dashboard')
+  getDashboard(days) {
+    return http.get(`/api/admin/dashboard${queryString({ days })}`)
   }
 
-  getMediaKit() {
-    return http.get('/api/admin/media-kit')
+  getMediaKit(days) {
+    return http.get(`/api/admin/media-kit${queryString({ days })}`)
   }
 
   getScreens(params = {}) {

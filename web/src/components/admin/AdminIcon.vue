@@ -42,6 +42,13 @@ const ICONS = {
   share:
     '<circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4"/>',
   activity: '<path d="M3 12h4l3-8 4 16 3-8h4"/>',
+  trendingUp: '<path d="m3 17 6-6 4 4 8-8"/><path d="M17 7h4v4"/>',
+  compass:
+    '<circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5Z"/>',
+  zap: '<path d="M13 2 4.5 13.5H11l-1 8.5 9.5-12H13Z"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.2 2"/>',
+  sparkle:
+    '<path d="M12 3.5 13.6 9l5.4 1.6-5.4 1.6L12 17.7l-1.6-5.5L5 10.6 10.4 9Z"/><path d="M18.5 15.5 19.3 18l2.4.8-2.4.8-.8 2.5-.8-2.5-2.4-.8 2.4-.8Z"/>',
   cursor: '<path d="m4 3 7.5 18 2.2-7.3L21 11.5Z"/>',
   archive:
     '<rect x="3" y="4" width="18" height="4.5" rx="1"/><path d="M5 8.5V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8.5"/><path d="M10 12h4"/>',

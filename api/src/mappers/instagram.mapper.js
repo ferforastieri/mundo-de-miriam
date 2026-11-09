@@ -30,6 +30,7 @@ export function toInstagramHistoryPoint(row) {
     capturedAt: row.captured_at,
     followers: row.followers,
     posts: row.posts,
+    views: row.views,
     recentViews: row.recent_views,
     recentInteractions: row.recent_interactions,
     recentItems: row.recent_items,

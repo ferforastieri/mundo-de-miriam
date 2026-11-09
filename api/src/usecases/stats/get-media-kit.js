@@ -2,6 +2,7 @@ import { toPublicPhoto } from '../../mappers/photo.mapper.js'
 import { toScreen } from '../../mappers/screen.mapper.js'
 import { toInstagramState } from '../../mappers/instagram.mapper.js'
 import { isoDaysAgo, nowIso } from '../../utils/dates.js'
+import { buildInsightPeriods } from './instagram-insights.js'
 
 const MAX_PROPOSAL_PHOTOS = 6
 
@@ -45,92 +46,6 @@ function buildProposal(screens, photos, predicate, fallbackId) {
   }
 }
 
-function dailyRows(rows, days) {
-  const cutoff = Date.now() - days * 24 * 60 * 60 * 1000
-  const byDay = new Map()
-
-  for (const row of rows) {
-    const time = new Date(row.captured_at).getTime()
-
-    if (!Number.isFinite(time) || time < cutoff) continue
-
-    // A coleta roda de hora em hora; para os totais do período usamos
-    // apenas o último registro de cada dia.
-    byDay.set(String(row.captured_at).slice(0, 10), row)
-  }
-
-  return [...byDay.values()]
-}
-
-function sumBy(rows, key) {
-  return rows.reduce((total, row) => total + (Number(row[key]) || 0), 0)
-}
-
-function summarizePeriod(rows, days) {
-  const daily = dailyRows(rows, days)
-  const accountViews = daily.filter((row) => row.views !== null && row.views !== undefined)
-
-  return {
-    days,
-    samples: daily.length,
-    from: daily[0]?.captured_at || null,
-    to: daily.at(-1)?.captured_at || null,
-    views: daily.reduce((total, row) => {
-      const value = row.views ?? row.recent_views ?? 0
-      return total + (Number(value) || 0)
-    }, 0),
-    viewsSource: accountViews.length > 0 ? 'account' : 'media',
-    newFollowers: sumBy(daily, 'new_followers'),
-    interactions:
-      sumBy(daily, 'total_interactions') || sumBy(daily, 'recent_interactions')
-  }
-}
-
-function parseJson(value, fallback) {
-  try {
-    return JSON.parse(value)
-  } catch {
-    return fallback
-  }
-}
-
-function audienceSplit(demographics) {
-  const row = [...demographics]
-    .reverse()
-    .find((entry) => entry.breakdown === 'follow_type')
-
-  if (!row) return null
-
-  const payload = parseJson(row.payload, [])
-  let followers = 0
-  let nonFollowers = 0
-
-  for (const item of Array.isArray(payload) ? payload : []) {
-    const dimensions = item.dimension_values || item.dimensionValues || []
-    const label = String(
-      item.key ?? (Array.isArray(dimensions) ? dimensions[0] : dimensions) ?? ''
-    ).toUpperCase()
-    const value = Number(item.value ?? item.total_value?.value ?? 0)
-
-    if (!Number.isFinite(value)) continue
-
-    if (label.includes('NON')) {
-      nonFollowers += value
-    } else if (label.includes('FOLLOWER')) {
-      followers += value
-    }
-  }
-
-  const total = followers + nonFollowers
-
-  if (!total) return null
-
-  return {
-    followers: Math.round((followers / total) * 1000) / 10,
-    nonFollowers: Math.round((nonFollowers / total) * 1000) / 10
-  }
-}
-
 function buildProfile(state, latest, photos, screens, env) {
   const profileScreen =
     findScreen(
@@ -158,7 +73,7 @@ function buildProfile(state, latest, photos, screens, env) {
   }
 }
 
-export async function getMediaKit(container) {
+export async function getMediaKit(container, options = {}) {
   const [screens, groups, photos, allPhotos, latest, state, history, demographics] =
     await Promise.all([
       container.screens.listAll(),
@@ -231,16 +146,9 @@ export async function getMediaKit(container) {
     'artistic'
   )
 
-  const last90Days = summarizePeriod(history, 90)
-  const last30Days = summarizePeriod(history, 30)
-  const split = audienceSplit(demographics)
-
-  if (split) {
-    last90Days.followers = split.followers
-    last90Days.nonFollowers = split.nonFollowers
-    last30Days.followers = split.followers
-    last30Days.nonFollowers = split.nonFollowers
-  }
+  // O PDF usa exatamente o mesmo recorte do painel: o período escolhido
+  // no filtro, além dos blocos fixos de 7/30/90 dias.
+  const insights = buildInsightPeriods(history, demographics, options.days)
 
   return {
     generatedAt: nowIso(),
@@ -258,10 +166,7 @@ export async function getMediaKit(container) {
       beauty,
       artistic
     },
-    insights: {
-      last90Days,
-      last30Days
-    },
+    insights,
     instagramState: toInstagramState(state)
   }
 }
