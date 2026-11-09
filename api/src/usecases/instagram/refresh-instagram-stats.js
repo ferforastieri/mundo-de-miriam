@@ -15,6 +15,7 @@ import {
   refreshLongLivedToken
 } from '../../services/instagram-api.js'
 import { addSecondsIso, nowIso } from '../../utils/dates.js'
+import { storeProfilePicture } from './profile-picture.js'
 
 function mapState(state) {
   return {
