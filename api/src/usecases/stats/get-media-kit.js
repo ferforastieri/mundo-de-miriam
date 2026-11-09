@@ -66,7 +66,11 @@ function buildProfile(state, latest, photos, screens, env) {
     biography: state?.biography || null,
     website: state?.website || env?.PUBLIC_SITE_URL || null,
     profilePictureUrl: state?.profile_picture_url || null,
-    avatarUrl: profilePhoto ? toPublicPhoto(profilePhoto).url : null,
+    avatarUrl: profilePhoto
+      ? toPublicPhoto(profilePhoto).url
+      : state?.profile_picture_url
+        ? '/api/admin/instagram/avatar'
+        : null,
     followers: latest?.followers ?? null,
     posts: latest?.posts ?? null,
     following: state?.follows_count ?? null

@@ -7,6 +7,7 @@ import { listInstagramMedia } from '../usecases/instagram/list-media.js'
 import { listInstagramPublications } from '../usecases/instagram/list-publications.js'
 import { publishPhotos } from '../usecases/instagram/publish-photos.js'
 import { refreshInstagramStats } from '../usecases/instagram/refresh-instagram-stats.js'
+import { serveInstagramAvatar } from '../usecases/instagram/serve-avatar.js'
 import { setInstagramToken } from '../usecases/instagram/set-instagram-token.js'
 
 const tokenSchema = {

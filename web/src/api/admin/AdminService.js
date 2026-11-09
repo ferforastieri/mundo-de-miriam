@@ -127,8 +127,8 @@ class AdminService {
     return http.patch('/api/admin/photos/reorder', { screenId, groupId, orderedIds })
   }
 
-  getInstagram() {
-    return http.get('/api/admin/instagram')
+  getInstagram(days) {
+    return http.get(`/api/admin/instagram${queryString({ days })}`)
   }
 
   refreshInstagram() {

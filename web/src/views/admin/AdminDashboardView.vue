@@ -157,13 +157,19 @@
             </div>
           </article>
 
-          <article v-if="period && period.samples > 0 && period.viewsSource === 'media'" class="dashboard-insight">
+          <article v-if="period && period.samples > 0 && period.viewsSource !== 'account'" class="dashboard-insight">
             <span class="dashboard-insight__icon"><AdminIcon name="eye" /></span>
             <div>
               <span class="dashboard-insight__label">Origem das views</span>
-              <strong class="dashboard-insight__value">Publicações</strong>
+              <strong class="dashboard-insight__value">
+                {{ period.viewsSource === 'partial' ? 'Misto' : 'Publicações' }}
+              </strong>
               <p class="dashboard-insight__hint">
-                histórico de visualizações da conta ainda incompleto; soma das views das publicações recentes
+                {{
+                  period.viewsSource === 'partial'
+                    ? 'views da conta desde o início da coleta + variação das publicações'
+                    : 'variação das visualizações das publicações recentes'
+                }}
               </p>
             </div>
           </article>
@@ -172,14 +178,14 @@
         <article v-if="period?.followers != null" class="dashboard-audience">
           <div class="dashboard-audience__head">
             <div>
-              <span class="dashboard-insight__label">Audiência · últimos {{ selectedDays }} dias</span>
+              <span class="dashboard-insight__label">Views por tipo de conta</span>
               <strong class="dashboard-audience__value">
                 {{ formatPercent(period.followers) }} seguidores
                 <span>· {{ formatPercent(period.nonFollowers) }} não seguidores</span>
               </strong>
             </div>
           </div>
-          <div class="dashboard-audience__bar" role="img" :aria-label="`${period.followers}% seguidores e ${period.nonFollowers}% não seguidores`">
+          <div class="dashboard-audience__bar" role="img" :aria-label="`${period.followers}% das views de seguidores e ${period.nonFollowers}% de não seguidores`">
             <span :style="{ width: `${period.followers}%` }"></span>
           </div>
         </article>
@@ -284,15 +290,17 @@ function formatPercent(value) {
   return `${new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 }).format(value)}%`
 }
 
-// A URL da foto de perfil do Instagram expira; quando falha, mostramos o selo.
+// A URL da foto de perfil do Instagram expira e costuma bloquear hotlink.
+// Servimos uma cópia em cache pela própria API; o fallback cobre falhas.
+const avatarUrl = computed(() =>
+  instagram.value.state?.profilePictureUrl ? '/api/admin/instagram/avatar' : null
+)
+
 const avatarFailed = ref(false)
 
-watch(
-  () => instagram.value.state?.profilePictureUrl,
-  () => {
-    avatarFailed.value = false
-  }
-)
+watch(avatarUrl, () => {
+  avatarFailed.value = false
+})
 
 useErrorToast(error, 'Não foi possível carregar o painel.')
 
@@ -443,7 +451,7 @@ async function generatePdf() {
 
 .dashboard-insights {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 0.75rem;
   margin-top: 1rem;
 }

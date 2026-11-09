@@ -11,68 +11,144 @@
       <div class="instagram-section__head instagram-section__head--action">
         <div>
           <h2 class="instagram-section__title">Desempenho</h2>
-          <p class="instagram-section__hint">Números do último dia e evolução ao longo do tempo</p>
+          <p class="instagram-section__hint">Números acumulados do período escolhido e evolução ao longo do tempo</p>
         </div>
 
-        <RouterLink class="admin-btn admin-btn--small" :to="{ name: 'AdminPublish' }">
-          Publicar no Instagram
-        </RouterLink>
+        <div class="instagram-section__actions">
+          <label class="instagram-period" for="instagram-period">
+            <span class="instagram-period__label">Período</span>
+            <select id="instagram-period" v-model.number="selectedDays" class="admin-select instagram-period__select">
+              <option v-for="option in insightDayOptions" :key="option" :value="option">
+                Últimos {{ option }} dias
+              </option>
+            </select>
+          </label>
+
+          <RouterLink class="admin-btn admin-btn--small" :to="{ name: 'AdminPublish' }">
+            Publicar no Instagram
+          </RouterLink>
+        </div>
       </div>
 
       <section class="admin-card instagram-metrics">
         <div class="admin-card__header">
           <div>
-            <h2 class="admin-card__title"><AdminIcon name="activity" /> Números do último snapshot</h2>
+            <h2 class="admin-card__title"><AdminIcon name="activity" /> Insights do período</h2>
             <p class="admin-card__hint">
-              {{ latest ? `Coletado em ${formatDateTime(latest.capturedAt)}` : 'Nenhuma coleta bem-sucedida ainda' }}
+              <template v-if="period?.from">
+                {{ formatDate(period.from) }} a {{ formatDate(period.to) }} · {{ formatNumber(period.samples) }} coletas
+              </template>
+              <template v-else>Nenhuma coleta bem-sucedida ainda</template>
             </p>
           </div>
-          <span v-if="latest" class="admin-tag">{{ latest.source }}</span>
+          <span v-if="latest" class="admin-tag">
+            Última coleta {{ formatDateTime(latest.capturedAt) }}
+          </span>
         </div>
 
-        <div v-if="latest" class="admin-stats" :style="statsStyle(10)">
+        <div v-if="latest" class="admin-stats" :style="statsStyle(6)">
           <AdminStatCard icon="users" label="Seguidores" :value="formatNumber(latest.followers)" />
+          <AdminStatCard icon="userPlus" label="Seguindo" :value="formatNumber(state.followsCount)" />
           <AdminStatCard icon="image" label="Publicações" :value="formatNumber(latest.posts)" />
-          <AdminStatCard icon="eye" label="Alcance" :value="metric(latest.reach)" hint="último dia" />
-          <AdminStatCard icon="userCheck" label="Visitas ao perfil" :value="metric(latest.profileViews)" hint="último dia" />
-          <AdminStatCard icon="heart" label="Contas engajadas" :value="metric(latest.accountsEngaged)" hint="último dia" />
-          <AdminStatCard icon="userPlus" label="Novos seguidores" :value="metric(latest.newFollowers)" hint="último dia" />
-          <AdminStatCard icon="bookmark" label="Salvamentos" :value="metric(latest.saves)" hint="último dia" />
-          <AdminStatCard icon="share" label="Compartilhamentos" :value="metric(latest.shares)" hint="último dia" />
-          <AdminStatCard icon="activity" label="Interações totais" :value="metric(latest.totalInteractions)" hint="último dia" />
-          <AdminStatCard icon="cursor" label="Cliques no site" :value="metric(latest.websiteClicks)" hint="último dia" />
+          <AdminStatCard
+            icon="eye"
+            label="Visualizações"
+            :value="metric(period?.views)"
+            :hint="`últimos ${selectedDays} dias`"
+          />
+          <AdminStatCard
+            icon="activity"
+            label="Interações"
+            :value="metric(period?.interactions)"
+            :hint="`últimos ${selectedDays} dias`"
+          />
+          <AdminStatCard
+            icon="trendingUp"
+            label="Seguidores líquidos"
+            :value="formatSigned(period?.netFollowers)"
+            :hint="`últimos ${selectedDays} dias`"
+          />
         </div>
 
         <p v-else class="admin-empty">
           Configure o token nas configurações abaixo para iniciar o histórico do Instagram.
         </p>
+
+        <div v-if="period && period.samples > 0" class="instagram-insights">
+          <div class="instagram-insight">
+            <span class="instagram-insight__label">Engajamento</span>
+            <strong class="instagram-insight__value">{{ formatPercent(engagementRate) }}</strong>
+            <span class="instagram-insight__hint">interações ÷ visualizações do período</span>
+          </div>
+
+          <div class="instagram-insight">
+            <span class="instagram-insight__label">Novos seguidores</span>
+            <strong class="instagram-insight__value">{{ formatSigned(period.newFollowers) }}</strong>
+            <span class="instagram-insight__hint">
+              saldo de {{ formatSigned(period.netFollowers) }} no período
+            </span>
+          </div>
+
+          <div class="instagram-insight">
+            <span class="instagram-insight__label">Origem das views</span>
+            <strong class="instagram-insight__value">
+              {{ period.viewsSource === 'account' ? 'Conta' : period.viewsSource === 'partial' ? 'Misto' : 'Publicações' }}
+            </strong>
+            <span class="instagram-insight__hint">
+              {{
+                period.viewsSource === 'account'
+                  ? 'soma das visualizações diárias da conta'
+                  : period.viewsSource === 'partial'
+                    ? 'views da conta desde o início da coleta + variação das publicações'
+                    : 'variação das views das publicações recentes'
+              }}
+            </span>
+          </div>
+        </div>
+
+        <div v-if="period?.followers != null && period?.samples > 0" class="instagram-audience">
+          <div class="instagram-audience__head">
+            <span class="instagram-insight__label">Views por tipo de conta</span>
+            <strong class="instagram-audience__value">
+              {{ formatPercent(period.followers) }} seguidores
+              <span>· {{ formatPercent(period.nonFollowers) }} não seguidores</span>
+            </strong>
+          </div>
+          <div
+            class="instagram-audience__bar"
+            role="img"
+            :aria-label="`${period.followers}% das views de seguidores e ${period.nonFollowers}% de não seguidores`"
+          >
+            <span :style="{ width: `${period.followers}%` }"></span>
+          </div>
+        </div>
       </section>
 
-      <div v-if="history.length >= 2" class="admin-grid-2 instagram-charts">
+      <div v-if="periodHistory.length >= 2" class="admin-grid-2 instagram-charts">
         <section class="admin-card">
-          <AdminSparkline label="Seguidores" :values="history.map((point) => point.followers)" />
+          <AdminSparkline :label="`Seguidores · ${selectedDays} dias`" :values="periodHistory.map((point) => point.followers)" />
         </section>
 
         <section class="admin-card">
           <AdminSparkline
-            label="Alcance"
-            :values="history.map((point) => point.reach)"
+            :label="`Alcance · ${selectedDays} dias`"
+            :values="periodHistory.map((point) => point.reach)"
             color="#2f6f4f"
           />
         </section>
 
         <section class="admin-card">
           <AdminSparkline
-            label="Visitas ao perfil"
-            :values="history.map((point) => point.profileViews)"
+            :label="`Visitas ao perfil · ${selectedDays} dias`"
+            :values="periodHistory.map((point) => point.profileViews)"
             color="#3f5f9a"
           />
         </section>
 
         <section class="admin-card">
           <AdminSparkline
-            label="Views recentes"
-            :values="history.map((point) => point.recentViews)"
+            :label="`Views recentes · ${selectedDays} dias`"
+            :values="periodHistory.map((point) => point.recentViews)"
             color="#9a5b2f"
           />
         </section>
@@ -356,11 +432,15 @@ function statsStyle(count) {
     '--stat-cols-sm': statColumns(count, 2)
   }
 }
-import { formatDateTime, formatNumber } from '@/utils/format.js'
+import { formatDate, formatDateTime, formatNumber } from '@/utils/format.js'
 import AdminInput from '@/components/admin/AdminInput.vue'
 
 const queryClient = useQueryClient()
 const toast = useAdminToast()
+
+// O mesmo recorte de período usado no dashboard e no PDF.
+const insightDayOptions = [7, 30, 90]
+const selectedDays = ref(90)
 
 const {
   data,
@@ -368,8 +448,8 @@ const {
   isError,
   error
 } = useQuery({
-  queryKey: ['admin-instagram'],
-  queryFn: () => adminService.getInstagram()
+  queryKey: ['admin-instagram', selectedDays],
+  queryFn: () => adminService.getInstagram(selectedDays.value)
 })
 
 const state = computed(() => data.value?.state || {})
@@ -385,8 +465,20 @@ useErrorToast(
 )
 const latest = computed(() => data.value?.latest || null)
 const history = computed(() => data.value?.history || [])
+const periodHistory = computed(() => history.value.slice(-selectedDays.value))
 const refreshWindowDays = computed(() => data.value?.state?.refreshWindowDays || 7)
 const demographics = computed(() => data.value?.demographics || {})
+const insights = computed(() => data.value?.insights || {})
+const period = computed(() => insights.value.selected || null)
+
+const engagementRate = computed(() => {
+  const views = Number(period.value?.views)
+  const interactions = Number(period.value?.interactions)
+
+  if (!Number.isFinite(views) || views <= 0 || !Number.isFinite(interactions)) return null
+
+  return (interactions / views) * 100
+})
 
 const mediaPage = ref(1)
 const attemptsPage = ref(1)
@@ -425,6 +517,26 @@ function topDemographics(breakdown, limit = 5) {
 function metric(value) {
   if (value === null || value === undefined) return '—'
   return formatNumber(value)
+}
+
+function formatSigned(value) {
+  if (value === null || value === undefined || value === '') return '—'
+
+  const numeric = Number(value)
+
+  if (!Number.isFinite(numeric)) return '—'
+
+  return `${numeric >= 0 ? '+' : ''}${formatNumber(numeric)}`
+}
+
+function formatPercent(value) {
+  if (value === null || value === undefined) return '—'
+
+  const numeric = Number(value)
+
+  if (!Number.isFinite(numeric)) return '—'
+
+  return `${new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 }).format(numeric)}%`
 }
 
 const tokenExpiringSoon = computed(() => {
@@ -629,5 +741,133 @@ async function removeToken() {
   max-width: 320px;
   word-break: break-word;
   color: var(--muted);
+}
+
+.instagram-section__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.instagram-period {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.instagram-period__label {
+  color: var(--muted);
+  font-family: system-ui, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.instagram-period__select {
+  width: auto;
+  min-width: 160px;
+  min-height: 36px;
+  padding: 0.35rem 0.6rem;
+  font-family: system-ui, sans-serif;
+  font-size: 0.8rem;
+}
+
+.instagram-insights {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.instagram-insight {
+  display: grid;
+  align-content: start;
+  gap: 0.3rem;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-muted);
+}
+
+.instagram-insight__label {
+  color: var(--muted);
+  font-family: system-ui, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.instagram-insight__value {
+  color: var(--primary);
+  font-family: 'Gilda Display', serif;
+  font-size: 1.5rem;
+  font-weight: normal;
+  line-height: 1.05;
+}
+
+.instagram-insight__hint {
+  color: var(--muted);
+  font-family: system-ui, sans-serif;
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.instagram-audience {
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
+}
+
+.instagram-audience__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.instagram-audience__value {
+  color: var(--primary);
+  font-family: 'Gilda Display', serif;
+  font-size: 1rem;
+  font-weight: normal;
+}
+
+.instagram-audience__value span {
+  color: var(--muted);
+  font-family: system-ui, sans-serif;
+  font-size: 0.78rem;
+}
+
+.instagram-audience__bar {
+  height: 8px;
+  margin-top: 0.5rem;
+  overflow: hidden;
+  border-radius: 99px;
+  background: var(--border);
+}
+
+.instagram-audience__bar span {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: var(--primary);
+}
+
+@media (max-width: 720px) {
+  .instagram-section__actions {
+    width: 100%;
+  }
+
+  .instagram-period {
+    flex: 1 1 100%;
+  }
+
+  .instagram-period__select {
+    flex: 1;
+  }
 }
 </style>

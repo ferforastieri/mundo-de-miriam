@@ -215,27 +215,36 @@
         <h2>Alcance e engajamento</h2>
       </div>
 
-      <div class="mk-insights">
-        <article v-for="period in insightPeriods" :key="period.days" class="mk-insight-card">
-          <header>
-            <p class="mk-eyebrow">Últimos</p>
-            <h3>{{ period.days }} dias</h3>
+      <div v-if="selectedInsight" class="mk-insights">
+        <article class="mk-insight-card mk-insight-card--featured">
+          <header class="mk-insight-card__head">
+            <div>
+              <p class="mk-eyebrow">Últimos {{ selectedInsight.days }} dias</p>
+              <h3>Desempenho no período</h3>
+            </div>
+            <span v-if="selectedInsight.from" class="mk-insight-range">
+              {{ dateRange(selectedInsight) }} · {{ selectedInsight.samples }} coletas
+            </span>
           </header>
 
-          <div v-if="period.samples > 0" class="mk-insight-values">
-            <div class="mk-insight-value mk-insight-value--wide">
-              <strong>{{ number(period.views) }}</strong>
+          <div v-if="selectedInsight.samples > 0" class="mk-insight-values">
+            <div class="mk-insight-value">
+              <strong>{{ number(selectedInsight.views) }}</strong>
               <span>visualizações</span>
             </div>
             <div class="mk-insight-value">
-              <strong>{{ compact(period.interactions) }}</strong>
+              <strong>{{ compact(selectedInsight.interactions) }}</strong>
               <span>interações</span>
             </div>
             <div class="mk-insight-value">
+              <strong>{{ engagementRate(selectedInsight) }}</strong>
+              <span>engajamento</span>
+            </div>
+            <div class="mk-insight-value">
               <strong>
-                {{ period.netFollowers != null ? signed(period.netFollowers) : signed(period.newFollowers) }}
+                {{ selectedInsight.netFollowers != null ? signed(selectedInsight.netFollowers) : signed(selectedInsight.newFollowers) }}
               </strong>
-              <span>{{ period.netFollowers != null ? 'seguidores líquidos' : 'novos seguidores' }}</span>
+              <span>{{ selectedInsight.netFollowers != null ? 'seguidores líquidos' : 'novos seguidores' }}</span>
             </div>
           </div>
 
@@ -243,19 +252,43 @@
             Sem dados coletados neste período.
           </p>
 
-          <div v-if="period.samples > 0 && period.followers != null" class="mk-audience">
+          <div v-if="selectedInsight.samples > 0 && selectedInsight.followers != null" class="mk-audience">
             <div class="mk-audience__bar">
-              <span :style="{ width: `${period.followers}%` }"></span>
+              <span :style="{ width: `${selectedInsight.followers}%` }"></span>
             </div>
             <div class="mk-audience__labels">
-              <span>{{ period.followers }}% seguidores</span>
-              <span>{{ period.nonFollowers }}% não seguidores</span>
+              <span>{{ selectedInsight.followers }}% views de seguidores</span>
+              <span>{{ selectedInsight.nonFollowers }}% views de não seguidores</span>
             </div>
           </div>
-          <p v-else-if="period.samples > 0" class="mk-empty mk-empty--small">
+          <p v-else-if="selectedInsight.samples > 0" class="mk-empty mk-empty--small">
             Detalhamento por seguidores indisponível.
           </p>
         </article>
+
+        <div v-if="comparisonPeriods.length" class="mk-insight-compare">
+          <article v-for="period in comparisonPeriods" :key="period.days" class="mk-insight-mini">
+            <span class="mk-eyebrow">{{ period.days }} dias</span>
+            <strong>{{ compact(period.views) }}</strong>
+            <span>visualizações</span>
+            <span class="mk-insight-mini__meta">{{ compact(period.interactions) }} interações</span>
+          </article>
+        </div>
+      </div>
+
+      <div class="mk-summary">
+        <div>
+          <strong>{{ partnerships.done?.length || 0 }}</strong>
+          <span>marcas parceiras</span>
+        </div>
+        <div>
+          <strong>{{ partnerships.closed?.length || 0 }}</strong>
+          <span>parcerias fechadas</span>
+        </div>
+        <div>
+          <strong>{{ number(profile.posts) }}</strong>
+          <span>publicações no Instagram</span>
+        </div>
       </div>
 
       <div class="mk-about">
@@ -379,13 +412,41 @@ const proposalSections = computed(() => [
 ])
 
 // O PDF reproduz exatamente o período escolhido no filtro do painel.
-const insightPeriods = computed(() => {
-  const selected = insights.value.selected
+// Os outros períodos aparecem como comparação compacta.
+const allInsights = computed(() => {
+  const options = insights.value.options
 
-  if (selected) return [selected]
+  if (Array.isArray(options) && options.length) return options
 
-  return [insights.value.last90Days, insights.value.last30Days].filter(Boolean)
+  return [insights.value.last7Days, insights.value.last30Days, insights.value.last90Days].filter(Boolean)
 })
+
+const selectedInsight = computed(
+  () => insights.value.selected || allInsights.value.find((period) => period.days === 30) || allInsights.value[0] || null
+)
+
+const comparisonPeriods = computed(() => {
+  const selectedDays = selectedInsight.value?.days
+
+  return allInsights.value.filter((period) => period.days !== selectedDays)
+})
+
+function dateRange(period) {
+  if (!period?.from || !period?.to) return ''
+
+  const formatter = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short' })
+
+  return `${formatter.format(new Date(period.from))} – ${formatter.format(new Date(period.to))}`
+}
+
+function engagementRate(period) {
+  const views = Number(period?.views)
+  const interactions = Number(period?.interactions)
+
+  if (!Number.isFinite(views) || views <= 0 || !Number.isFinite(interactions)) return '—'
+
+  return `${new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 }).format((interactions / views) * 100)}%`
+}
 
 function number(value) {
   const numeric = Number(value)
@@ -1110,9 +1171,133 @@ defineExpose({ generate })
 }
 
 .mk-page--profile .mk-profile-card {
-  flex: 1 1 0;
+  flex: 0 0 auto;
   min-height: 0;
 }
+
+.mk-page--profile .mk-insights {
+  flex: 0 0 auto;
+}
+
+.mk-insights {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  align-items: stretch;
+  gap: 3mm;
+  margin-top: 3mm;
+}
+
+.mk-insight-card {
+  display: flex;
+  flex-direction: column;
+  padding: 5mm;
+  border: 1px solid rgba(85, 34, 0, 0.16);
+  border-radius: 4mm;
+  background: linear-gradient(160deg, #fffdf9 0%, #f8ecdf 100%);
+  box-shadow: 0 2.5mm 6mm rgba(85, 34, 0, 0.1);
+}
+
+.mk-insight-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 4mm;
+}
+
+.mk-insight-card__head h3 {
+  margin: 0.6mm 0 0;
+  color: #552200;
+  font-size: 5mm;
+  font-weight: 400;
+  line-height: 1.05;
+}
+
+.mk-insight-range {
+  flex: 0 0 auto;
+  max-width: 50mm;
+  color: #8a6a58;
+  font-family: system-ui, sans-serif;
+  font-size: 2.1mm;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  text-align: right;
+}
+
+.mk-insight-values {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4mm;
+  margin-top: 4.5mm;
+}
+
+.mk-insight-value strong {
+  display: block;
+  color: #552200;
+  font-size: 6.6mm;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.mk-insight-value span {
+  display: block;
+  margin-top: 0.9mm;
+  color: #8a6a58;
+  font-family: system-ui, sans-serif;
+  font-size: 2.2mm;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.mk-insight-compare {
+  display: grid;
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 3mm;
+}
+
+.mk-insight-mini {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4mm;
+  border: 1px solid rgba(85, 34, 0, 0.14);
+  border-radius: 4mm;
+  background: #f9eee3;
+}
+
+.mk-insight-mini strong {
+  display: block;
+  margin-top: 1.2mm;
+  color: #552200;
+  font-size: 5.4mm;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.mk-insight-mini > span:not(.mk-eyebrow):not(.mk-insight-mini__meta) {
+  display: block;
+  margin-top: 0.7mm;
+  color: #8a6a58;
+  font-family: system-ui, sans-serif;
+  font-size: 2.1mm;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.mk-insight-mini__meta {
+  display: block;
+  margin-top: 2mm;
+  color: #6b4a38;
+  font-family: system-ui, sans-serif;
+  font-size: 2.2mm;
+}
+
+.mk-audience {
+  margin-top: 4mm;
+}
+
 
 .mk-profile-card {
   position: relative;
@@ -1213,77 +1398,6 @@ defineExpose({ generate })
   line-height: 1;
 }
 
-.mk-page--profile .mk-insights {
-  flex: 1.35 1 0;
-  min-height: 0;
-}
-
-.mk-insights {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3mm;
-  margin-top: 3mm;
-}
-
-.mk-insight-card {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 4mm;
-  border: 1px solid rgba(85, 34, 0, 0.16);
-  border-radius: 4mm;
-  background: linear-gradient(160deg, #fffdf9 0%, #f8ecdf 100%);
-  box-shadow: 0 2.5mm 6mm rgba(85, 34, 0, 0.1);
-}
-
-.mk-insight-card:only-child {
-  grid-column: 1 / -1;
-}
-
-.mk-insight-card header h3 {
-  margin: 0;
-  color: #552200;
-  font-size: 5mm;
-  font-weight: 400;
-  line-height: 1;
-}
-
-.mk-insight-values {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3mm;
-  margin-top: 3mm;
-}
-
-.mk-insight-value--wide {
-  grid-column: 1 / -1;
-}
-
-.mk-insight-value strong {
-  display: block;
-  color: #552200;
-  font-size: 7.2mm;
-  font-weight: 400;
-  letter-spacing: -0.02em;
-  line-height: 1;
-}
-
-.mk-insight-value span {
-  display: block;
-  margin-top: 0.8mm;
-  color: #8a6a58;
-  font-family: system-ui, sans-serif;
-  font-size: 2.2mm;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.mk-audience {
-  margin-top: 3mm;
-}
-
 .mk-audience__bar {
   height: 2.5mm;
   overflow: hidden;
@@ -1305,6 +1419,40 @@ defineExpose({ generate })
   color: #6b4a38;
   font-family: system-ui, sans-serif;
   font-size: 2.1mm;
+}
+
+.mk-summary {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 3mm;
+  margin-top: 4mm;
+}
+
+.mk-summary div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 3.5mm 4mm;
+  border: 1px solid rgba(85, 34, 0, 0.12);
+  border-radius: 3.5mm;
+  background: rgba(255, 248, 241, 0.72);
+}
+
+.mk-summary strong {
+  color: #552200;
+  font-size: 5.2mm;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.mk-summary span {
+  margin-top: 1mm;
+  color: #8a6a58;
+  font-family: system-ui, sans-serif;
+  font-size: 2.1mm;
+  letter-spacing: 0.04em;
 }
 
 .mk-about {
@@ -1334,5 +1482,15 @@ defineExpose({ generate })
   font-family: system-ui, sans-serif;
   font-size: 2.6mm;
   line-height: 1.55;
+}
+
+/* A terceira página distribui os blocos no espaço disponível, sem esticar
+   um único cartão e deixar um vazio no meio dele. */
+.mk-page--profile {
+  justify-content: space-between;
+}
+
+.mk-page--profile .mk-about {
+  flex: 0 0 auto;
 }
 </style>

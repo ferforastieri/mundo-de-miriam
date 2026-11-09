@@ -46,7 +46,12 @@ export function buildServer() {
     reply.header('referrer-policy', 'strict-origin-when-cross-origin')
 
     if (request.url.startsWith('/api/admin')) {
-      reply.header('cache-control', 'no-store')
+      // A foto de perfil vem de um cache próprio e pode ser reaproveitada.
+      const cacheControl = request.url.startsWith('/api/admin/instagram/avatar')
+        ? 'private, max-age=1800'
+        : 'no-store'
+
+      reply.header('cache-control', cacheControl)
     }
 
     return payload

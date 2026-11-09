@@ -187,12 +187,29 @@ function insightsToMap(payload) {
   return map
 }
 
+/**
+ * Janela do dia corrente. Sem since/until a API pode devolver um intervalo
+ * maior (rolagem de 30 dias), o que infla a soma diária dos insights.
+ */
+function currentDayWindow() {
+  const now = new Date()
+  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
+
+  return {
+    since: Math.floor(start.getTime() / 1000),
+    until: Math.floor(now.getTime() / 1000)
+  }
+}
+
 export async function fetchAccountInsights(token, userId) {
+  const window = currentDayWindow()
+
   const attempt = async (metrics, extra = {}) => {
     const payload = await requestJson(
       graphUrl(`${userId}/insights`, {
         metric: metrics.join(','),
         period: 'day',
+        ...window,
         ...extra,
         access_token: token
       })
@@ -235,10 +252,13 @@ export async function fetchAccountInsights(token, userId) {
  * não expõem esse detalhamento; quem chama deve tratar a falha como opcional.
  */
 export async function fetchViewsByFollowType(token, userId) {
+  const window = currentDayWindow()
+
   const payload = await requestJson(
     graphUrl(`${userId}/insights`, {
       metric: 'views',
       period: 'day',
+      ...window,
       metric_type: 'total_value',
       breakdown: 'follow_type',
       access_token: token

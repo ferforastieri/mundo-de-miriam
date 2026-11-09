@@ -229,6 +229,12 @@ export async function refreshInstagramStats(container, { source = 'manual' } = {
       profilePictureUrl: profile.profile_picture_url || state?.profile_picture_url || null
     })
 
+    // Mantém uma cópia local: a URL do Instagram é assinada e expira.
+    await storeProfilePicture(
+      container,
+      profile.profile_picture_url || state?.profile_picture_url || null
+    )
+
     await syncRecentMedia(container, token, media, now)
 
     if (Number(profile.followers_count || 0) >= 100) {
