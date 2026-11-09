@@ -411,8 +411,7 @@ const proposalSections = computed(() => [
   }
 ])
 
-// O PDF reproduz exatamente o período escolhido no filtro do painel.
-// Os outros períodos aparecem como comparação compacta.
+// Os períodos disponíveis servem de comparação compacta no rodapé do card.
 const allInsights = computed(() => {
   const options = insights.value.options
 
@@ -421,8 +420,10 @@ const allInsights = computed(() => {
   return [insights.value.last7Days, insights.value.last30Days, insights.value.last90Days].filter(Boolean)
 })
 
+// O PDF usa sempre o recorte de 90 dias — o mesmo período exibido no
+// Instagram e o que serve de referência para o material de apresentação.
 const selectedInsight = computed(
-  () => insights.value.selected || allInsights.value.find((period) => period.days === 30) || allInsights.value[0] || null
+  () => insights.value.last90Days || allInsights.value.find((period) => period.days === 90) || allInsights.value[0] || null
 )
 
 const comparisonPeriods = computed(() => {
@@ -1484,13 +1485,14 @@ defineExpose({ generate })
   line-height: 1.55;
 }
 
-/* A terceira página distribui os blocos no espaço disponível, sem esticar
-   um único cartão e deixar um vazio no meio dele. */
+/* A terceira página empilha os blocos de cima para baixo: o bloco "Sobre"
+   absorve a sobra de altura, então não sobram faixas em branco entre os
+   cards. */
 .mk-page--profile {
-  justify-content: space-between;
+  justify-content: flex-start;
 }
 
 .mk-page--profile .mk-about {
-  flex: 0 0 auto;
+  flex: 1 1 auto;
 }
 </style>

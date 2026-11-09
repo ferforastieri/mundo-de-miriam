@@ -15,14 +15,14 @@
         </div>
 
         <div class="instagram-section__actions">
-          <label class="instagram-period" for="instagram-period">
+          <div class="instagram-period">
             <span class="instagram-period__label">Período</span>
-            <select id="instagram-period" v-model.number="selectedDays" class="admin-select instagram-period__select">
-              <option v-for="option in insightDayOptions" :key="option" :value="option">
-                Últimos {{ option }} dias
-              </option>
-            </select>
-          </label>
+            <AdminSelect
+              v-model="selectedDays"
+              :options="periodOptions"
+              aria-label="Período do Instagram"
+            />
+          </div>
 
           <RouterLink class="admin-btn admin-btn--small" :to="{ name: 'AdminPublish' }">
             Publicar no Instagram
@@ -422,6 +422,7 @@ import AdminSparkline from '@/components/admin/AdminSparkline.vue'
 import ConfirmDialog from '@/components/admin/ConfirmDialog.vue'
 import AdminSkeleton from '@/components/admin/AdminSkeleton.vue'
 import AdminIcon from '@/components/admin/AdminIcon.vue'
+import AdminSelect from '@/components/admin/AdminSelect.vue'
 import PaginationBar from '@/components/admin/PaginationBar.vue'
 import { statColumns } from '@/utils/grid.js'
 import { useErrorToast } from '@/composables/useErrorToast'
@@ -440,6 +441,7 @@ const toast = useAdminToast()
 
 // O mesmo recorte de período usado no dashboard e no PDF.
 const insightDayOptions = [7, 30, 90]
+const periodOptions = insightDayOptions.map((days) => ({ value: days, label: `Últimos ${days} dias` }))
 const selectedDays = ref(90)
 
 const {
@@ -756,6 +758,10 @@ async function removeToken() {
   gap: 0.45rem;
 }
 
+.instagram-period :deep(.admin-select-field) {
+  width: 168px;
+}
+
 .instagram-period__label {
   color: var(--muted);
   font-family: system-ui, sans-serif;
@@ -763,15 +769,6 @@ async function removeToken() {
   font-weight: 700;
   letter-spacing: 0.09em;
   text-transform: uppercase;
-}
-
-.instagram-period__select {
-  width: auto;
-  min-width: 160px;
-  min-height: 36px;
-  padding: 0.35rem 0.6rem;
-  font-family: system-ui, sans-serif;
-  font-size: 0.8rem;
 }
 
 .instagram-insights {
@@ -864,10 +861,6 @@ async function removeToken() {
 
   .instagram-period {
     flex: 1 1 100%;
-  }
-
-  .instagram-period__select {
-    flex: 1;
   }
 }
 </style>

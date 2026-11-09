@@ -47,6 +47,10 @@ export function registerInstagramRoutes(app) {
     return listInstagramMedia(getContainer(), request.query)
   })
 
+  app.get('/api/admin/instagram/avatar', { preHandler: requireAdmin }, async (request, reply) => {
+    return serveInstagramAvatar(getContainer(), reply)
+  })
+
   app.get('/api/admin/instagram/attempts', { preHandler: requireAdmin }, async (request) => {
     return listInstagramAttempts(getContainer(), request.query)
   })

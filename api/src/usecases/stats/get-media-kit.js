@@ -150,9 +150,9 @@ export async function getMediaKit(container, options = {}) {
     'artistic'
   )
 
-  // O PDF usa exatamente o mesmo recorte do painel: o período escolhido
-  // no filtro, além dos blocos fixos de 7/30/90 dias.
-  const insights = buildInsightPeriods(history, demographics, options.days)
+  // O material de apresentação usa sempre o recorte de 90 dias — o mesmo
+  // período do Instagram que serve de referência para o PDF.
+  const insights = buildInsightPeriods(history, demographics, 90)
 
   return {
     generatedAt: nowIso(),

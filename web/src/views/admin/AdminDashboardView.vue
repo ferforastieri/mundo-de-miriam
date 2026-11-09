@@ -30,7 +30,7 @@
         <div class="admin-card__header">
           <div class="dashboard-instagram__identity">
             <img
-              v-if="instagram.state.profilePictureUrl && !avatarFailed"
+              v-if="avatarUrl && !avatarFailed"
               class="dashboard-instagram__avatar"
               :src="avatarUrl"
               alt=""
@@ -59,19 +59,11 @@
 
         <div class="dashboard-filters">
           <span class="dashboard-filters__label">Período</span>
-          <div class="dashboard-filters__group" role="group" aria-label="Filtrar Instagram por período">
-            <button
-              v-for="option in insightDayOptions"
-              :key="option"
-              type="button"
-              class="dashboard-filters__button"
-              :class="{ 'dashboard-filters__button--active': option === selectedDays }"
-              :aria-pressed="option === selectedDays"
-              @click="selectedDays = option"
-            >
-              {{ option }} dias
-            </button>
-          </div>
+          <AdminSelect
+            v-model="selectedDays"
+            :options="periodOptions"
+            aria-label="Filtrar Instagram por período"
+          />
           <span v-if="period?.to" class="dashboard-filters__range">
             {{ formatDate(period.from) }} a {{ formatDate(period.to) }} · {{ formatNumber(period.samples) }} coletas
           </span>
@@ -237,6 +229,7 @@ import { useQuery } from '@tanstack/vue-query'
 import adminService from '@/api/admin/AdminService.js'
 import AdminSkeleton from '@/components/admin/AdminSkeleton.vue'
 import AdminIcon from '@/components/admin/AdminIcon.vue'
+import AdminSelect from '@/components/admin/AdminSelect.vue'
 import AdminStatCard from '@/components/admin/AdminStatCard.vue'
 import AdminSparkline from '@/components/admin/AdminSparkline.vue'
 import MediaKitDocument from '@/components/admin/MediaKitDocument.vue'
@@ -262,8 +255,9 @@ function formatSigned(value) {
   return `${numeric >= 0 ? '+' : ''}${formatNumber(numeric)}`
 }
 
-// O filtro de período é o mesmo recorte usado no PDF.
+// O filtro de período do painel. O PDF usa o recorte fixo de 90 dias.
 const insightDayOptions = [7, 30, 90]
+const periodOptions = insightDayOptions.map((days) => ({ value: days, label: `Últimos ${days} dias` }))
 const selectedDays = ref(90)
 
 const { data, isPending, isError, error, refetch } = useQuery({
@@ -292,9 +286,15 @@ function formatPercent(value) {
 
 // A URL da foto de perfil do Instagram expira e costuma bloquear hotlink.
 // Servimos uma cópia em cache pela própria API; o fallback cobre falhas.
-const avatarUrl = computed(() =>
-  instagram.value.state?.profilePictureUrl ? '/api/admin/instagram/avatar' : null
-)
+const avatarUrl = computed(() => {
+  const state = instagram.value.state || {}
+
+  // O endpoint resolve a URL atual com o token e mantém a imagem em cache;
+  // basta haver uma conta configurada para tentar exibir o avatar.
+  return state.profilePictureUrl || state.username || state.configured
+    ? '/api/admin/instagram/avatar'
+    : null
+})
 
 const avatarFailed = ref(false)
 
@@ -329,7 +329,7 @@ async function generatePdf() {
   mediaKit.value = null
 
   try {
-    mediaKit.value = await adminService.getMediaKit(selectedDays.value)
+    mediaKit.value = await adminService.getMediaKit()
     await nextTick()
 
     if (!mediaKitRef.value) {
@@ -390,6 +390,10 @@ async function generatePdf() {
   margin-top: 1rem;
 }
 
+.dashboard-filters :deep(.admin-select-field) {
+  width: 168px;
+}
+
 .dashboard-filters__label {
   color: var(--muted);
   font-family: system-ui, sans-serif;
@@ -397,36 +401,6 @@ async function generatePdf() {
   font-weight: 700;
   letter-spacing: 0.11em;
   text-transform: uppercase;
-}
-
-.dashboard-filters__group {
-  display: inline-flex;
-  padding: 3px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--surface-muted);
-}
-
-.dashboard-filters__button {
-  padding: 0.35rem 0.75rem;
-  border: 0;
-  border-radius: 999px;
-  background: transparent;
-  color: var(--muted);
-  font-family: system-ui, sans-serif;
-  font-size: 0.76rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-
-.dashboard-filters__button:hover {
-  color: var(--text);
-}
-
-.dashboard-filters__button--active {
-  background: var(--primary);
-  color: #fff;
 }
 
 .dashboard-filters__range {
