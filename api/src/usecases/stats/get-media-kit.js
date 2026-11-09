@@ -59,6 +59,9 @@ function buildProfile(state, latest, photos, screens, env) {
   const profilePhoto = profileScreen
     ? sortPhotos(imagesForScreen(photos, profileScreen.id))[0]
     : null
+  const hasInstagramAccount = Boolean(
+    state?.username || state?.profile_picture_url || state?.encrypted_token
+  )
 
   return {
     username: state?.username || env?.INSTAGRAM_USERNAME || null,
@@ -68,7 +71,7 @@ function buildProfile(state, latest, photos, screens, env) {
     profilePictureUrl: state?.profile_picture_url || null,
     avatarUrl: profilePhoto
       ? toPublicPhoto(profilePhoto).url
-      : state?.profile_picture_url
+      : hasInstagramAccount
         ? '/api/admin/instagram/avatar'
         : null,
     followers: latest?.followers ?? null,
@@ -78,7 +81,7 @@ function buildProfile(state, latest, photos, screens, env) {
 }
 
 export async function getMediaKit(container, options = {}) {
-  const [screens, groups, photos, allPhotos, latest, state, history, demographics] =
+  const [screens, groups, photos, allPhotos, latest, state, history, demographics, periodTotals] =
     await Promise.all([
       container.screens.listAll(),
       container.groups.listAll(),
@@ -87,7 +90,8 @@ export async function getMediaKit(container, options = {}) {
       container.instagram.latestSuccessful(),
       container.instagram.getState(),
       container.instagram.listSuccessfulSince(isoDaysAgo(90)),
-      container.instagram.listDemographics()
+      container.instagram.listDemographics(),
+      container.instagram.listPeriodTotals()
     ])
 
   const partnershipScreen =
@@ -152,7 +156,7 @@ export async function getMediaKit(container, options = {}) {
 
   // O material de apresentação usa sempre o recorte de 90 dias — o mesmo
   // período do Instagram que serve de referência para o PDF.
-  const insights = buildInsightPeriods(history, demographics, 90)
+  const insights = buildInsightPeriods(history, demographics, 90, periodTotals)
 
   return {
     generatedAt: nowIso(),

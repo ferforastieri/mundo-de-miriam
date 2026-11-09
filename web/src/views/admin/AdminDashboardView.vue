@@ -65,7 +65,12 @@
             aria-label="Filtrar Instagram por período"
           />
           <span v-if="period?.to" class="dashboard-filters__range">
-            {{ formatDate(period.from) }} a {{ formatDate(period.to) }} · {{ formatNumber(period.samples) }} coletas
+            <template v-if="period.source === 'instagram'">
+              {{ formatDate(period.from) }} a {{ formatDate(period.to) }} · total oficial do Instagram
+            </template>
+            <template v-else>
+              {{ formatDate(period.from) }} a {{ formatDate(period.to) }} · {{ formatNumber(period.samples) }} coletas
+            </template>
           </span>
         </div>
 
@@ -133,7 +138,7 @@
             </div>
           </article>
 
-          <article v-if="period && period.samples > 0" class="dashboard-insight">
+          <article v-if="period && (period.samples > 0 || period.source === 'instagram')" class="dashboard-insight">
             <span class="dashboard-insight__icon"><AdminIcon name="trendingUp" /></span>
             <div>
               <span class="dashboard-insight__label">Novos seguidores · {{ selectedDays }} dias</span>
@@ -149,18 +154,23 @@
             </div>
           </article>
 
-          <article v-if="period && period.samples > 0 && period.viewsSource !== 'account'" class="dashboard-insight">
+          <article
+            v-if="period && (period.samples > 0 || period.source === 'instagram') && period.viewsSource !== 'account'"
+            class="dashboard-insight"
+          >
             <span class="dashboard-insight__icon"><AdminIcon name="eye" /></span>
             <div>
               <span class="dashboard-insight__label">Origem das views</span>
               <strong class="dashboard-insight__value">
-                {{ period.viewsSource === 'partial' ? 'Misto' : 'Publicações' }}
+                {{ period.viewsSource === 'instagram' ? 'Instagram' : period.viewsSource === 'partial' ? 'Misto' : 'Publicações' }}
               </strong>
               <p class="dashboard-insight__hint">
                 {{
-                  period.viewsSource === 'partial'
-                    ? 'views da conta desde o início da coleta + variação das publicações'
-                    : 'variação das visualizações das publicações recentes'
+                  period.viewsSource === 'instagram'
+                    ? 'total oficial do período, igual ao app'
+                    : period.viewsSource === 'partial'
+                      ? 'views da conta desde o início da coleta + variação das publicações'
+                      : 'variação das visualizações das publicações recentes'
                 }}
               </p>
             </div>
@@ -387,11 +397,11 @@ async function generatePdf() {
   flex-wrap: wrap;
   align-items: center;
   gap: 0.6rem;
-  margin-top: 1rem;
+  margin: 1rem 0 1.15rem;
 }
 
 .dashboard-filters :deep(.admin-select-field) {
-  width: 168px;
+  width: 144px;
 }
 
 .dashboard-filters__label {

@@ -8,12 +8,13 @@ import { toScreen } from '../../mappers/screen.mapper.js'
 import { buildInsightPeriods } from './instagram-insights.js'
 
 export async function getDashboard(container, options = {}) {
-  const [latest, state, historyRows, demographics, totals, counts, recent, screens] =
+  const [latest, state, historyRows, demographics, periodTotals, totals, counts, recent, screens] =
     await Promise.all([
       container.instagram.latestSuccessful(),
       container.instagram.getState(),
       container.instagram.listSuccessfulSince(isoDaysAgo(90)),
       container.instagram.listDemographics(),
+      container.instagram.listPeriodTotals(),
       container.photos.totals(),
       container.photos.countsByScreen(),
       container.photos.recent(8),
@@ -39,7 +40,7 @@ export async function getDashboard(container, options = {}) {
       state: toInstagramState(state),
       latest: latest ? toInstagramHistoryPoint(latest) : null,
       history: history.map(toInstagramHistoryPoint),
-      insights: buildInsightPeriods(historyRows, demographics, options.days)
+      insights: buildInsightPeriods(historyRows, demographics, options.days, periodTotals)
     },
     photos: {
       totals,

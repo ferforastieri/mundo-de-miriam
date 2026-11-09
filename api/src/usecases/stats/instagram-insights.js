@@ -152,13 +152,101 @@ export function summarizePeriod(rows, days) {
   }
 }
 
+function numberOrNull(value) {
+  if (value === null || value === undefined) return null
+  const numeric = Number(value)
+  return Number.isFinite(numeric) ? numeric : null
+}
+
 /**
- * Monta os mesmos números para o painel e para o PDF, a partir do histórico.
- * Assim o PDF nunca diverge do que está na tela.
+ * Linha de `instagram_period_totals`: o total oficial que a API devolve para
+ * a janela, exatamente como o app do Instagram mostra.
  */
-export function buildInsightPeriods(rows, demographics, requestedDays) {
+function parsePeriodTotal(row) {
+  if (!row) return null
+
+  let payload
+
+  try {
+    payload = JSON.parse(row.payload || '{}')
+  } catch {
+    return null
+  }
+
+  const days = Number(row.days ?? payload.days)
+
+  if (!INSIGHT_DAY_OPTIONS.includes(days)) return null
+
+  return {
+    days,
+    capturedAt: payload.capturedAt || row.captured_at || null,
+    from: payload.from || row.window_from || null,
+    to: payload.to || row.window_to || null,
+    views: numberOrNull(payload.views),
+    interactions: numberOrNull(payload.interactions),
+    newFollowers: numberOrNull(payload.newFollowers),
+    netFollowers: numberOrNull(payload.netFollowers),
+    followers: numberOrNull(payload.followers),
+    nonFollowers: numberOrNull(payload.nonFollowers)
+  }
+}
+
+function mergeOfficialTotals(fallback, official) {
+  const keys = [
+    'views',
+    'interactions',
+    'newFollowers',
+    'netFollowers',
+    'followers',
+    'nonFollowers'
+  ]
+  const hasOfficial = keys.some(
+    (key) => official[key] !== null && official[key] !== undefined
+  )
+
+  if (!hasOfficial) return fallback
+
+  const merged = {
+    ...fallback,
+    source: 'instagram',
+    capturedAt: official.capturedAt,
+    from: official.from || fallback.from,
+    to: official.to || fallback.to
+  }
+
+  for (const key of keys) {
+    if (official[key] !== null && official[key] !== undefined) {
+      merged[key] = official[key]
+    }
+  }
+
+  // O total oficial de views já é o acumulado do período; não é uma soma
+  // de snapshots diários nem uma estimativa pelas publicações.
+  if (official.views !== null) {
+    merged.viewsSource = 'instagram'
+  }
+
+  return merged
+}
+
+/**
+ * Monta os mesmos números para o painel e para o PDF.
+ *
+ * Quando existe o total oficial do Instagram para a janela, ele tem
+ * prioridade sobre a soma dos snapshots — é o mesmo número do app. Os
+ * snapshots continuam servindo de reserva e para os gráficos.
+ */
+export function buildInsightPeriods(rows, demographics, requestedDays, periodTotals = []) {
   const days = resolveInsightDays(requestedDays)
   const split = audienceSplit(demographics)
+  const totalsByDays = new Map()
+
+  for (const row of periodTotals || []) {
+    const parsed = parsePeriodTotal(row)
+
+    if (parsed) totalsByDays.set(parsed.days, parsed)
+  }
+
   const periods = {}
 
   for (const option of INSIGHT_DAY_OPTIONS) {
@@ -169,7 +257,8 @@ export function buildInsightPeriods(rows, demographics, requestedDays) {
       summary.nonFollowers = split.nonFollowers
     }
 
-    periods[option] = summary
+    const official = totalsByDays.get(option)
+    periods[option] = official ? mergeOfficialTotals(summary, official) : summary
   }
 
   return {

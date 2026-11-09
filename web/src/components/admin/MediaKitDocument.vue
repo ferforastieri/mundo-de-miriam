@@ -223,11 +223,15 @@
               <h3>Desempenho no período</h3>
             </div>
             <span v-if="selectedInsight.from" class="mk-insight-range">
-              {{ dateRange(selectedInsight) }} · {{ selectedInsight.samples }} coletas
+              {{ dateRange(selectedInsight) }} ·
+              {{ selectedInsight.source === 'instagram' ? 'total oficial do Instagram' : `${selectedInsight.samples} coletas` }}
             </span>
           </header>
 
-          <div v-if="selectedInsight.samples > 0" class="mk-insight-values">
+          <div
+            v-if="selectedInsight.samples > 0 || selectedInsight.source === 'instagram'"
+            class="mk-insight-values"
+          >
             <div class="mk-insight-value">
               <strong>{{ number(selectedInsight.views) }}</strong>
               <span>visualizações</span>
@@ -252,7 +256,10 @@
             Sem dados coletados neste período.
           </p>
 
-          <div v-if="selectedInsight.samples > 0 && selectedInsight.followers != null" class="mk-audience">
+          <div
+            v-if="(selectedInsight.samples > 0 || selectedInsight.source === 'instagram') && selectedInsight.followers != null"
+            class="mk-audience"
+          >
             <div class="mk-audience__bar">
               <span :style="{ width: `${selectedInsight.followers}%` }"></span>
             </div>

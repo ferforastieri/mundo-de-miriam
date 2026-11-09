@@ -247,6 +247,180 @@ export async function fetchAccountInsights(token, userId) {
   return map
 }
 
+const PERIOD_METRICS = [
+  'views',
+  'total_interactions',
+  'likes',
+  'comments',
+  'shares',
+  'saves',
+  'profile_views',
+  'accounts_engaged',
+  'reach'
+]
+
+function periodWindow(days) {
+  const until = Math.floor(Date.now() / 1000)
+  const since = Math.floor((Date.now() - Math.max(1, days - 1) * 24 * 60 * 60 * 1000) / 1000)
+
+  return { since, until }
+}
+
+async function fetchTotalValues(token, userId, metrics, window) {
+  const payload = await requestJson(
+    graphUrl(`${userId}/insights`, {
+      metric: metrics.join(','),
+      period: 'day',
+      metric_type: 'total_value',
+      since: window.since,
+      until: window.until,
+      access_token: token
+    })
+  )
+
+  const totals = {}
+
+  for (const metric of payload?.data || []) {
+    const value = metric?.total_value?.value
+    const numeric = Number(value)
+
+    totals[metric.name] =
+      value !== null && value !== undefined && Number.isFinite(numeric) ? numeric : null
+  }
+
+  return totals
+}
+
+function breakdownValues(payload, metricName) {
+  const metric = (payload?.data || []).find((item) => item.name === metricName)
+  const results = metric?.total_value?.breakdowns?.[0]?.results || []
+
+  return results.map((item) => ({
+    key: String(item.dimension_values?.[0] || '').toUpperCase(),
+    value: Number(item.value) || 0
+  }))
+}
+
+function sumBreakdown(items, predicate) {
+  return items.filter(predicate).reduce((total, item) => total + item.value, 0)
+}
+
+function splitPercentages(followers, nonFollowers) {
+  const total = followers + nonFollowers
+
+  if (!total) return { followers: null, nonFollowers: null }
+
+  return {
+    followers: Math.round((followers / total) * 1000) / 10,
+    nonFollowers: Math.round((nonFollowers / total) * 1000) / 10
+  }
+}
+
+/**
+ * Totais oficiais do Instagram para uma janela de dias.
+ *
+ * O app mostra o acumulado do período; somar os snapshots diários não
+ * reproduz esse número (views e interações são contados de formas diferentes
+ * por dia). Com `metric_type=total_value` + `since/until` a própria API
+ * devolve o total do período, que é o mesmo número exibido no Instagram.
+ */
+export async function fetchPeriodTotals(token, userId, days) {
+  const window = periodWindow(days)
+  let totals = {}
+
+  try {
+    totals = await fetchTotalValues(token, userId, PERIOD_METRICS, window)
+  } catch {
+    // Uma métrica indisponível derruba o lote; busca cada uma isoladamente.
+    const results = await Promise.allSettled(
+      PERIOD_METRICS.map((metric) => fetchTotalValues(token, userId, [metric], window))
+    )
+
+    for (const result of results) {
+      if (result.status === 'fulfilled') Object.assign(totals, result.value)
+    }
+  }
+
+  // Views por seguidor/não seguidor e follows/unfollows usam o mesmo
+  // breakdown (`follow_type`), então cabem na mesma chamada.
+  let viewBreakdown = []
+  let followBreakdown = []
+
+  try {
+    const payload = await requestJson(
+      graphUrl(`${userId}/insights`, {
+        metric: 'views,follows_and_unfollows',
+        period: 'day',
+        metric_type: 'total_value',
+        breakdown: 'follow_type',
+        since: window.since,
+        until: window.until,
+        access_token: token
+      })
+    )
+
+    viewBreakdown = breakdownValues(payload, 'views')
+    followBreakdown = breakdownValues(payload, 'follows_and_unfollows')
+  } catch {
+    // Contas pequenas podem não expor o detalhamento; tenta separadamente.
+    for (const metric of ['views', 'follows_and_unfollows']) {
+      try {
+        const payload = await requestJson(
+          graphUrl(`${userId}/insights`, {
+            metric,
+            period: 'day',
+            metric_type: 'total_value',
+            breakdown: 'follow_type',
+            since: window.since,
+            until: window.until,
+            access_token: token
+          })
+        )
+
+        if (metric === 'views') viewBreakdown = breakdownValues(payload, 'views')
+        else followBreakdown = breakdownValues(payload, 'follows_and_unfollows')
+      } catch {
+        // Sem o recorte; segue sem ele.
+      }
+    }
+  }
+
+  const followerViews = sumBreakdown(
+    viewBreakdown,
+    (item) => item.key.includes('FOLLOWER') && !item.key.includes('NON')
+  )
+  const nonFollowerViews = sumBreakdown(viewBreakdown, (item) => item.key.includes('NON'))
+  const split = splitPercentages(followerViews, nonFollowerViews)
+
+  const follows = sumBreakdown(
+    followBreakdown,
+    (item) => item.key.includes('FOLLOW') && !item.key.includes('NON')
+  )
+  const unfollows = sumBreakdown(followBreakdown, (item) => item.key.includes('NON'))
+  const hasFollows = followBreakdown.length > 0
+
+  return {
+    days,
+    capturedAt: new Date().toISOString(),
+    from: new Date(window.since * 1000).toISOString(),
+    to: new Date(window.until * 1000).toISOString(),
+    views: totals.views ?? null,
+    interactions: totals.total_interactions ?? null,
+    likes: totals.likes ?? null,
+    comments: totals.comments ?? null,
+    shares: totals.shares ?? null,
+    saves: totals.saves ?? null,
+    profileViews: totals.profile_views ?? null,
+    accountsEngaged: totals.accounts_engaged ?? null,
+    reach: totals.reach ?? null,
+    newFollowers: hasFollows ? follows : null,
+    netFollowers: hasFollows ? follows - unfollows : null,
+    followers: split.followers,
+    nonFollowers: split.nonFollowers,
+    source: 'instagram'
+  }
+}
+
 /**
  * Views separadas entre seguidores e não seguidores. Alguns tipos de conta
  * não expõem esse detalhamento; quem chama deve tratar a falha como opcional.

@@ -243,6 +243,42 @@ export function createInstagramRepository(db) {
       return result.results || []
     },
 
+    async upsertPeriodTotals(total) {
+      await db
+        .prepare(
+          `INSERT INTO instagram_period_totals
+            (days, captured_at, window_from, window_to, payload)
+           VALUES (?, ?, ?, ?, ?)
+           ON CONFLICT(days) DO UPDATE SET
+             captured_at = excluded.captured_at,
+             window_from = excluded.window_from,
+             window_to = excluded.window_to,
+             payload = excluded.payload`
+        )
+        .bind(
+          total.days,
+          total.capturedAt,
+          total.from ?? null,
+          total.to ?? null,
+          JSON.stringify(total)
+        )
+        .run()
+    },
+
+    async listPeriodTotals() {
+      try {
+        const result = await db
+          .prepare('SELECT * FROM instagram_period_totals ORDER BY days ASC')
+          .all()
+
+        return result.results || []
+      } catch (error) {
+        // Enquanto a migration não roda, o painel segue com os snapshots.
+        console.warn('Totais por período indisponíveis:', error?.message || error)
+        return []
+      }
+    },
+
     async insertPublication(publication) {
       await db
         .prepare(

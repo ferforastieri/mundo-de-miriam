@@ -24,6 +24,16 @@
             />
           </div>
 
+          <button
+            class="admin-btn admin-btn--small"
+            type="button"
+            :disabled="refreshing"
+            @click="refreshNow"
+          >
+            <AdminIcon name="refresh" />
+            {{ refreshing ? 'Atualizando…' : 'Atualizar' }}
+          </button>
+
           <RouterLink class="admin-btn admin-btn--small" :to="{ name: 'AdminPublish' }">
             Publicar no Instagram
           </RouterLink>
@@ -35,7 +45,10 @@
           <div>
             <h2 class="admin-card__title"><AdminIcon name="activity" /> Insights do período</h2>
             <p class="admin-card__hint">
-              <template v-if="period?.from">
+              <template v-if="period?.source === 'instagram'">
+                {{ formatDate(period.from) }} a {{ formatDate(period.to) }} · total oficial do Instagram
+              </template>
+              <template v-else-if="period?.from">
                 {{ formatDate(period.from) }} a {{ formatDate(period.to) }} · {{ formatNumber(period.samples) }} coletas
               </template>
               <template v-else>Nenhuma coleta bem-sucedida ainda</template>
@@ -74,7 +87,7 @@
           Configure o token nas configurações abaixo para iniciar o histórico do Instagram.
         </p>
 
-        <div v-if="period && period.samples > 0" class="instagram-insights">
+        <div v-if="period && (period.samples > 0 || period.source === 'instagram')" class="instagram-insights">
           <div class="instagram-insight">
             <span class="instagram-insight__label">Engajamento</span>
             <strong class="instagram-insight__value">{{ formatPercent(engagementRate) }}</strong>
@@ -92,21 +105,23 @@
           <div class="instagram-insight">
             <span class="instagram-insight__label">Origem das views</span>
             <strong class="instagram-insight__value">
-              {{ period.viewsSource === 'account' ? 'Conta' : period.viewsSource === 'partial' ? 'Misto' : 'Publicações' }}
+              {{ period.viewsSource === 'instagram' ? 'Instagram' : period.viewsSource === 'account' ? 'Conta' : period.viewsSource === 'partial' ? 'Misto' : 'Publicações' }}
             </strong>
             <span class="instagram-insight__hint">
               {{
-                period.viewsSource === 'account'
-                  ? 'soma das visualizações diárias da conta'
-                  : period.viewsSource === 'partial'
-                    ? 'views da conta desde o início da coleta + variação das publicações'
-                    : 'variação das views das publicações recentes'
+                period.viewsSource === 'instagram'
+                  ? 'total oficial do período, igual ao app'
+                  : period.viewsSource === 'account'
+                    ? 'soma das visualizações diárias da conta'
+                    : period.viewsSource === 'partial'
+                      ? 'views da conta desde o início da coleta + variação das publicações'
+                      : 'variação das views das publicações recentes'
               }}
             </span>
           </div>
         </div>
 
-        <div v-if="period?.followers != null && period?.samples > 0" class="instagram-audience">
+        <div v-if="period?.followers != null && (period?.samples > 0 || period?.source === 'instagram')" class="instagram-audience">
           <div class="instagram-audience__head">
             <span class="instagram-insight__label">Views por tipo de conta</span>
             <strong class="instagram-audience__value">
@@ -443,6 +458,29 @@ const toast = useAdminToast()
 const insightDayOptions = [7, 30, 90]
 const periodOptions = insightDayOptions.map((days) => ({ value: days, label: `Últimos ${days} dias` }))
 const selectedDays = ref(90)
+const refreshing = ref(false)
+
+async function refreshNow() {
+  if (refreshing.value) return
+
+  refreshing.value = true
+
+  try {
+    const result = await adminService.refreshInstagram()
+
+    if (result?.ok) {
+      toast.success('Dados do Instagram atualizados.')
+      await queryClient.invalidateQueries({ queryKey: ['admin-instagram'] })
+      await queryClient.invalidateQueries({ queryKey: ['admin-dashboard'] })
+    } else {
+      toast.error(result?.message || 'Não foi possível atualizar os dados agora.')
+    }
+  } catch (error) {
+    toast.error(error?.message || 'Não foi possível atualizar os dados agora.')
+  } finally {
+    refreshing.value = false
+  }
+}
 
 const {
   data,
@@ -613,7 +651,7 @@ async function removeToken() {
 }
 
 .instagram-section__head {
-  margin: 1.5rem 0 0.75rem;
+  margin: 1.5rem 0 1.1rem;
 }
 
 .instagram-section__head:first-of-type {
@@ -759,7 +797,7 @@ async function removeToken() {
 }
 
 .instagram-period :deep(.admin-select-field) {
-  width: 168px;
+  width: 144px;
 }
 
 .instagram-period__label {

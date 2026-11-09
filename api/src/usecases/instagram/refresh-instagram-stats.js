@@ -7,6 +7,7 @@ import {
   fetchAccountInsights,
   fetchDemographics,
   fetchMediaInsights,
+  fetchPeriodTotals,
   fetchProfile,
   fetchRecentMedia,
   fetchRecentViews,
@@ -131,6 +132,24 @@ async function syncDemographics(container, token, userId, capturedAt) {
   }
 }
 
+/**
+ * Guarda o total oficial de 7, 30 e 90 dias. É esse recorte que o app do
+ * Instagram exibe; a soma dos snapshots diários não reproduz esse número.
+ */
+async function syncPeriodTotals(container, token, userId) {
+  for (const days of [7, 30, 90]) {
+    try {
+      const totals = await fetchPeriodTotals(token, userId, days)
+      await container.instagram.upsertPeriodTotals(totals)
+    } catch (error) {
+      console.warn(
+        `Não foi possível salvar os totais de ${days} dias:`,
+        error?.message || error
+      )
+    }
+  }
+}
+
 export async function refreshInstagramStats(container, { source = 'manual' } = {}) {
   const state = await container.instagram.getState()
   const now = nowIso()
@@ -240,6 +259,8 @@ export async function refreshInstagramStats(container, { source = 'manual' } = {
     if (Number(profile.followers_count || 0) >= 100) {
       await syncDemographics(container, token, userId, now)
     }
+
+    await syncPeriodTotals(container, token, userId)
 
     return { ok: true, snapshot }
   } catch (error) {

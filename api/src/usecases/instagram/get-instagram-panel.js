@@ -11,11 +11,12 @@ import { isoDaysAgo, nowIso } from '../../utils/dates.js'
 import { buildInsightPeriods } from '../stats/instagram-insights.js'
 
 export async function getInstagramPanel(container, options = {}) {
-  const [state, latest, history, demographics] = await Promise.all([
+  const [state, latest, history, demographics, periodTotals] = await Promise.all([
     container.instagram.getState(),
     container.instagram.latestSuccessful(),
     container.instagram.listSuccessfulSince(isoDaysAgo(90)),
-    container.instagram.listDemographics()
+    container.instagram.listDemographics(),
+    container.instagram.listPeriodTotals()
   ])
 
   const dailyHistory = buildDailyHistory(history)
@@ -32,7 +33,7 @@ export async function getInstagramPanel(container, options = {}) {
         }
       : null,
     history: dailyHistory,
-    insights: buildInsightPeriods(history, demographics, options.days),
+    insights: buildInsightPeriods(history, demographics, options.days, periodTotals),
     demographics: toInstagramDemographics(demographics),
     publishedLast24h: await container.instagram.countPublicationsSince(isoDaysAgo(1)),
     generatedAt: nowIso(),
