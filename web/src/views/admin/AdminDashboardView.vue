@@ -3,19 +3,23 @@
     <AdminSkeleton v-if="isPending" variant="dashboard" />
 
     <template v-else>
-      <section class="admin-card dashboard-media-kit">
-        <div class="admin-card__header">
-          <div>
-            <h2 class="admin-card__title"><AdminIcon name="download" /> Material de apresentação</h2>
-            <p class="admin-card__hint">
-              PDF com parcerias, propostas, perfil e insights do Instagram — tudo gerado com os dados do painel.
-            </p>
-          </div>
+      <header class="admin-page-header dashboard-header">
+        <div>
+          <h1 class="admin-title">Visão geral</h1>
+          <p class="admin-subtitle">
+            Acompanhe o Instagram, veja os últimos envios e baixe o material de apresentação.
+          </p>
+        </div>
 
+        <div class="dashboard-header__actions">
+          <p class="dashboard-pdf-hint">
+            PDF com parcerias, propostas, perfil e insights.
+          </p>
           <button
             class="admin-btn admin-btn--primary"
             type="button"
             :disabled="generatingPdf"
+            title="Gerar o media kit em PDF com os dados atuais do painel"
             aria-label="Gerar PDF do material de apresentação"
             @click="generatePdf"
           >
@@ -23,7 +27,7 @@
             {{ generatingPdf ? 'Gerando PDF…' : 'Gerar PDF' }}
           </button>
         </div>
-      </section>
+      </header>
 
       <section class="admin-card dashboard-instagram">
         <div class="admin-card__header">
@@ -324,18 +328,42 @@ async function generatePdf() {
   margin-top: 0;
 }
 
-.dashboard-media-kit {
-  margin-bottom: 1rem;
+.dashboard-header {
+  align-items: center;
 }
 
-.dashboard-media-kit .admin-card__header {
-  gap: 1rem;
+.dashboard-header__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.dashboard-pdf-hint {
+  max-width: 220px;
+  margin: 0;
+  color: var(--muted);
+  font-family: system-ui, sans-serif;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  text-align: right;
 }
 
 @media (max-width: 640px) {
-  .dashboard-media-kit .admin-card__header {
-    flex-direction: column;
+  .dashboard-header {
     align-items: flex-start;
+  }
+
+  .dashboard-header__actions {
+    width: 100%;
+    justify-content: space-between;
+    text-align: left;
+  }
+
+  .dashboard-pdf-hint {
+    max-width: none;
+    text-align: left;
   }
 
   .dashboard-sparklines {

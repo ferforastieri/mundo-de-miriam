@@ -159,15 +159,17 @@ function buildProfile(state, latest, photos, screens, env) {
 }
 
 export async function getMediaKit(container) {
-  const [screens, groups, photos, latest, state, history, demographics] = await Promise.all([
-    container.screens.listAll(),
-    container.groups.listAll(),
-    container.photos.listAllVisible(),
-    container.instagram.latestSuccessful(),
-    container.instagram.getState(),
-    container.instagram.listSuccessfulSince(isoDaysAgo(90)),
-    container.instagram.listDemographics()
-  ])
+  const [screens, groups, photos, allPhotos, latest, state, history, demographics] =
+    await Promise.all([
+      container.screens.listAll(),
+      container.groups.listAll(),
+      container.photos.listAllVisible(),
+      container.photos.listAll(),
+      container.instagram.latestSuccessful(),
+      container.instagram.getState(),
+      container.instagram.listSuccessfulSince(isoDaysAgo(90)),
+      container.instagram.listDemographics()
+    ])
 
   const partnershipScreen =
     findScreen(screens, (screen) => screen.kind === 'partnerships', 'partnerships') || null
@@ -176,33 +178,37 @@ export async function getMediaKit(container) {
     ? groups
         .filter((group) => group.screen_id === partnershipScreen.id)
         .map((group) => {
-          const groupPhotos = photosForScreen(photos, partnershipScreen.id).filter(
-            (photo) => photo.group_id === group.id
+          const allGroupPhotos = allPhotos.filter(
+            (photo) => photo.screen_id === partnershipScreen.id && photo.group_id === group.id
           )
-          const groupImages = sortPhotos(groupPhotos.filter(isImage))
+          const visibleGroupPhotos = photos.filter(
+            (photo) => photo.screen_id === partnershipScreen.id && photo.group_id === group.id
+          )
+          const groupImages = sortPhotos(visibleGroupPhotos.filter(isImage))
 
           return {
             id: group.id,
             name: group.name,
             closed: Boolean(group.is_closed),
-            photoCount: groupPhotos.length,
+            photoCount: allGroupPhotos.length,
             coverUrl: groupImages[0] ? toPublicPhoto(groupImages[0]).url : null,
-            photos: groupImages.slice(0, 3).map(toPublicPhoto)
+            photos: groupImages.slice(0, 4).map(toPublicPhoto)
           }
         })
     : []
 
+  // As listas vêm exatamente das marcas cadastradas em Parcerias:
+  // - "Feitas" reúne as marcas que já têm fotos cadastradas (mesmo ocultas).
+  // - "Fechadas" usa apenas a marcação feita no painel.
+  // Uma marca pode estar nas duas listas (parceria antiga + novo contrato).
   const doneNames = partnerGroups
     .filter((group) => group.photoCount > 0)
     .map((group) => group.name)
-
-  let closedNames = partnerGroups.filter((group) => group.closed).map((group) => group.name)
-
-  if (closedNames.length === 0) {
-    // Uma marca cadastrada sem fotos publicadas normalmente é uma parceria
-    // fechada que ainda não teve conteúdo produzido.
-    closedNames = partnerGroups.filter((group) => group.photoCount === 0).map((group) => group.name)
-  }
+    .filter(Boolean)
+  const closedNames = partnerGroups
+    .filter((group) => group.closed)
+    .map((group) => group.name)
+    .filter(Boolean)
 
   const beauty = buildProposal(
     screens,

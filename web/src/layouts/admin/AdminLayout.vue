@@ -146,8 +146,7 @@ import AdminToasts from '@/components/admin/AdminToasts.vue'
 
 const navItems = [
   { to: '/admin/dashboard', label: 'Visão geral', icon: 'dashboard' },
-  { to: '/admin/photos', label: 'Fotos', icon: 'image' },
-  { to: '/admin/screens', label: 'Telas', icon: 'layers' },
+  { to: '/admin/content', label: 'Telas e fotos', icon: 'image' },
   { to: '/admin/instagram', label: 'Instagram', icon: 'instagram' },
   { to: '/admin/publish', label: 'Publicar', icon: 'send' }
 ]

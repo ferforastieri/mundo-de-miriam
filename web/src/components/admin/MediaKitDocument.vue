@@ -25,23 +25,12 @@
         </p>
       </div>
 
-      <div
-        v-if="partnerTiles.length"
-        class="mk-partner-grid"
-        :style="{ '--partner-cols': partnerCols }"
-      >
-        <article v-for="group in partnerTiles" :key="group.id" class="mk-partner">
-          <div class="mk-photo" :style="photoStyle(group.coverUrl)"></div>
-          <p class="mk-partner__name">{{ group.name }}</p>
-        </article>
-      </div>
-      <p v-else class="mk-empty">Nenhuma marca com fotos publicadas ainda.</p>
-
       <div class="mk-lists">
         <section class="mk-list-card">
           <div class="mk-list-card__head">
             <span class="mk-list-card__icon">✦</span>
             <h2>Parcerias Feitas</h2>
+            <span class="mk-list-card__count">{{ partnerships.done?.length || 0 }}</span>
           </div>
           <ul v-if="partnerships.done?.length">
             <li v-for="name in partnerships.done" :key="name">{{ name }}</li>
@@ -53,6 +42,7 @@
           <div class="mk-list-card__head">
             <span class="mk-list-card__icon">✧</span>
             <h2>Parcerias Fechadas</h2>
+            <span class="mk-list-card__count">{{ partnerships.closed?.length || 0 }}</span>
           </div>
           <ul v-if="partnerships.closed?.length">
             <li v-for="name in partnerships.closed" :key="name">{{ name }}</li>
@@ -60,6 +50,43 @@
           <p v-else class="mk-empty mk-empty--small">Nenhuma parceria fechada cadastrada.</p>
         </section>
       </div>
+
+      <div v-if="partnerTiles.length" class="mk-collage">
+        <article
+          v-for="group in partnerTiles"
+          :key="group.id"
+          class="mk-brand-tile"
+          :class="`mk-brand-tile--${brandLayout(group)}`"
+        >
+          <div class="mk-brand-tile__photos">
+            <div
+              v-for="(photo, photoIndex) in brandPhotos(group)"
+              :key="`${group.id}-${photoIndex}`"
+              class="mk-brand-tile__photo"
+              :class="{ 'mk-brand-tile__photo--hero': photoIndex === 0 }"
+              :style="photoStyle(photo)"
+            ></div>
+          </div>
+          <p class="mk-brand-tile__label">{{ group.name }}</p>
+        </article>
+
+        <article v-if="collageFillers.includes('brand')" class="mk-brand-tile mk-collage-note mk-collage-note--brand">
+          <span class="mk-collage-note__mark">
+            <img src="/pwa-icon-maskable-192.png" alt="" />
+          </span>
+          <span class="mk-collage-note__body">
+            <strong>Mundo de Miriam</strong>
+            <small>maquiagem &amp; fotografia</small>
+          </span>
+        </article>
+
+        <article v-if="collageFillers.includes('cta')" class="mk-brand-tile mk-collage-note mk-collage-note--cta">
+          <p class="mk-eyebrow">Vamos criar juntas?</p>
+          <strong>{{ siteHost }}</strong>
+          <span>@{{ profile.username || 'mihforastieri' }}</span>
+        </article>
+      </div>
+      <p v-else class="mk-empty">Nenhuma marca com fotos publicadas ainda.</p>
 
       <footer class="mk-footer">
         <span>{{ siteHost }}</span>
@@ -284,10 +311,37 @@ const bioParagraphs = computed(() => [
 ])
 
 const partnerTiles = computed(() =>
-  (partnerships.value.groups || []).filter((group) => group.coverUrl).slice(0, 6)
+  (partnerships.value.groups || [])
+    .filter((group) => brandPhotos(group).length > 0)
+    .slice(0, 7)
 )
 
-const partnerCols = computed(() => Math.min(3, Math.max(1, partnerTiles.value.length)))
+function brandPhotos(group) {
+  const urls = (group.photos || []).map((photo) => photo.url).filter(Boolean)
+
+  if (urls.length > 0) return urls.slice(0, 3)
+
+  return group.coverUrl ? [group.coverUrl] : []
+}
+
+function brandLayout(group) {
+  const count = brandPhotos(group).length
+
+  if (count <= 1) return 'single'
+  if (count === 2) return 'two'
+
+  return 'mosaic'
+}
+
+const collageFillers = computed(() => {
+  const count = partnerTiles.value.length
+
+  if (!count) return []
+
+  const fillers = (3 - (count % 3)) % 3
+
+  return fillers === 2 ? ['brand', 'cta'] : fillers === 1 ? ['brand'] : []
+})
 
 const proposalSections = computed(() => [
   {
@@ -343,6 +397,10 @@ function collectPhotoUrls() {
 
   for (const group of partnerships.value.groups || []) {
     if (group.coverUrl) urls.add(group.coverUrl)
+
+    for (const photo of group.photos || []) {
+      if (photo.url) urls.add(photo.url)
+    }
   }
 
   for (const key of ['beauty', 'artistic']) {
@@ -637,59 +695,17 @@ defineExpose({ generate })
   line-height: 1.55;
 }
 
-.mk-partner-grid {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: repeat(var(--partner-cols, 3), 1fr);
-  grid-auto-rows: minmax(0, 1fr);
-  flex: 1 1 auto;
-  min-height: 0;
-  gap: 3mm;
-  margin-top: 5mm;
-}
-
-.mk-partner {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  gap: 1.5mm;
-}
-
-.mk-photo {
-  flex: 1 1 auto;
-  min-height: 30mm;
-  height: auto;
-  border: 1px solid rgba(85, 34, 0, 0.1);
-  border-radius: 3mm;
-  background-color: #e6d6c6;
-  background-position: center;
-  background-size: cover;
-}
-
-.mk-partner__name {
-  margin: 0;
-  color: #552200;
-  font-family: system-ui, sans-serif;
-  font-size: 2.5mm;
-  font-weight: 600;
-  letter-spacing: 0.07em;
-  text-align: center;
-  text-transform: uppercase;
-}
-
 .mk-lists {
   position: relative;
   z-index: 1;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 3.5mm;
-  margin-top: 5mm;
+  margin-top: 4mm;
 }
 
 .mk-list-card {
-  min-height: 38mm;
-  padding: 4mm 4.5mm;
+  padding: 3.2mm 4mm 3mm;
   border: 1px solid rgba(85, 34, 0, 0.12);
   border-radius: 4mm;
   background: #fff8f1;
@@ -705,7 +721,24 @@ defineExpose({ generate })
   display: flex;
   align-items: center;
   gap: 1.5mm;
-  margin-bottom: 2.5mm;
+  margin-bottom: 2.2mm;
+}
+
+.mk-list-card__count {
+  margin-left: auto;
+  padding: 0.4mm 1.8mm;
+  border-radius: 99px;
+  background: rgba(85, 34, 0, 0.08);
+  color: #7c523b;
+  font-family: system-ui, sans-serif;
+  font-size: 2.2mm;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.mk-list-card--accent .mk-list-card__count {
+  background: rgba(255, 248, 241, 0.16);
+  color: #fff8f1;
 }
 
 .mk-list-card__icon {
@@ -756,6 +789,163 @@ defineExpose({ generate })
 
 .mk-list-card--accent .mk-list-card__more {
   color: #e7c5ab !important;
+}
+
+.mk-collage {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
+  flex: 1 1 auto;
+  min-height: 0;
+  gap: 2.5mm;
+  margin-top: 4mm;
+}
+
+.mk-brand-tile {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid rgba(85, 34, 0, 0.1);
+  border-radius: 3.5mm;
+  background: #e6d6c6;
+}
+
+.mk-brand-tile__photos {
+  display: grid;
+  grid-template-columns: 1.45fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 1mm;
+  width: 100%;
+  height: 100%;
+  padding: 1mm;
+  box-sizing: border-box;
+}
+
+.mk-brand-tile__photo {
+  min-height: 0;
+  border-radius: 2.5mm;
+  background-color: #e6d6c6;
+  background-position: center;
+  background-size: cover;
+}
+
+.mk-brand-tile__photo--hero {
+  grid-row: span 2;
+}
+
+.mk-brand-tile--single .mk-brand-tile__photos {
+  grid-template-columns: 1fr;
+}
+
+.mk-brand-tile--single .mk-brand-tile__photo--hero {
+  grid-row: auto;
+}
+
+.mk-brand-tile--two .mk-brand-tile__photos {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr;
+}
+
+.mk-brand-tile--two .mk-brand-tile__photo--hero {
+  grid-row: auto;
+}
+
+.mk-brand-tile__label {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: 0;
+  padding: 7mm 2.5mm 2mm;
+  overflow: hidden;
+  background: linear-gradient(transparent, rgba(32, 13, 4, 0.82));
+  color: #fff8f1;
+  font-family: system-ui, sans-serif;
+  font-size: 2.35mm;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.mk-collage-note {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5mm;
+  padding: 4mm;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.mk-collage-note--brand {
+  border-color: #552200;
+  background: #552200;
+  color: #fff8f1;
+}
+
+.mk-collage-note__mark {
+  display: grid;
+  place-items: center;
+  width: 15mm;
+  height: 15mm;
+  overflow: hidden;
+  border-radius: 3.5mm;
+  background: #fff8f1;
+}
+
+.mk-collage-note__mark img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mk-collage-note__body strong {
+  display: block;
+  color: #fff8f1;
+  font-size: 4.2mm;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+}
+
+.mk-collage-note__body small {
+  display: block;
+  margin-top: 1mm;
+  color: #e7c5ab;
+  font-family: system-ui, sans-serif;
+  font-size: 2.2mm;
+  letter-spacing: 0.08em;
+}
+
+.mk-collage-note--cta {
+  border-color: rgba(85, 34, 0, 0.18);
+  background: linear-gradient(160deg, #f8e9da 0%, #ead0b8 100%);
+}
+
+.mk-collage-note--cta .mk-eyebrow {
+  margin: 0;
+  color: #8a5334;
+}
+
+.mk-collage-note--cta strong {
+  color: #552200;
+  font-size: 4.6mm;
+  font-weight: 400;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+
+.mk-collage-note--cta span {
+  color: #6b4a38;
+  font-family: system-ui, sans-serif;
+  font-size: 2.4mm;
+  letter-spacing: 0.06em;
 }
 
 .mk-footer {

@@ -36,6 +36,17 @@ export function createPhotosRepository(db) {
       return result.results || []
     },
 
+    async listAll() {
+      const result = await db
+        .prepare(
+          `SELECT * FROM photos
+           ORDER BY screen_id ASC, group_id ASC, sort_order ASC, created_at ASC`
+        )
+        .all()
+
+      return result.results || []
+    },
+
     async listGroupPhotos(groupId, { includeHidden = true } = {}) {
       const hiddenClause = includeHidden ? '' : 'AND is_visible = 1'
       const result = await db

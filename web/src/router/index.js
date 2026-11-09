@@ -60,16 +60,18 @@ const routes = [
         meta: { title: 'Visão geral' }
       },
       {
+        path: 'content',
+        name: 'AdminContent',
+        component: () => import('../views/admin/AdminContentView.vue'),
+        meta: { title: 'Telas e fotos' }
+      },
+      {
         path: 'photos',
-        name: 'AdminPhotos',
-        component: () => import('../views/admin/AdminPhotosView.vue'),
-        meta: { title: 'Fotos' }
+        redirect: { name: 'AdminContent', query: { tab: 'photos' } }
       },
       {
         path: 'screens',
-        name: 'AdminScreens',
-        component: () => import('../views/admin/AdminScreensView.vue'),
-        meta: { title: 'Telas' }
+        redirect: { name: 'AdminContent', query: { tab: 'screens' } }
       },
       {
         path: 'instagram',
@@ -83,7 +85,7 @@ const routes = [
         component: () => import('../views/admin/AdminPublishView.vue'),
         meta: { title: 'Publicar' }
       },
-      { path: 'branding', redirect: { name: 'AdminScreens' } },
+      { path: 'branding', redirect: { name: 'AdminContent', query: { tab: 'screens' } } },
       {
         path: 'account',
         name: 'AdminAccount',
